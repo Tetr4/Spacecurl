@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.klimek.spacecurl"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:screenOrientation="locked"
+        android:theme="@style/AppBaseTheme" >
+        
+        <!-- MainActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.MainActivity"
+            android:theme="@style/ThemeWithOverlay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- TrainingActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.TrainingActivity"
+            android:label="@string/title_activity_training"
+            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:theme = "@style/ThemeWithOverlay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.klimek.spacecurl.MainActivity" />
+        </activity>
+        
+
+        
+        <!-- TrainingBuilderActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.training.TrainingBuilderActivity"
+            android:label="@string/title_activity_training_select"
+            android:parentActivityName="de.klimek.spacecurl.training.TrainingSelectActivity"
+            android:theme = "@style/ThemeWithoutOverlay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.klimek.spacecurl.training.TrainingSelectActivity" />
+        </activity>
+        
+        <!-- TrainingSelectActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.training.TrainingSelectActivity"
+            android:label="@string/title_activity_training_builder"
+            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:theme = "@style/ThemeWithoutOverlay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.klimek.spacecurl.MainActivity" />
+        </activity>
+        
+        <!--  SettingsActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:theme = "@style/ThemeWithoutOverlay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.klimek.spacecurl.MainActivity" />
+        </activity>
+        
+        <!-- SensorFilter -->
+        <service 
+            android:name="de.klimek.spacecurl.util.sensor.SensorFilterService"
+            android:exported="false" >
+        </service>
+    </application>
+
+</manifest>

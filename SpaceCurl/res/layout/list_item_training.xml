@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Card -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_layout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/training_item_height"
+    android:orientation="horizontal" >
+ 
+        <!-- Name -->
+    <TextView
+        android:id="@+id/training_name"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="left"
+        android:textSize="24sp"/>
+
+    <ImageButton
+        android:id="@+id/training_play_button"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/training_play_button"
+        android:src="@drawable/ic_play2"/>
+
+</LinearLayout>

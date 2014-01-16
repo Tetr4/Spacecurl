@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="game_frame_background">@android:color/holo_blue_light</color>
+    <color name="status_frame_background">#88FFFFFF</color>
+    <color name="navigation_drawer_background">#111</color>
+    <color name="navigation_drawer_divider">@android:color/darker_gray</color>
+    <color name="actionbar_background">#88020202</color>
+    <color name="rating_color">#FF00FF00</color>
+    <color name="card_background">#22010102</color>
+</resources>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+
+    <it.gmariotti.cardslib.library.view.CardListView
+        android:id="@+id/game_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="96dp">
+        <TextView 
+            android:id="@+id/training_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name:"
+            android:layout_alignParentLeft="true"/>
+        
+        <EditText
+            android:id="@+id/training_name_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/training_name_textview"
+            android:ems="10"
+            android:hint="@string/training_name_hint"
+            android:inputType="text" />
+        
+        <ImageButton
+            android:id="@+id/training_save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="TODO"
+            android:src="@drawable/ic_save"/>
+        
+        <ImageButton 
+            android:id="@+id/training_play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/training_save_button"
+            android:contentDescription="TODO"
+            android:src="@drawable/ic_play2"/>
+        
+    </RelativeLayout>
+
+    <!-- Trennstrich -->
+
+</LinearLayout>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Card -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_layout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/card_height"
+    android:orientation="horizontal">
+
+    <!-- Graph -->
+    <LinearLayout
+        android:id="@+id/card_status_graph"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:background="#22000055"/>
+    
+
+    <!-- TODO: Trennstrich -->
+    
+    <!-- Score -->
+    <!-- TODO: TextSize Resource -->
+    <TextView
+        android:id="@+id/card_status_score"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="50sp"/>
+
+    <!-- Rating -->
+    <FrameLayout
+        android:id="@+id/card_status_rating"
+        android:background="@color/rating_color"
+        android:layout_width="24dp"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>
