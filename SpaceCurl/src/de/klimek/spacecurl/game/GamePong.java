@@ -13,14 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.util.sensor.SensorFilterListener;
 
-public class GamePong extends GameFragment implements SensorFilterListener {
-    public static final int TITLE_RESOURCE_ID = R.string.game_pong;
-
-    private static enum GameMode {
-        SingleAxis, MultiAxis
-    }
+public class GamePong extends GameFragment {
+    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_pong;
 
     private GamePongView mGame;
 
@@ -28,11 +23,6 @@ public class GamePong extends GameFragment implements SensorFilterListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mGame = new GamePongView(getActivity());
         return mGame;
-    }
-
-    @Override
-    public void onSensorFilterChanged(float[] filteredOrientation) {
-        mGame.onSensorFilterChanged(filteredOrientation);
     }
 
     @Override
@@ -45,10 +35,23 @@ public class GamePong extends GameFragment implements SensorFilterListener {
         mGame.resume();
     }
 
-    private class GamePongView extends View implements SensorFilterListener {
+    @Override
+    public FreeAxisCount getFreeAxisCount() {
+        return FreeAxisCount.Two;
+    }
+
+    @Override
+    public Effect[] getEffects() {
+        Effect[] e = {
+                Effect.Accuracy,
+                Effect.Speed
+        };
+        return e;
+    }
+
+    private class GamePongView extends View {
         private static final String TAG = "GamePong";
         private static final int FPS = 30;
-        private float[] mFilteredOrientation = new float[9];
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
         private int mViewWidthMin = 0; // This view's bounds
@@ -102,13 +105,6 @@ public class GamePong extends GameFragment implements SensorFilterListener {
             }
         }
 
-        @Override
-        public void onSensorFilterChanged(float[] filteredOrientation) {
-            synchronized (mFilteredOrientation) {
-                mFilteredOrientation = filteredOrientation;
-            }
-        }
-
         // Called back to draw the view. Also called by invalidate().
         @Override
         protected void onDraw(Canvas canvas) {
@@ -153,7 +149,6 @@ public class GamePong extends GameFragment implements SensorFilterListener {
                 mBall.mSpeedY = -mBall.mSpeedY;
                 mBall.mPositionY = mViewHeightMin + mBall.mRadius;
             }
-
             // TODO Check for paddle collision
             // serveBall()
             // increaseDifficulty
@@ -188,10 +183,7 @@ public class GamePong extends GameFragment implements SensorFilterListener {
             @Override
             protected void onProgressUpdate(Void... values) {
                 invalidate();
-                synchronized (mFilteredOrientation) {
-                    // Log.d(GamePongView.TAG,
-                    // Arrays.toString(mFilteredOrientation));
-                }
+                // TODO get sensor data
             }
 
             @Override
@@ -201,6 +193,11 @@ public class GamePong extends GameFragment implements SensorFilterListener {
             }
         }
 
+        /**
+         * Ball
+         * 
+         * @author Mike
+         */
         private class Ball {
             private float mRadius = 40; // Ball's radius
             private float mPositionX = mRadius + 20; // Ball's center (x,y)
@@ -215,6 +212,11 @@ public class GamePong extends GameFragment implements SensorFilterListener {
             }
         }
 
+        /**
+         * Paddle
+         * 
+         * @author Mike
+         */
         private class Paddle {
             private int mWidth = 196;
             private int mHeight = 20;
@@ -245,5 +247,4 @@ public class GamePong extends GameFragment implements SensorFilterListener {
             }
         }
     }
-
 }

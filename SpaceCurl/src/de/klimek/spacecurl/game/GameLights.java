@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
 
 public class GameLights extends GameFragment {
-    public static final int TITLE_RESOURCE_ID = R.string.game_lights;
+    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_lights;
     // private StatusBundle mStatusBundle;
     private GamePlaneView mGame;
 
@@ -27,6 +27,17 @@ public class GameLights extends GameFragment {
     @Override
     public void resumeGame() {
         mGame.resume();
+    }
+
+    @Override
+    public FreeAxisCount getFreeAxisCount() {
+        return FreeAxisCount.Zero;
+    }
+
+    @Override
+    public Effect[] getEffects() {
+        Effect[] e = {};
+        return e;
     }
 
     private class GamePlaneView extends View {

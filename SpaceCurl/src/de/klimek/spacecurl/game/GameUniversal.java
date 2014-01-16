@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
 
 public class GameUniversal extends GameFragment {
-    public static final int TITLE_RESOURCE_ID = R.string.game_universal;
+    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_universal;
     public static final String ARG_TARGET_POSITION = "ARG_TARGET_POSITION";
     // public static final String ARG_HOLDING_TIME
     // public static final String ARG_ZEITVORGABE
@@ -22,6 +22,8 @@ public class GameUniversal extends GameFragment {
 
     // private int score;
     private GameUniversalView mGame;
+    private Effect[] mEffects;
+    private FreeAxisCount mFreeAxisCount;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +40,17 @@ public class GameUniversal extends GameFragment {
     public void resumeGame() {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public FreeAxisCount getFreeAxisCount() {
+        mFreeAxisCount = FreeAxisCount.One;
+        return mFreeAxisCount;
+    }
+
+    @Override
+    public Effect[] getEffects() {
+        return mEffects;
     }
 
     private class GameUniversalView extends View {
@@ -123,4 +136,5 @@ public class GameUniversal extends GameFragment {
         }
 
     }
+
 }

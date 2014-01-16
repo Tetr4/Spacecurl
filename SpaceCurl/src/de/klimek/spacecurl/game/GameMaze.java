@@ -27,21 +27,12 @@ import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
 
 public class GameMaze extends GameFragment {
-    public static final int TITLE_RESOURCE_ID = R.string.game_maze;
+    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_maze;
     // private StatusBundle mStatusBundle;
     private GameDotView mGame;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // View rootView = inflater.inflate(R.layout.fragment_game, container,
-        // false);
-        // FrameLayout gameFrame = (FrameLayout)
-        // rootView.findViewById(R.id.game_frame);
-        // gameFrame.removeAllViews(); // just to be sure
-        // gameFrame.addView(mGame);
-        // ((ViewGroup) rootView).removeAllViews(); // just to be sure
-        // ((ViewGroup) rootView).addView(mGame);
-        // postStatusUpdate(mStatusBundle);
         mGame = new GameDotView(getActivity());
         return mGame;
     }
@@ -54,6 +45,20 @@ public class GameMaze extends GameFragment {
     @Override
     public void resumeGame() {
         mGame.resume();
+    }
+
+    @Override
+    public FreeAxisCount getFreeAxisCount() {
+        return FreeAxisCount.Two;
+    }
+
+    @Override
+    public Effect[] getEffects() {
+        Effect[] e = {
+                Effect.Accuracy,
+                Effect.Endurance
+        };
+        return e;
     }
 
     public class GameDotView extends TextureView implements SurfaceTextureListener {
@@ -348,4 +353,5 @@ public class GameMaze extends GameFragment {
         }
 
     }
+
 }
