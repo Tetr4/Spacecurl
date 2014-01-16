@@ -23,6 +23,11 @@ public abstract class GameFragment extends Fragment {
     public static final String TAG = "GameFragment"; // Used for log output
     public static final int TITLE_RESOURCE_ID = -1;
     public static final String ARG_TITLE = "ARG_TITLE";
+
+    public static enum Effect {
+        Accuracy, Speed, Strength, Endurance
+    }
+
     // Members for the SensorFilter Service
     private ServiceConnection mConnection;
     private SensorFilterService mBoundSensorFilter;
