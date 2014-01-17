@@ -35,6 +35,7 @@ import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameLights;
 import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
+import de.klimek.spacecurl.game.GameSensor;
 import de.klimek.spacecurl.game.GameUniversal;
 import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
@@ -86,6 +87,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         addGame(GameLights.class, R.string.game_lights);
         addGame(GameUniversal.class, R.string.game_universal);
 
+        Bundle sensorSettings = new Bundle();
+        sensorSettings.putString(GameFragment.ARG_TITLE, "Sensor Test");
+        addGame(GameSensor.class, sensorSettings);
+
         setupSettings();
         setupStatusFragment();
         setupPauseView();
@@ -132,9 +137,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     }
 
     private void setupPauseView() {
-        mPauseView = new PauseView(this);
         mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
         mGameFrame.setOnClickListener(this);
+        mPauseView = new PauseView(this);
+        mPauseView.setVisibility(View.INVISIBLE);
+        mGameFrame.addView(mPauseView);
         pauseGame();
     }
 
@@ -322,8 +329,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 mGameFragment.pauseGame();
             }
             // Show pause symbol and grey out screen
-            mGameFrame.addView(mPauseView);
+            // mGameFrame.addView(mPauseView);
             mPauseView.bringToFront();
+            mPauseView.setVisibility(View.VISIBLE);
             mIsPaused = true;
         }
     }
@@ -340,7 +348,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             // | View.SYSTEM_UI_FLAG_IMMERSIVE;
             // decorView.setSystemUiVisibility(uiOptions);
             // remove pausescreen and resume game
-            mGameFrame.removeView(mPauseView);
+            // mGameFrame.removeView(mPauseView);
+            mPauseView.setVisibility(View.INVISIBLE);
             mGameFragment.resumeGame();
             mIsPaused = false;
         }
