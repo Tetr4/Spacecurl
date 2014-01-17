@@ -1,8 +1,6 @@
 
 package de.klimek.spacecurl.game;
 
-import java.util.Arrays;
-
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -10,7 +8,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import de.klimek.spacecurl.util.collection.Status;
 
 /**
@@ -71,16 +68,15 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return mStatus;
     }
 
-    protected float[] getOrientationAxes() {
-        synchronized (mResultRotationMatrix) {
-            return mResultRotationMatrix;
-        }
+    /**
+     * @return azimuth, pitch and roll
+     */
+    protected float[] getOrientation() {
+        return mOrientation;
     }
 
-    protected float[] getOrientationRotationMatrix() {
-        synchronized (mResultRotationMatrix) {
-            return mResultRotationMatrix;
-        }
+    protected float[] getRotationMatrix() {
+        return mResultRotationMatrix;
     }
 
     @Override
@@ -99,8 +95,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         if (isUsingSensor()) {
             // Unbind Sensor
             mSensorManager.unregisterListener(this);
-            Log.d(TAG, Arrays.toString(mRotationMatrix));
-
         }
     }
 
@@ -148,16 +142,14 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         if ((mHasGrav || mHasAccel) && mHasMag) {
             SensorManager.getRotationMatrix(mRotationMatrix, mInclinationMatrix, mGravityData,
                     mMagnetData);
-            synchronized (mResultRotationMatrix) {
-                // TODO synchronized on cached array
-                SensorManager.remapCoordinateSystem(mRotationMatrix,
-                        SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mResultRotationMatrix);
-            }
+            // TODO synchronized on cached array
+            SensorManager.remapCoordinateSystem(mRotationMatrix,
+                    SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mResultRotationMatrix);
             // Orientation isn't as useful as a rotation matrix, but
             // we'll show it here anyway.
-            final int DEG = 360;
+            // final int DEG = 360;
             SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
-            float incl = SensorManager.getInclination(mInclinationMatrix);
+            // float incl = SensorManager.getInclination(mInclinationMatrix);
             // Log.d(TAG, "Azimuth: " + (int) (mOrientation[0] * DEG));
             // Log.d(TAG, "pitch: " + (int) (mOrientation[1] * DEG));
             // Log.d(TAG, "roll: " + (int) (mOrientation[2] * DEG));

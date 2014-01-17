@@ -64,8 +64,14 @@ public class GamePong extends GameFragment {
         private Paddle mPaddleDown;
         private Paddle mPaddleLeft;
         private Paddle mPaddleRight;
-
         private int mPaddlePadding = 12;
+
+        private float mPitch;
+        private float mRoll;
+        private float mInclinationRangeFactor = 2.0f;
+        // TODO Calibrate
+        // Phone is not attached straight for better visibilty of the screen
+        private float mPhoneInclination = 0.1f;
 
         // Constructor
         public GamePongView(Context context) {
@@ -77,7 +83,6 @@ public class GamePong extends GameFragment {
             mPaddleLeft.isHorizontal = false;
             mPaddleRight = new Paddle();
             mPaddleRight.isHorizontal = false;
-
         }
 
         // @Override
@@ -116,42 +121,60 @@ public class GamePong extends GameFragment {
         }
 
         private void updatePaddles() {
-            mPaddleUp.mPositionX = 300;
+            mPaddleUp.mPositionX = (int) (mPitch * mViewWidthMax);
             mPaddleUp.mPositionY = mPaddlePadding;
-            mPaddleDown.mPositionX += 1;
+            mPaddleDown.mPositionX = (int) (mPitch * mViewWidthMax);
             mPaddleDown.mPositionY = mViewHeightMax - mPaddlePadding;
             mPaddleLeft.mPositionX = mViewWidthMin + mPaddlePadding;
-            mPaddleLeft.mPositionY += 2;
+            mPaddleLeft.mPositionY = (int) (mRoll * mViewHeightMax);
             mPaddleRight.mPositionX = mViewWidthMax - mPaddlePadding;
-            mPaddleRight.mPositionY = 400;
+            mPaddleRight.mPositionY = (int) (mRoll * mViewHeightMax);
         }
 
         private void updateBall() {
             // Get new (x,y) position
             mBall.mPositionX += mBall.mSpeedX;
             mBall.mPositionY += mBall.mSpeedY;
-
         }
 
         private void checkCollisions() {
-            // Detect collision and react
-            if (mBall.mPositionX + mBall.mRadius > mViewWidthMax) {
-                mBall.mSpeedX = -mBall.mSpeedX;
-                mBall.mPositionX = mViewWidthMax - mBall.mRadius;
-            } else if (mBall.mPositionX - mBall.mRadius < mViewWidthMin) {
-                mBall.mSpeedX = -mBall.mSpeedX;
-                mBall.mPositionX = mViewWidthMin + mBall.mRadius;
+            // Check paddle collisions and react
+            if (mBall.collidesWithPaddle(mPaddleUp)) {
+                mBall.mSpeedY = Math.abs(mBall.mSpeedY);
             }
-            if (mBall.mPositionY + mBall.mRadius > mViewHeightMax) {
-                mBall.mSpeedY = -mBall.mSpeedY;
-                mBall.mPositionY = mViewHeightMax - mBall.mRadius;
-            } else if (mBall.mPositionY - mBall.mRadius < mViewHeightMin) {
-                mBall.mSpeedY = -mBall.mSpeedY;
-                mBall.mPositionY = mViewHeightMin + mBall.mRadius;
+            if (mBall.collidesWithPaddle(mPaddleDown)) {
+                mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
             }
-            // TODO Check for paddle collision
-            // serveBall()
-            // increaseDifficulty
+            if (mBall.collidesWithPaddle(mPaddleLeft)) {
+                mBall.mSpeedX = Math.abs(mBall.mSpeedX);
+            }
+            if (mBall.collidesWithPaddle(mPaddleRight)) {
+                mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
+            }
+            // // Detect wall collisions and react
+            // if (mBall.mPositionX + mBall.mRadius > mViewWidthMax) {
+            // mBall.mSpeedX = -mBall.mSpeedX;
+            // mBall.mPositionX = mViewWidthMax - mBall.mRadius;
+            // } else if (mBall.mPositionX - mBall.mRadius < mViewWidthMin) {
+            // mBall.mSpeedX = -mBall.mSpeedX;
+            // mBall.mPositionX = mViewWidthMin + mBall.mRadius;
+            // }
+            // if (mBall.mPositionY + mBall.mRadius > mViewHeightMax) {
+            // mBall.mSpeedY = -mBall.mSpeedY;
+            // mBall.mPositionY = mViewHeightMax - mBall.mRadius;
+            // } else if (mBall.mPositionY - mBall.mRadius < mViewHeightMin) {
+            // mBall.mSpeedY = -mBall.mSpeedY;
+            // mBall.mPositionY = mViewHeightMin + mBall.mRadius;
+            // }
+            if (mBall.collidesWithWall())
+                serveBall();
+        }
+
+        private void serveBall() {
+            mBall.mPositionX = mViewWidthMax / 2;
+            mBall.mPositionY = mViewHeightMax / 2;
+            // mBall.mSpeed += mBallSpeedModifier;
+            // mBall.randomAngle();
         }
 
         // Called back when the view is first created or its size changes.
@@ -160,19 +183,29 @@ public class GamePong extends GameFragment {
             // Set the movement bounds for the ball
             mViewWidthMax = w - 1;
             mViewHeightMax = h - 1;
+            invalidate();
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
+
             @Override
             protected Void doInBackground(Void... params) {
+                long timeStart;
+                long timeEnd;
+                long timeSleep;
                 while (!isCancelled()) {
+                    timeStart = System.currentTimeMillis();
+
                     updatePaddles();
                     updateBall();
                     checkCollisions();
                     publishProgress();
+
+                    timeEnd = System.currentTimeMillis();
+                    timeSleep = (1000 / FPS) - (timeEnd - timeStart);
                     // Delay
                     try {
-                        Thread.sleep(1000 / FPS); // 30 FPS
+                        Thread.sleep(timeSleep < 0 ? 0 : timeSleep);
                     } catch (InterruptedException e) {
                         // e.printStackTrace();
                     }
@@ -183,7 +216,11 @@ public class GamePong extends GameFragment {
             @Override
             protected void onProgressUpdate(Void... values) {
                 invalidate();
-                // TODO get sensor data
+                // range 0.0 - 1.0
+                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
+                        + .5f;
+                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
+                        + mPhoneInclination;
             }
 
             @Override
@@ -199,16 +236,53 @@ public class GamePong extends GameFragment {
          * @author Mike
          */
         private class Ball {
-            private float mRadius = 40; // Ball's radius
-            private float mPositionX = mRadius + 20; // Ball's center (x,y)
-            private float mPositionY = mRadius + 40;
-            private float mSpeedX = 10; // Ball's speed (x,y)
-            private float mSpeedY = 7;
+            private int mRadius = 40; // Ball's radius
+            private int mPositionX = mRadius + 20; // Ball's center (x,y)
+            private int mPositionY = mRadius + 40;
+            private int mSpeedX = 10; // Ball's speed (x,y)
+            private int mSpeedY = 7;
             private Paint mPaint = new Paint();
 
             protected void draw(Canvas canvas) {
                 mPaint.setColor(Color.WHITE);
                 canvas.drawCircle(mPositionX, mPositionY, mRadius, mPaint);
+            }
+
+            private boolean collidesWithWall() {
+                if (mPositionX + mRadius > mViewWidthMax)
+                    return true;
+                if (mPositionX - mRadius < mViewWidthMin)
+                    return true;
+                if (mPositionY + mRadius > mViewHeightMax)
+                    return true;
+                if (mPositionY - mRadius < mViewHeightMin)
+                    return true;
+                return false;
+            }
+
+            private boolean collidesWithPaddle(Paddle paddle) {
+                int paddleScreenWidth = paddle.getScreenWidth();
+                int paddleScreenHeight = paddle.getScreenHeight();
+                int distanceX = (int) Math.abs(mPositionX - paddle.mPositionX);
+                int distanceY = (int) Math.abs(mPositionY - paddle.mPositionY);
+
+                // Circle completely outside
+                if (distanceX > (paddleScreenWidth / 2.0f + mRadius))
+                    return false;
+                if (distanceY > (paddleScreenHeight / 2.0f + mRadius))
+                    return false;
+
+                // Circlecenter inside
+                if (distanceX <= (paddleScreenWidth / 2.0f))
+                    return true;
+                if (distanceY <= (paddleScreenHeight / 2.0f))
+                    return true;
+
+                // Corner
+                int cornerDistance_square = (distanceX - paddleScreenWidth /
+                        2) ^ 2 +
+                        (distanceY - paddleScreenHeight / 2) ^ 2;
+                return (cornerDistance_square <= (mRadius ^ 2));
             }
         }
 
@@ -219,9 +293,9 @@ public class GamePong extends GameFragment {
          */
         private class Paddle {
             private int mWidth = 196;
-            private int mHeight = 20;
-            private int mPositionX = 0;
-            private int mPositionY = 0;
+            private int mHeight = 50;
+            private int mPositionX = mViewWidthMax / 2;
+            private int mPositionY = mViewHeightMax / 2;
             private Paint mPaint = new Paint();
             private Rect mRect = new Rect();
             private boolean isHorizontal = true;
@@ -230,19 +304,27 @@ public class GamePong extends GameFragment {
                 mPaint.setColor(Color.WHITE);
                 mRect.set(0,
                         0,
-                        isHorizontal ? mWidth : mHeight,
-                        isHorizontal ? mHeight : mWidth);
+                        getScreenWidth(),
+                        getScreenHeight());
+            }
+
+            private int getScreenWidth() {
+                return isHorizontal ? mWidth : mHeight;
+            }
+
+            private int getScreenHeight() {
+                return isHorizontal ? mHeight : mWidth;
             }
 
             protected void draw(Canvas canvas) {
-                int corWidth = isHorizontal ? mWidth : mHeight;
-                int corHeight = isHorizontal ? mHeight : mWidth;
+                int screenWidth = getScreenWidth();
+                int screenHeight = getScreenHeight();
                 mRect.set(0,
                         0,
-                        corWidth,
-                        corHeight);
-                mRect.offsetTo(mPositionX - corWidth / 2
-                        , mPositionY - corHeight / 2);
+                        screenWidth,
+                        screenHeight);
+                mRect.offsetTo(mPositionX - screenWidth / 2
+                        , mPositionY - screenHeight / 2);
                 canvas.drawRect(mRect, mPaint);
             }
         }
