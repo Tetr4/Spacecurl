@@ -36,6 +36,7 @@ import de.klimek.spacecurl.game.GameLights;
 import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
 import de.klimek.spacecurl.game.GameSensor;
+import de.klimek.spacecurl.game.GameTunnel;
 import de.klimek.spacecurl.game.GameUniversal;
 import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
@@ -90,6 +91,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         Bundle sensorSettings = new Bundle();
         sensorSettings.putString(GameFragment.ARG_TITLE, "Sensor Test");
         addGame(GameSensor.class, sensorSettings);
+
+        Bundle tunnelSettings = new Bundle();
+        tunnelSettings.putString(GameFragment.ARG_TITLE, "Tunnel");
+        addGame(GameTunnel.class, tunnelSettings);
 
         setupSettings();
         setupStatusFragment();

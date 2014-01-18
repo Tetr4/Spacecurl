@@ -17,6 +17,12 @@ import de.klimek.spacecurl.game.GameUniversal;
 public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
     private ArrayList<Status> mStatuses = new ArrayList<Status>();
+    private Orientation mOrientation = Orientation.Portrait;
+
+    private static enum Orientation {
+        Landscape, Portrait
+    }
+
     private static Database sInstance;
 
     public static Database getInstance() {
@@ -74,6 +80,14 @@ public class Database {
 
     public ArrayList<Status> getStatuses() {
         return mStatuses;
+    }
+
+    public Orientation getOrientation() {
+        return mOrientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        mOrientation = orientation;
     }
 
 }
