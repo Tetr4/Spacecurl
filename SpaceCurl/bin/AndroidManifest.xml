@@ -28,7 +28,7 @@
         <!-- MainActivity -->
         <activity
             android:name="de.klimek.spacecurl.MainActivity"
-            android:theme="@style/ThemeWithOverlay">
+            android:theme="@style/ThemeWithoutOverlay">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -40,13 +40,11 @@
             android:name="de.klimek.spacecurl.TrainingActivity"
             android:label="@string/title_activity_training"
             android:parentActivityName="de.klimek.spacecurl.MainActivity"
-            android:theme = "@style/ThemeWithOverlay" >
+            android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
-        
-
         
         <!-- TrainingBuilderActivity -->
         <activity
@@ -80,12 +78,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
-        
-        <!-- SensorFilter -->
-        <service 
-            android:name="de.klimek.spacecurl.util.sensor.SensorFilterService"
-            android:exported="false" >
-        </service>
     </application>
 
 </manifest>

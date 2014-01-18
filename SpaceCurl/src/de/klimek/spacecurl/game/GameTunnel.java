@@ -2,6 +2,7 @@
 package de.klimek.spacecurl.game;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -57,16 +58,22 @@ public class GameTunnel extends GameFragment {
         private static final int FPS = 30;
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
-        private int mViewWidthMin = 0; // This view's bounds
         private int mViewWidthMax;
-        private int mViewHeightMin = 0;
         private int mViewHeightMax;
 
         private Bitmap mBitmap;
         private Canvas mBufferCanvas;
-        private int mWidthCounter = 0;
+        private int mBufferWidth;
+        private int mBufferColumns = 10;
+        private int mViewPortOffset = 0;
+        private int mSpikeWidth = 400;
+        private int mSpikeStep = 0;
+        private float mTunnelHeight;
+        private int mMinTunnelHeight = 200;
+        private int mSpikeLeft;
+        private int mSpikeRight;
 
-        private int mSpeed = 10;
+        private int mSpeed = 5;
 
         private Player mPlayer;
         private int mPadding = 12;
@@ -99,10 +106,8 @@ public class GameTunnel extends GameFragment {
         // Called back to draw the view. Also called by invalidate().
         @Override
         protected void onDraw(Canvas canvas) {
-
-            canvas.drawBitmap(mBitmap, mWidthCounter, 0, null);
-            canvas.drawBitmap(mBitmap, mWidthCounter + mViewWidthMax, 0, null);
-
+            canvas.drawBitmap(mBitmap, -mViewPortOffset, 0, null);
+            canvas.drawBitmap(mBitmap, -mViewPortOffset + mBufferWidth, 0, null);
             mPlayer.draw(canvas);
         }
 
@@ -113,12 +118,35 @@ public class GameTunnel extends GameFragment {
             mViewWidthMax = w - 1;
             mViewHeightMax = h - 1;
 
-            for (int i = 0; i < mViewWidthMax; i++) {
-                Wall wall = new Wall(200 + i, 500 + i);
-                mTunnel.add(wall);
-            }
+            mTunnelHeight = mViewHeightMax;
+            mBufferWidth = (int) (mViewWidthMax + mBufferColumns);
+            mSpikeRight = new Random().nextInt(mViewHeightMax);
 
-            mBitmap = createBitmap();
+            mBitmap = Bitmap.createBitmap(mBufferWidth, mViewHeightMax,
+                    Bitmap.Config.ARGB_8888);
+            mBufferCanvas = new Canvas(mBitmap);
+            mBufferCanvas.clipRect(0, 0, mBufferWidth, mViewHeightMax);
+            mBufferCanvas.drawColor(Color.BLACK);
+            mTunnel.clear();
+            for (int i = 0; i < mBufferWidth; i++) {
+                if (mSpikeStep == 0) {
+                    mSpikeLeft = mSpikeRight;
+                    mSpikeRight = new Random().nextInt(mViewHeightMax);
+                }
+                int pos = interpolate(mSpikeLeft, mSpikeRight, (float) mSpikeStep / mSpikeWidth);
+                mSpikeStep = (mSpikeStep + 1) % mSpikeWidth;
+                Wall wall;
+                if (i < mViewWidthMax / 2) {
+                    wall = new Wall(0, mViewHeightMax);
+                } else {
+                    mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
+                            + mMinTunnelHeight;
+                    wall = new Wall((int) (pos - mTunnelHeight / 2.0f),
+                            (int) (pos + mTunnelHeight / 2.0f));
+                }
+                mTunnel.add(wall);
+                wall.draw(mBufferCanvas, i);
+            }
 
             // Paint p = new Paint(Paint.ANTI_ALIAS_FLAG |
             // Paint.FILTER_BITMAP_FLAG);
@@ -136,44 +164,18 @@ public class GameTunnel extends GameFragment {
             invalidate();
         }
 
-        private Bitmap createBitmap() {
-            Bitmap bitmap = Bitmap.createBitmap((int) (mViewWidthMax), mViewHeightMax,
-                    Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            canvas.drawColor(Color.BLACK);
-            for (int i = 0; i < mViewWidthMax; i++) {
-                drawTunnel(canvas, mTunnel.get(i), i);
-            }
-            return bitmap;
-        }
-
-        private void switchBuffer(Bitmap bitmap) {
-            mBitmap = bitmap;
-        }
-
-        private void drawTunnel(Canvas canvas, Wall wall, int positionX) {
-            Paint paintTunnel = new Paint();
-            paintTunnel.setColor(Color.WHITE);
-            Paint paintWall = new Paint();
-            paintWall.setColor(Color.BLACK);
-            canvas.drawLine(positionX,
-                    mViewHeightMin,
-                    positionX,
-                    mViewHeightMax,
-                    paintWall);
-            canvas.drawLine(positionX,
-                    wall.top,
-                    positionX,
-                    wall.bottom,
-                    paintTunnel);
-        }
-
         private void updatePlayer() {
             mPlayer.mPositionX = mPadding;
-            mPlayer.mPositionY = (int) (mRoll * mViewWidthMax);
+            mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
         }
 
         private void updateTunnel() {
+            if (mSpikeStep == 0) {
+                mSpikeLeft = mSpikeRight;
+                mSpikeRight = new Random().nextInt(mViewHeightMax);
+            }
+            int pos = interpolate(mSpikeLeft, mSpikeRight, (float) mSpikeStep / mSpikeWidth);
+            mSpikeStep = (mSpikeStep + 1) % mSpikeWidth;
             // int mPositionY;
             // int mUpperSpike;
             // int mGap;
@@ -181,17 +183,22 @@ public class GameTunnel extends GameFragment {
             // float rndNr = new Random().nextFloat() - 2;
             // int mTop;
             // int mBottom;
-            for (int i = 0; i < mSpeed; i++) {
-                Wall wall = new Wall(400, 800);
-                mTunnel.removeFirst();
-                mTunnel.addLast(wall);
-            }
+            mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
+                    + mMinTunnelHeight;
+            Wall wall = new Wall((int) (pos - mTunnelHeight / 2.0f),
+                    (int) (pos + mTunnelHeight / 2.0f));
+
+            mTunnel.removeFirst();
+            mTunnel.addLast(wall);
+            // draw offscreen
+            wall.draw(mBufferCanvas, (mViewPortOffset + mViewWidthMax + (mBufferColumns / 2))
+                    % mBufferWidth);
+            mViewPortOffset = (mViewPortOffset + 1) % mBufferWidth;
         }
 
-        private double interpolate(double a, double b, double x) {
-            double ft = x * 3.1415927;
-            double f = (1 - Math.cos(ft)) * 0.5;
-            return a * (1 - f) + b * f;
+        private int interpolate(int y1, int y2, double mu) {
+            double mu2 = (1 - Math.cos(mu * Math.PI)) / 2;
+            return (int) (y1 * (1 - mu2) + y2 * mu2);
         }
 
         private void checkCollisions() {
@@ -222,7 +229,9 @@ public class GameTunnel extends GameFragment {
                     timeStart = System.currentTimeMillis();
 
                     updatePlayer();
-                    updateTunnel();
+                    for (int i = 0; i < mSpeed; i++) {
+                        updateTunnel();
+                    }
                     checkCollisions();
                     publishProgress();
 
@@ -240,14 +249,9 @@ public class GameTunnel extends GameFragment {
 
             @Override
             protected void onProgressUpdate(Void... values) {
-                invalidate();
-                mWidthCounter -= mSpeed;
-                if (mWidthCounter <= -mViewWidthMax) {
-                    mWidthCounter = 0;
-                    // switchBuffer();
-                }
                 mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
                         + mPhoneInclination;
+                invalidate();
             }
 
             @Override
@@ -258,12 +262,29 @@ public class GameTunnel extends GameFragment {
         }
 
         private class Wall {
-            private int top;
-            private int bottom;
+            private final int top;
+            private final int bottom;
 
             private Wall(int top, int bottom) {
                 this.top = top;
                 this.bottom = bottom;
+            }
+
+            protected void draw(Canvas canvas, int positionX) {
+                Paint paintTunnel = new Paint();
+                paintTunnel.setColor(Color.WHITE);
+                Paint paintWall = new Paint();
+                paintWall.setColor(Color.BLACK);
+                canvas.drawLine(positionX,
+                        0,
+                        positionX,
+                        mViewHeightMax,
+                        paintWall);
+                canvas.drawLine(positionX,
+                        top,
+                        positionX,
+                        bottom,
+                        paintTunnel);
             }
         }
 
