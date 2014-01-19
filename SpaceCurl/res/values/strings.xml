@@ -28,7 +28,5 @@
     <string name="training_addbutton">Add new exercise</string>
     <string name="training_play_button">Start training</string>
     
-    <string name="game_lights_message_go">GO!</string>
-    <string name="game_lights_message_stop">STOP!</string>
 
 </resources>
