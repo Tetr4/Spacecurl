@@ -68,6 +68,13 @@ public class Database {
         training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
         training4.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
         mTrainings.add(training4);
+
+        for (int i = 0; i < 10; i++) {
+            Training training5 = new Training("Bla Training" + i);
+            training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
+            mTrainings.add(training5);
+        }
+
     }
 
     public void saveDatabase() {

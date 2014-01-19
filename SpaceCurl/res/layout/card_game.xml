@@ -1,33 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Card -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/card_layout"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/training_item_height"
+    android:layout_height="wrap_content"
     android:orientation="horizontal" >
-    
-     <!-- Goal (time or finish objective) -->
-    <TextView
-        android:id="@+id/card_game_goal"
-        android:layout_width="64dp"
-        android:layout_height="match_parent"
-        android:gravity="center"
-		android:textSize="25sp"
-        android:text="1:30"/>
 
-        <!-- Name -->
+    <!-- android:layout_height="@dimen/training_item_height" -->
+
+    <ImageView
+        android:id="@+id/card_game_target"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_launcher" />
+
     <TextView
         android:id="@+id/card_game_name"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/card_game_target"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/card_game_target"
+        android:text="TextView" />
+
+    <ImageView
+        android:id="@+id/card_game_free_axes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/card_game_target"
+        android:src="@drawable/ic_launcher" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/card_game_target"
+        android:layout_toRightOf="@id/card_game_free_axes"
         android:gravity="center"
-        android:textSize="30sp"/>
+        android:orientation="horizontal" >
 
-    <Button
-        android:id="@+id/card_game_button"
-        android:layout_width="64dp"
-        android:layout_height="match_parent"
-        android:text="Button" />
+        <ImageView
+            android:id="@+id/card_game_effect_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/card_game_effect_perception"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
+
+        <ImageView
+            android:id="@+id/card_game_effect_fine_coordination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
+
+        <ImageView
+            android:id="@+id/card_game_effect_rough_coordination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
+
+        <ImageView
+            android:id="@+id/card_game_effect_fatigue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher" />
+    </LinearLayout>
+
+</RelativeLayout>
