@@ -88,7 +88,6 @@ public class GameTunnel extends GameFragment {
         // Constructor
         public GameTunnelView(Context context) {
             super(context);
-            setDrawingCacheEnabled(true);
             mPlayer = new Player();
         }
 

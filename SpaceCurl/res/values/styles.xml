@@ -16,7 +16,7 @@
     <style name="ThemeWithOverlay" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:actionBarStyle">@style/transparentActionBar</item>
+        <item name="android:actionBarStyle">@style/TransparentActionBar</item>
     </style>
 
     <!-- Theme without Overlay -->
@@ -27,7 +27,7 @@
     
     
     <!--  Transparent ActionBar -->
-    <style name="transparentActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
+    <style name="TransparentActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/actionbar_background</item>
         <!-- <item name="android:height">128dp</item> -->
     </style>

@@ -27,6 +27,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private SensorManager mSensorManager;
     private float[] mGravityData = new float[3]; // Gravity or accelerometer
     private float[] mMagnetData = new float[3]; // Magnetometer
+    private float[] mRotation = new float[3];
     private float[] mRotationMatrix = new float[9];
     private float[] mInclinationMatrix = new float[9];
     private float[] mResultRotationMatrix = new float[9];
@@ -79,6 +80,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return mResultRotationMatrix;
     }
 
+    protected float getRotationSpeed() {
+        return Math.abs(mRotation[0]) + Math.abs(mRotation[1]) + Math.abs(mRotation[2]);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO maybe onActivitycreated instead
@@ -106,9 +111,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
             Sensor gsensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
             Sensor asensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             Sensor msensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            Sensor rsensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             mSensorManager.registerListener(this, gsensor, SensorManager.SENSOR_DELAY_GAME);
             mSensorManager.registerListener(this, asensor, SensorManager.SENSOR_DELAY_GAME);
             mSensorManager.registerListener(this, msensor, SensorManager.SENSOR_DELAY_GAME);
+            mSensorManager.registerListener(this, rsensor, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -134,6 +141,12 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mMagnetData[1] = event.values[1];
                 mMagnetData[2] = event.values[2];
                 mHasMag = true;
+                break;
+
+            case Sensor.TYPE_GYROSCOPE:
+                mRotation[0] = event.values[0];
+                mRotation[1] = event.values[1];
+                mRotation[2] = event.values[2];
                 break;
             default:
                 return;

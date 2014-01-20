@@ -7,8 +7,9 @@
     <color name="actionbar_background">#88020202</color>
     <color name="rating_color">#FF00FF00</color>
     <color name="card_background">#22010102</color>
-    <color name="game_lights_color_stop">#FFFF0000</color>
-    <color name="game_lights_color_go">#FF00FF00</color>
-    <color name="game_lights_color_result">#FF0000FF</color>
+    <color name="game_lights_color_stop">#FFED1C24</color>
+    <color name="game_lights_color_go">#FF22B14C</color>
+    <color name="game_lights_color_result">#FF3F48CC</color>
     <color name="add_button_bar">#22010102</color>
+    <color name="text_game_lights_color">#FFFFFFFF</color>
 </resources>

@@ -11,33 +11,42 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
 
 public class GameLights extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_lights;
-    private AsyncTask<Integer, String, Integer> _logicThread = new LogicThread();
-    private int mAllotedTime = 30000;
-    private volatile int mRemainingTime = mAllotedTime;
+    private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
     private static final int FPS = 30;
+    private int mGoalDistance = 60000;
+    private volatile float mDistance = 0;
+    private volatile long mRemainingStageTime = 30000;
+    private volatile long mTotalTime = 0;
+    private volatile boolean mBonus = false;
+    private float mAngularSpeed;
 
-    private int mScore;
-    private String mMessageGo;
-    private String mMessageStop;
-    private int mColorGo;
-    private int mColorStop;
-    private int mColorResult;
-
-    private State mState = State.Stop;
+    private State mState = State.Result;
 
     private static enum State {
         Go, Stop, Result
     }
 
-    private LinearLayout mLayout;
-    private TextView mTextViewTime;
-    private TextView mTextViewScore;
+    private String mMessageGo;
+    private String mMessageStop;
+    private int mColorGo;
+    private int mColorStop;
+
+    private LinearLayout mLayoutStopAndGo;
     private TextView mTextViewMessage;
+    private TextView mTextViewRemainingTime;
+    private TextView mTextViewTotalTime;
+    private TextView mTextViewBonus;
+    private ProgressBar mProgressBar;
+
+    private LinearLayout mLayoutResult;
+    private TextView mTextViewFinalTime;
+    private TextView mTextViewContinueTime;
 
     // private StatusBundle mStatusBundle;
 
@@ -45,16 +54,23 @@ public class GameLights extends GameFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.game_lights, container, false);
         Resources res = getResources();
+
         mMessageGo = res.getString(R.string.game_lights_message_go);
         mMessageStop = res.getString(R.string.game_lights_message_stop);
         mColorGo = res.getColor(R.color.game_lights_color_go);
         mColorStop = res.getColor(R.color.game_lights_color_stop);
-        mColorResult = res.getColor(R.color.game_lights_color_result);
 
-        mLayout = (LinearLayout) rootView.findViewById(R.id.game_lights_layout);
-        mTextViewTime = (TextView) rootView.findViewById(R.id.game_lights_time);
-        mTextViewScore = (TextView) rootView.findViewById(R.id.game_lights_score);
+        mLayoutStopAndGo = (LinearLayout) rootView
+                .findViewById(R.id.game_lights_layout_stop_and_go);
+        mLayoutResult = (LinearLayout) rootView.findViewById(R.id.game_lights_layout_result);
         mTextViewMessage = (TextView) rootView.findViewById(R.id.game_lights_message);
+        mTextViewRemainingTime = (TextView) rootView.findViewById(R.id.game_lights_remaining_time);
+        mTextViewTotalTime = (TextView) rootView.findViewById(R.id.game_lights_total_time);
+        mTextViewBonus = (TextView) rootView.findViewById(R.id.game_lights_bonus);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.game_lights_progress);
+
+        mTextViewFinalTime = (TextView) rootView.findViewById(R.id.game_lights_final_time);
+        mTextViewContinueTime = (TextView) rootView.findViewById(R.id.game_lights_continue_time);
         stop();
         return rootView;
     }
@@ -68,7 +84,7 @@ public class GameLights extends GameFragment {
     public void resumeGame() {
         if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
             _logicThread = new LogicThread();
-            _logicThread.execute(mRemainingTime);
+            _logicThread.execute();
         }
     }
 
@@ -84,49 +100,106 @@ public class GameLights extends GameFragment {
     }
 
     private void go() {
-        mState = State.Go;
-        mLayout.setBackgroundColor(mColorGo);
+        mLayoutStopAndGo.setVisibility(View.VISIBLE);
+        mLayoutResult.setVisibility(View.INVISIBLE);
+        mLayoutStopAndGo.setBackgroundColor(mColorGo);
         mTextViewMessage.setText(mMessageGo);
-        int time = new Random().nextInt(10000 - 3000) + 3000;
-        _logicThread = new LogicThread();
-        _logicThread.execute(mAllotedTime);
+        // TODO grafikoutput for mRemainingTime
+        mTextViewRemainingTime.setText(timeToString(mRemainingStageTime, false));
+        mTextViewTotalTime.setText(timeToString(mTotalTime, true));
+        mTextViewBonus.setText(mBonus ? "" : "BONUS");
+        mProgressBar.setProgress((int) ((mDistance / mGoalDistance) * 100));
     }
 
     private void stop() {
-        mState = State.Stop;
-        mLayout.setBackgroundColor(mColorStop);
+        mLayoutStopAndGo.setVisibility(View.VISIBLE);
+        mLayoutResult.setVisibility(View.INVISIBLE);
+        mLayoutStopAndGo.setBackgroundColor(mColorStop);
         mTextViewMessage.setText(mMessageStop);
-        int time = new Random().nextInt(10000 - 3000) + 3000;
-        _logicThread = new LogicThread();
-        _logicThread.execute(mAllotedTime);
+        // TODO grafikoutput for mRemainingTime
+        mTextViewRemainingTime.setText(timeToString(mRemainingStageTime, false));
+        mTextViewTotalTime.setText(timeToString(mTotalTime, true));
+        mTextViewBonus.setText("");
+        mProgressBar.setProgress((int) ((mDistance / mGoalDistance) * 100));
     }
 
     private void result() {
-        mState = State.Result;
-        mLayout.setBackgroundColor(mColorResult);
-        // mTextViewMessage.setText(mMessageStop);
-        mRemainingTime = mAllotedTime;
-        int time = 3000;
-        _logicThread = new LogicThread();
-        _logicThread.execute(time);
+        mLayoutStopAndGo.setVisibility(View.INVISIBLE);
+        mLayoutResult.setVisibility(View.VISIBLE);
+        mTextViewContinueTime.setText(timeToString(mRemainingStageTime, false));
+        mTextViewFinalTime.setText(timeToString(mTotalTime, true));
     }
 
-    private class LogicThread extends AsyncTask<Integer, String, Integer> {
+    private String timeToString(long time, boolean showMillis) {
+        if (showMillis) {
+            return "" + time / 1000
+                    + ":" + time % 1000;
+        } else {
+            return "" + time / 1000;
+        }
+    }
+
+    private class LogicThread extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected Integer doInBackground(Integer... params) {
-            long startTime = System.currentTimeMillis();
-            int totalTime = params[0];
-            int remainingTime = totalTime;
-            String remainingTimeString;
+        protected void onPreExecute() {
+            mState = State.Go;
+            mTotalTime = 0;
+            mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
+        }
 
+        @Override
+        protected Void doInBackground(Void... params) {
+            long _lastTime = System.currentTimeMillis();
+            long _curTime;
+            long _deltaTime;
+            float rotation;
             while (!isCancelled()) {
-                remainingTime = (int) (totalTime - (System.currentTimeMillis() - startTime));
-                remainingTimeString = "" + remainingTime / 1000
-                        + ":" + remainingTime % 1000;
-                publishProgress(remainingTimeString);
-                if (remainingTime < 0)
-                    break;
+                _curTime = System.currentTimeMillis();
+                _deltaTime = _curTime - _lastTime;
+                _lastTime = _curTime;
+                mRemainingStageTime -= _deltaTime;
+                if (mRemainingStageTime > 0
+                        /* prevent potential overflow */
+                        && (mTotalTime + _deltaTime) > 0) {
+                    // TODO set mBonus
+                    rotation = mAngularSpeed * _deltaTime;
+                    switch (mState) {
+                        case Go:
+                            mTotalTime += _deltaTime;
+                            mDistance += rotation;
+                            break;
+                        case Stop:
+                            mDistance -= rotation;
+                            break;
+                        case Result:
+                            break;
+                    }
+                    if (mState != State.Result && mDistance >= mGoalDistance) {
+                        mState = State.Result;
+                        mRemainingStageTime = 6000;
+                    }
+
+                } else {
+                    switch (mState) {
+                        case Go:
+                            mState = State.Stop;
+                            mRemainingStageTime = new Random().nextInt(10000 - 5000) + 5000;
+                            break;
+                        case Stop:
+                            mState = State.Go;
+                            mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
+                            break;
+                        case Result:
+                            mState = State.Go;
+                            mTotalTime = 0;
+                            mDistance = 0;
+                            mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
+                            break;
+                    }
+                }
+
+                publishProgress();
 
                 // Delay
                 try {
@@ -135,29 +208,29 @@ public class GameLights extends GameFragment {
                     // e.printStackTrace();
                 }
             }
-            return remainingTime;
+            return null;
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
-            // TODO: get angular speed
-            mTextViewTime.setText(values[0]);
-            // mTextViewScore.setText(values[1]);
+        protected void onProgressUpdate(Void... values) {
+            switch (mState) {
+                case Go:
+                    go();
+                    break;
+                case Stop:
+                    stop();
+                    break;
+                case Result:
+                    result();
+                    break;
+            }
+            mAngularSpeed = getRotationSpeed();
+            Log.d(TAG, Float.toString(mAngularSpeed));
         }
 
         @Override
-        protected void onPostExecute(Integer value) {
-            if (mState == State.Stop) {
-                go();
-            } else
-                stop();
-        }
-
-        @Override
-        protected void onCancelled(Integer value) {
+        protected void onCancelled(Void value) {
             Log.v(TAG, "Thread: Cancelled");
-
-            mRemainingTime = value;
         }
     }
 }
