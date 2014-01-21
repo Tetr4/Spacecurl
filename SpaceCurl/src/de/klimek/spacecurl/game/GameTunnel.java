@@ -63,15 +63,15 @@ public class GameTunnel extends GameFragment {
 
         private Bitmap mBitmap;
         private Canvas mBufferCanvas;
-        private int mBufferWidth;
+        private int mBitmapWidth;
         private int mBufferColumns = 10;
         private int mViewPortOffset = 0;
-        private int mSpikeWidth = 400;
-        private int mSpikeStep = 0;
+        private int mCurveWidth = 400;
+        private int mCurveStep = 0;
         private float mTunnelHeight;
         private int mMinTunnelHeight = 200;
-        private int mSpikeLeft;
-        private int mSpikeRight;
+        private int mCurvePrevious;
+        private int mCurveNext;
 
         private int mSpeed = 5;
 
@@ -106,60 +106,63 @@ public class GameTunnel extends GameFragment {
         @Override
         protected void onDraw(Canvas canvas) {
             canvas.drawBitmap(mBitmap, -mViewPortOffset, 0, null);
-            canvas.drawBitmap(mBitmap, -mViewPortOffset + mBufferWidth, 0, null);
+            canvas.drawBitmap(mBitmap, -mViewPortOffset + mBitmapWidth, 0, null);
             mPlayer.draw(canvas);
         }
 
         // Called back when the view is first created or its size changes.
         @Override
         public void onSizeChanged(int w, int h, int oldW, int oldH) {
-            // Set the movement bounds for the ball
             mViewWidthMax = w - 1;
             mViewHeightMax = h - 1;
+            mTunnelHeight = mViewHeightMax * 1.5f;
+            mCurvePrevious = mViewHeightMax / 2;
+            mCurveNext = mCurvePrevious;
 
-            mTunnelHeight = mViewHeightMax;
-            mBufferWidth = (int) (mViewWidthMax + mBufferColumns);
-            mSpikeRight = new Random().nextInt(mViewHeightMax);
-
-            mBitmap = Bitmap.createBitmap(mBufferWidth, mViewHeightMax,
+            mBitmapWidth = (int) (mViewWidthMax + mBufferColumns);
+            mBitmap = Bitmap.createBitmap(mBitmapWidth, mViewHeightMax,
                     Bitmap.Config.ARGB_8888);
             mBufferCanvas = new Canvas(mBitmap);
-            mBufferCanvas.clipRect(0, 0, mBufferWidth, mViewHeightMax);
+            mBufferCanvas.clipRect(0, 0, mBitmapWidth, mViewHeightMax);
             mBufferCanvas.drawColor(Color.BLACK);
+
             mTunnel.clear();
-            for (int i = 0; i < mBufferWidth; i++) {
-                if (mSpikeStep == 0) {
-                    mSpikeLeft = mSpikeRight;
-                    mSpikeRight = new Random().nextInt(mViewHeightMax);
+            int tunnelPosY;
+            for (int i = 0; i < mBitmapWidth; i++) {
+                // update tunnel position
+                tunnelPosY = (int) interpolate(mCurvePrevious, mCurveNext, (float) mCurveStep
+                        / mCurveWidth);
+
+                double deltaY = interpolate(mCurvePrevious, mCurveNext,
+                        (float) (mCurveStep + 1) / mCurveWidth)
+                        - interpolate(mCurvePrevious, mCurveNext,
+                                (float) (mCurveStep) / mCurveWidth);
+                double deltaX = 1;
+                Log.d(TAG, Double.toString(deltaY));
+                double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
+                double beta = 180 - 90 - Math.toDegrees(alpha);
+                float b = mTunnelHeight;
+                float c = (float) (b / Math.sin(Math.toRadians(beta)));
+
+                mCurveStep = (mCurveStep + 1) % mCurveWidth;
+                if (mCurveStep == 0) {
+                    mCurvePrevious = mCurveNext;
+                    mCurveNext = new Random().nextInt(mViewHeightMax);
                 }
-                int pos = interpolate(mSpikeLeft, mSpikeRight, (float) mSpikeStep / mSpikeWidth);
-                mSpikeStep = (mSpikeStep + 1) % mSpikeWidth;
-                Wall wall;
-                if (i < mViewWidthMax / 2) {
-                    wall = new Wall(0, mViewHeightMax);
-                } else {
-                    mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
-                            + mMinTunnelHeight;
-                    wall = new Wall((int) (pos - mTunnelHeight / 2.0f),
-                            (int) (pos + mTunnelHeight / 2.0f));
-                }
+
+                // update tunnelHeight
+                mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
+                        + mMinTunnelHeight;
+
+                // generate wall
+                Wall wall = new Wall((int) (tunnelPosY - c / 2.0f),
+                        (int) (tunnelPosY + c / 2.0f));
                 mTunnel.add(wall);
+
+                // draw
                 wall.draw(mBufferCanvas, i);
             }
 
-            // Paint p = new Paint(Paint.ANTI_ALIAS_FLAG |
-            // Paint.FILTER_BITMAP_FLAG);
-            // p.setColor(0xff800000);
-            // p.setShader(new LinearGradient(0, 0, w, 0, 0xffffffff,
-            // 0xff555555,
-            // Shader.TileMode.CLAMP));
-            // Path pth = new Path();
-            // pth.moveTo(w * 0.15f, 0);
-            // pth.lineTo(w * 0.56f, 0);
-            // pth.lineTo(w * 0.92f, h);
-            // pth.lineTo(w * 0.08f, h);
-            // pth.lineTo(w * 0.27f, 0);
-            // mBufferCanvas.drawPath(pth, p);
             invalidate();
         }
 
@@ -169,35 +172,46 @@ public class GameTunnel extends GameFragment {
         }
 
         private void updateTunnel() {
-            if (mSpikeStep == 0) {
-                mSpikeLeft = mSpikeRight;
-                mSpikeRight = new Random().nextInt(mViewHeightMax);
+            // update tunnel position
+            int tunnelPosY = (int) interpolate(mCurvePrevious, mCurveNext,
+                    (float) mCurveStep / mCurveWidth);
+
+            double deltaY = interpolate(mCurvePrevious, mCurveNext,
+                    (float) (mCurveStep + 1) / mCurveWidth)
+                    - interpolate(mCurvePrevious, mCurveNext,
+                            (float) (mCurveStep) / mCurveWidth);
+            double deltaX = 1;
+            Log.d(TAG, Double.toString(deltaY));
+            double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
+            double beta = 180 - 90 - Math.toDegrees(alpha);
+            float b = mTunnelHeight;
+            float c = (float) (b / Math.sin(Math.toRadians(beta)));
+
+            mCurveStep = (mCurveStep + 1) % mCurveWidth;
+            if (mCurveStep == 0) {
+                mCurvePrevious = mCurveNext;
+                mCurveNext = new Random().nextInt(mViewHeightMax);
             }
-            int pos = interpolate(mSpikeLeft, mSpikeRight, (float) mSpikeStep / mSpikeWidth);
-            mSpikeStep = (mSpikeStep + 1) % mSpikeWidth;
-            // int mPositionY;
-            // int mUpperSpike;
-            // int mGap;
-            // int mLowerSpike;
-            // float rndNr = new Random().nextFloat() - 2;
-            // int mTop;
-            // int mBottom;
+
+            // update tunnelHeight
             mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
                     + mMinTunnelHeight;
-            Wall wall = new Wall((int) (pos - mTunnelHeight / 2.0f),
-                    (int) (pos + mTunnelHeight / 2.0f));
 
+            // generate wall
+            Wall wall = new Wall((int) (tunnelPosY - c / 2.0f),
+                    (int) (tunnelPosY + c / 2.0f));
             mTunnel.removeFirst();
             mTunnel.addLast(wall);
+
             // draw offscreen
             wall.draw(mBufferCanvas, (mViewPortOffset + mViewWidthMax + (mBufferColumns / 2))
-                    % mBufferWidth);
-            mViewPortOffset = (mViewPortOffset + 1) % mBufferWidth;
+                    % mBitmapWidth);
+            mViewPortOffset = (mViewPortOffset + 1) % mBitmapWidth;
         }
 
-        private int interpolate(int y1, int y2, double mu) {
+        private double interpolate(int y1, int y2, double mu) {
             double mu2 = (1 - Math.cos(mu * Math.PI)) / 2;
-            return (int) (y1 * (1 - mu2) + y2 * mu2);
+            return (y1 * (1 - mu2) + y2 * mu2);
         }
 
         private void checkCollisions() {
