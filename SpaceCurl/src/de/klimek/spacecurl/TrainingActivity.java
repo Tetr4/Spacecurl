@@ -26,8 +26,10 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import de.klimek.spacecurl.game.GameFragment;
+import de.klimek.spacecurl.game.OnGameFinishedListener;
 import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
+import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
 import de.klimek.spacecurl.util.collection.Training;
@@ -40,11 +42,12 @@ import de.klimek.spacecurl.util.collection.Training;
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public class TrainingActivity extends FragmentActivity implements OnClickListener {
+public class TrainingActivity extends FragmentActivity implements OnClickListener,
+        OnGameFinishedListener {
     private static final String TAG = "TrainingActivity"; // Used for log output
     protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
-    public final static String EXTRA_TRAINING = "EXTRA_TRAINING";
+    public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
     // protected static final String STATE_PAUSED = "STATE_PAUSED";
 
     private ActionBar mActionBar;
@@ -72,7 +75,8 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTraining = (Training) getIntent().getParcelableExtra(EXTRA_TRAINING);
+        int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
+        mTraining = Database.getInstance().getTrainings().get(key);
         setupSettings();
         setupStatusFragment();
         setupPauseView();
@@ -173,6 +177,11 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         }
     }
 
+    @Override
+    public void onGameFinished() {
+        nextGame();
+    }
+
     private void previousGame() {
         Log.d("Training", "previousGame");
         if (mTrainingIndex - 1 >= 0) {
@@ -190,6 +199,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
      * @param position position of the item in the spinner
      */
     private void switchToGame(GameSettingsPair pair) {
+        pauseGame();
         // GameFragment:
         GameFragment newGameFragment;
         try {

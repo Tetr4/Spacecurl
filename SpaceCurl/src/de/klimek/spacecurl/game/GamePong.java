@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.util.collection.Database;
 
 public class GamePong extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_pong;
@@ -71,7 +72,7 @@ public class GamePong extends GameFragment {
         private float mInclinationRangeFactor = 2.0f;
         // TODO Calibrate
         // Phone is not attached straight for better visibilty of the screen
-        private float mPhoneInclination = 0.1f;
+        private float mPhoneInclination;
 
         // Constructor
         public GamePongView(Context context) {
@@ -83,6 +84,7 @@ public class GamePong extends GameFragment {
             mPaddleLeft.isHorizontal = false;
             mPaddleRight = new Paddle();
             mPaddleRight.isHorizontal = false;
+            mPhoneInclination = Database.getInstance().getPhoneInclination();
         }
 
         // @Override

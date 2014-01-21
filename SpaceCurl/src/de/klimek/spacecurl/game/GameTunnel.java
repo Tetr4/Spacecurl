@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.util.collection.Database;
 
 public class GameTunnel extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_pong;
@@ -83,11 +84,12 @@ public class GameTunnel extends GameFragment {
         private float mInclinationRangeFactor = 2.0f;
         // TODO Calibrate
         // Phone is not attached straight for better visibilty of the screen
-        private float mPhoneInclination = 0.1f;
+        private float mPhoneInclination;
 
         // Constructor
         public GameTunnelView(Context context) {
             super(context);
+            mPhoneInclination = Database.getInstance().getPhoneInclination();
         }
 
         public void pause() {

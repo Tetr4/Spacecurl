@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.util.collection.Status;
 
 /**
@@ -65,8 +66,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         mStatus = status;
     }
 
-    protected Status getStatus() {
-        return mStatus;
+    public void postFinished() {
+        FragmentActivity activity = getActivity();
+        if (activity instanceof OnGameFinishedListener) {
+            ((OnGameFinishedListener) activity).onGameFinished();
+        }
     }
 
     /**

@@ -6,19 +6,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.util.collection.Database;
 
 public class GameUniversal extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_universal;
     public static final String ARG_TARGET_POSITION = "ARG_TARGET_POSITION";
-    // public static final String ARG_HOLDING_TIME
-    // public static final String ARG_ZEITVORGABE
-    // public static final String ARG_ABWEICHUNG
-    // public static final String ARG_TOLERANCE
+    public static final String ARG_TOLERANCE = "ARG_TOLERANCE";
+    public static final String ARG_HOLDING_TIME = "ARG_HOLDING_TIME";
+    public static final String ARG_RESET_IF_LEFT = "ARG_RESET_IF_LEFT";
 
     // private int score;
     private GameUniversalView mGame;
@@ -27,18 +29,20 @@ public class GameUniversal extends GameFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // TODO get & set Target Position
+        // getArguments().get...(ARG_TARGET_POSITION);
         mGame = new GameUniversalView(getActivity());
         return mGame;
     }
 
     @Override
     public void pauseGame() {
-        // TODO Auto-generated method stub
+        mGame.pause();
     }
 
     @Override
     public void resumeGame() {
-        // TODO Auto-generated method stub
+        mGame.resume();
 
     }
 
@@ -54,14 +58,40 @@ public class GameUniversal extends GameFragment {
     }
 
     private class GameUniversalView extends View {
+        private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
+
         private int mViewWidthMax;
         private int mViewHeightMax;
         private int mCenterX;
         private int mCenterY;
         private int mMinBorder;
 
+        private Player mPlayer;
+        private Target mTarget;
+        private CenteredCircles mCircles;
+
+        private float mPitch;
+        private float mRoll;
+        private float mInclinationRangeFactor = 2.0f;
+        // TODO Calibrate
+        // Phone is not attached straight for better visibilty of the screen
+        private float mPhoneInclination;
+
         public GameUniversalView(Context context) {
             super(context);
+            mPhoneInclination = Database.getInstance().getPhoneInclination();
+        }
+
+        public void pause() {
+            _logicThread.cancel(true);
+
+        }
+
+        public void resume() {
+            if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                _logicThread = new LogicThread();
+                _logicThread.execute();
+            }
 
         }
 
@@ -74,67 +104,165 @@ public class GameUniversal extends GameFragment {
             mCenterX = mViewWidthMax / 2;
             mCenterY = mViewHeightMax / 2;
             mMinBorder = mViewWidthMax <= mViewHeightMax ? mViewWidthMax : mViewHeightMax;
+
+            mPlayer = new Player(mMinBorder / 10);
+            mPlayer.mPositionX = mCenterX;
+            mPlayer.mPositionY = mCenterY;
+
+            mTarget = new Target(mMinBorder / 24, mCenterX - mMinBorder / 6, mCenterY + mMinBorder
+                    / 4);
+
+            int circleCount = 6;
+            mCircles = new CenteredCircles(circleCount, mMinBorder / (circleCount * 2), mCenterX,
+                    mCenterY);
+
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            int circleCount = 6;
-            int radiusIncrement = mMinBorder / (circleCount * 2);
-            for (int i = 1; i < circleCount; i++) {
-                int radius = radiusIncrement * i;
-                drawCenteredCircle(canvas, radius, Color.MAGENTA);
-                radius += radiusIncrement;
+            mTarget.draw(canvas);
+            mPlayer.draw(canvas);
+            mCircles.draw(canvas);
+        }
+
+        private class LogicThread extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... params) {
+                while (!isCancelled()) {
+                    updatePlayer();
+                    checkFinished();
+                    publishProgress();
+                    // Delay
+                    try {
+                        Thread.sleep(1000 / 30); // 30 FPS
+                    } catch (InterruptedException e) {
+                        // e.printStackTrace();
+                    }
+                }
+                return null;
             }
-            drawCross(canvas, mCenterX, mCenterY, mMinBorder / 10,
-                    Color.GREEN);
-            drawTarget(canvas, mCenterX - mMinBorder / 6, mCenterY + mMinBorder / 4,
-                    mMinBorder / 12, Color.RED);
+
+            private void updatePlayer() {
+                mPlayer.mPositionX = (int) (mPitch * mMinBorder);
+                mPlayer.mPositionY = (int) (mRoll * mMinBorder);
+
+            }
+
+            private void checkFinished() {
+                if (mPlayer.intersects(mTarget)) {
+                    Log.d(TAG, "intersects");
+                }
+
+            }
+
+            @Override
+            protected void onProgressUpdate(Void... values) {
+                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
+                        + .5f;
+                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
+                        + mPhoneInclination;
+                invalidate();
+            }
+
+            @Override
+            protected void onCancelled(Void result) {
+                Log.v(TAG, "Thread: Cancelled");
+                super.onCancelled(result);
+            }
         }
 
-        private void drawTarget(Canvas canvas, int positionX, int positionY, int size, int color) {
-            RectF r = new RectF(positionX - size / 2,
-                    positionY - size / 2,
-                    positionX + size / 2,
-                    positionY + size / 2);
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.FILL);
-            canvas.drawOval(r, paint);
+        private class Target {
+            private int mRadius;
+            private int mPositionX;
+            private int mPositionY;
+            private Paint mPaint;
 
+            private Target(int radius, int positionX, int positionY) {
+                mRadius = radius;
+                mPositionX = positionX;
+                mPositionY = positionY;
+                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPaint.setStyle(Paint.Style.FILL);
+                mPaint.setColor(Color.RED);
+            }
+
+            private void draw(Canvas canvas) {
+                RectF r = new RectF(mPositionX - mRadius,
+                        mPositionY - mRadius,
+                        mPositionX + mRadius,
+                        mPositionY + mRadius);
+                canvas.drawOval(r, mPaint);
+            }
         }
 
-        private void drawCross(Canvas canvas, int positionX, int positionY, int axisLength,
-                int color) {
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(4);
-            canvas.drawLine(positionX,
-                    positionY - axisLength / 2,
-                    positionX,
-                    positionY + axisLength / 2,
-                    paint);
-            canvas.drawLine(positionX - axisLength / 2,
-                    positionY,
-                    positionX + axisLength / 2,
-                    positionY,
-                    paint);
+        private class Player {
+            private int mAxisLength;
+            private int mPositionX;
+            private int mPositionY;
+            private Paint mPaint;
 
+            private Player(int axisLength) {
+                mAxisLength = axisLength;
+                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(4);
+                mPaint.setColor(Color.GREEN);
+            }
+
+            public boolean intersects(Target mTarget) {
+                return (Math.pow((mPositionX - mTarget.mPositionX), 2)
+                        + Math.pow((mPositionY - mTarget.mPositionY), 2)
+                        < Math.pow(mTarget.mRadius, 2));
+            }
+
+            private void draw(Canvas canvas) {
+                canvas.drawLine(mPositionX,
+                        mPositionY - mAxisLength / 2,
+                        mPositionX,
+                        mPositionY + mAxisLength / 2,
+                        mPaint);
+                canvas.drawLine(mPositionX - mAxisLength / 2,
+                        mPositionY,
+                        mPositionX + mAxisLength / 2,
+                        mPositionY,
+                        mPaint);
+            }
         }
 
-        private void drawCenteredCircle(Canvas canvas, int radius, int color) {
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(4);
-            RectF oval = new RectF(
-                    mCenterX - radius,
-                    mCenterY - radius,
-                    mCenterX + radius,
-                    mCenterY + radius);
-            canvas.drawArc(oval, 0, 360, false, paint);
+        private class CenteredCircles {
+            private int mPositionX;
+            private int mPositionY;
+            private int mCircleCount = 6;
+            private int mRadiusIncrement;
+            private Paint mPaint;
+
+            private CenteredCircles(int circleCount, int radiusIncrement, int positionX,
+                    int positionY) {
+                mCircleCount = circleCount;
+                // mMinBorder / (mCircleCount * 2)
+                mRadiusIncrement = radiusIncrement;
+                mPositionX = positionX;
+                mPositionY = positionY;
+                mPaint = new Paint();
+                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(4);
+                mPaint.setColor(Color.MAGENTA);
+            }
+
+            private void draw(Canvas canvas) {
+                for (int i = 1; i < mCircleCount; i++) {
+                    int radius = mRadiusIncrement * i;
+                    RectF oval = new RectF(
+                            mPositionX - radius,
+                            mPositionY - radius,
+                            mPositionX + radius,
+                            mPositionY + radius);
+                    canvas.drawArc(oval, 0, 360, false, mPaint);
+                    radius += mRadiusIncrement;
+                }
+            }
         }
 
     }
-
 }

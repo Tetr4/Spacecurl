@@ -17,6 +17,7 @@ import de.klimek.spacecurl.game.GameUniversal;
 public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
     private ArrayList<Status> mStatuses = new ArrayList<Status>();
+    private float mPhoneInclination = 0.1f;
     private Orientation mOrientation = Orientation.Portrait;
 
     private static enum Orientation {
@@ -95,6 +96,14 @@ public class Database {
 
     public void setOrientation(Orientation orientation) {
         mOrientation = orientation;
+    }
+
+    public float getPhoneInclination() {
+        return mPhoneInclination;
+    }
+
+    public void setPhoneInclination(float mPhoneInclination) {
+        this.mPhoneInclination = mPhoneInclination;
     }
 
 }
