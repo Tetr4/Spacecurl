@@ -8,6 +8,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,11 +34,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameLights;
-import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
 import de.klimek.spacecurl.game.GameSensor;
 import de.klimek.spacecurl.game.GameTunnel;
-import de.klimek.spacecurl.game.GameUniversal;
 import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
@@ -83,18 +82,18 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         setContentView(R.layout.activity_main);
 
         // Add games to Spinner
+        Bundle tunnelSettings = new Bundle();
+        tunnelSettings.putString(GameFragment.ARG_TITLE, "Tunnel");
+        addGame(GameTunnel.class, tunnelSettings);
+
         addGame(GamePong.class, R.string.game_pong);
-        addGame(GameMaze.class, R.string.game_maze);
+        // addGame(GameMaze.class, R.string.game_maze);
         addGame(GameLights.class, R.string.game_lights);
-        addGame(GameUniversal.class, R.string.game_universal);
+        // addGame(GameUniversal.class, R.string.game_universal);
 
         Bundle sensorSettings = new Bundle();
         sensorSettings.putString(GameFragment.ARG_TITLE, "Sensor Test");
         addGame(GameSensor.class, sensorSettings);
-
-        Bundle tunnelSettings = new Bundle();
-        tunnelSettings.putString(GameFragment.ARG_TITLE, "Tunnel");
-        addGame(GameTunnel.class, tunnelSettings);
 
         setupSettings();
         setupStatusFragment();
@@ -137,7 +136,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // PreferenceManager.getDefaultSharedPreferences(this);
         // Boolean orientation = sharedPref.getBoolean("orientation", false);
         // if (orientation) {
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         // }
     }
 
