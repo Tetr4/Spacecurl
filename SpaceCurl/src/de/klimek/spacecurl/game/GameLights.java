@@ -107,7 +107,7 @@ public class GameLights extends GameFragment {
         // TODO grafikoutput for mRemainingTime
         mTextViewRemainingTime.setText(timeToString(mRemainingStageTime, false));
         mTextViewTotalTime.setText(timeToString(mTotalTime, true));
-        mTextViewBonus.setText(mBonus ? "" : "BONUS");
+        mTextViewBonus.setText(mBonus ? "BONUS!" : "");
         mProgressBar.setProgress((int) ((mDistance / mGoalDistance) * 100));
     }
 
@@ -159,25 +159,30 @@ public class GameLights extends GameFragment {
                 _deltaTime = _curTime - _lastTime;
                 _lastTime = _curTime;
                 mRemainingStageTime -= _deltaTime;
-                if (mRemainingStageTime > 0
-                        /* prevent potential overflow */
-                        && (mTotalTime + _deltaTime) > 0) {
+                if (mRemainingStageTime > 1000) {
                     // TODO set mBonus
+                    // prevent potential overflow
                     rotation = mAngularSpeed * _deltaTime;
                     switch (mState) {
                         case Go:
+                            if (Long.MAX_VALUE - _deltaTime < mTotalTime) { // Overflow
+                                mState = State.Result;
+                                mRemainingStageTime = 10000;
+                            }
                             mTotalTime += _deltaTime;
                             mDistance += rotation;
                             break;
                         case Stop:
                             mDistance -= rotation;
+                            if (mDistance < 0)
+                                mDistance = 0;
                             break;
                         case Result:
                             break;
                     }
                     if (mState != State.Result && mDistance >= mGoalDistance) {
                         mState = State.Result;
-                        mRemainingStageTime = 6000;
+                        mRemainingStageTime = 10000;
                     }
 
                 } else {
@@ -225,7 +230,6 @@ public class GameLights extends GameFragment {
                     break;
             }
             mAngularSpeed = getRotationSpeed();
-            Log.d(TAG, Float.toString(mAngularSpeed));
         }
 
         @Override
