@@ -48,7 +48,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
     public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
-    // protected static final String STATE_PAUSED = "STATE_PAUSED";
 
     private ActionBar mActionBar;
     private StatusFragment mStatusFragment;
@@ -57,12 +56,16 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     private SlidingUpPanelLayout mSlidingUpPanel;
     private PauseView mPauseView;
 
-    private String mTitle = "";
-    private boolean mIsPaused = false;
-    private boolean mIsNowPausing = false;
+    private State mState = State.Paused;
+
+    private static enum State {
+        Paused, Pausing, Running
+    }
+
     private Training mTraining;
     private int mTrainingIndex = -1;
     private GameSettingsPair mGameSettingsPair;
+    private String mTitle = "";
 
     /**
      * Called by OS when the activity is first created.
@@ -293,63 +296,60 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     @Override
     protected void onPause() {
         super.onPause();
+        mState = State.Paused;
         pauseGame();
     }
 
     @Override
     public void onUserInteraction() {
-        if (!mIsPaused) {
-            mIsNowPausing = true;
+        if (mState == State.Running) {
+            mState = State.Pausing;
+            pauseGame();
         }
-        else {
-            mIsNowPausing = false;
-        }
-        pauseGame();
+        Log.d(TAG, "UserInteraction");
         super.onUserInteraction();
     }
 
     /**
-     * Called after onUserInteraction -> needs boolean lock variable, to prevent
-     * resuming immediately after pausing
+     * Called after onUserInteraction
      */
     @Override
     public void onClick(View v) {
-        if (!mIsNowPausing)
+        Log.d(TAG, "ClickVIew");
+        if (mState == State.Paused) {
             resumeGame();
-        mIsNowPausing = false;
+            mState = State.Running;
+        } else if (mState == State.Pausing) {
+            mState = State.Paused;
+        }
+
     }
 
     private void pauseGame() {
-        if (!mIsPaused) {
-            Log.d(TAG, "Paused");
-            if (mGameFragment != null) {
-                mGameFragment.pauseGame();
-            }
-            // Show pause symbol and grey out screen
-            mGameFrame.addView(mPauseView);
-            mPauseView.bringToFront();
-            mIsPaused = true;
+        Log.d(TAG, "Paused");
+        if (mGameFragment != null) {
+            mGameFragment.pauseGame();
         }
+        // Show pause symbol and grey out screen
+        // mGameFrame.addView(mPauseView);
+        mPauseView.bringToFront();
+        mPauseView.setVisibility(View.VISIBLE);
     }
 
     private void resumeGame() {
-        if (mIsPaused) {
-            Log.d(TAG, "Resumed");
-            // hide navigation bar.
-            // FIXME flags reset when actionbar spinner or overflow window opens
-            // View decorView = getWindow().getDecorView();
-            // int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            // // | View.SYSTEM_UI_FLAG_FULLSCREEN
-            // // |View.SYSTEM_UI_FLAG_LOW_PROFILE
-            // | View.SYSTEM_UI_FLAG_IMMERSIVE;
-            // decorView.setSystemUiVisibility(uiOptions);
-            // remove pausescreen and resume game
-            mGameFrame.removeView(mPauseView);
-            if (mGameFragment != null) {
-                mGameFragment.resumeGame();
-            }
-            mIsPaused = false;
-        }
+        Log.d(TAG, "Resumed");
+        // hide navigation bar.
+        // FIXME flags reset when actionbar spinner or overflow window opens
+        // View decorView = getWindow().getDecorView();
+        // int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        // // | View.SYSTEM_UI_FLAG_FULLSCREEN
+        // // |View.SYSTEM_UI_FLAG_LOW_PROFILE
+        // | View.SYSTEM_UI_FLAG_IMMERSIVE;
+        // decorView.setSystemUiVisibility(uiOptions);
+        // remove pausescreen and resume game
+        // mGameFrame.removeView(mPauseView);
+        mPauseView.setVisibility(View.INVISIBLE);
+        mGameFragment.resumeGame();
     }
 
     private class PauseView extends View {
