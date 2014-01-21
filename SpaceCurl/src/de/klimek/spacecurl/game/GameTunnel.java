@@ -58,26 +58,26 @@ public class GameTunnel extends GameFragment {
         private static final int FPS = 30;
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
+        // Game Parameters
+        private int mCurveWidth = 200;
+        private int mSpeed = 3;
+        private int mMinTunnelHeight = 160;
+        private int mPadding = 12;
+        private Player mPlayer = new Player(60, 60);;
+
         private int mViewWidthMax;
         private int mViewHeightMax;
-
         private Bitmap mBitmap;
-        private Canvas mBufferCanvas;
         private int mBitmapWidth;
         private int mBufferColumns = 10;
         private int mViewPortOffset = 0;
-        private int mCurveWidth = 400;
-        private int mCurveStep = 0;
+        private Canvas mBufferCanvas;
+
+        private LinkedList<Wall> mTunnel = new LinkedList<Wall>();
         private float mTunnelHeight;
-        private int mMinTunnelHeight = 200;
         private int mCurvePrevious;
         private int mCurveNext;
-
-        private int mSpeed = 5;
-
-        private Player mPlayer;
-        private int mPadding = 12;
-        private LinkedList<Wall> mTunnel = new LinkedList<Wall>();
+        private int mCurveStep = 0;
 
         private float mRoll;
         private float mInclinationRangeFactor = 2.0f;
@@ -88,7 +88,6 @@ public class GameTunnel extends GameFragment {
         // Constructor
         public GameTunnelView(Context context) {
             super(context);
-            mPlayer = new Player();
         }
 
         public void pause() {
@@ -137,12 +136,10 @@ public class GameTunnel extends GameFragment {
                         (float) (mCurveStep + 1) / mCurveWidth)
                         - interpolate(mCurvePrevious, mCurveNext,
                                 (float) (mCurveStep) / mCurveWidth);
-                double deltaX = 1;
-                Log.d(TAG, Double.toString(deltaY));
+                int deltaX = 1;
                 double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
                 double beta = 180 - 90 - Math.toDegrees(alpha);
-                float b = mTunnelHeight;
-                float c = (float) (b / Math.sin(Math.toRadians(beta)));
+                float c = (float) (mTunnelHeight / Math.sin(Math.toRadians(beta)));
 
                 mCurveStep = (mCurveStep + 1) % mCurveWidth;
                 if (mCurveStep == 0) {
@@ -167,7 +164,7 @@ public class GameTunnel extends GameFragment {
         }
 
         private void updatePlayer() {
-            mPlayer.mPositionX = mPadding;
+            mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
             mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
         }
 
@@ -180,12 +177,10 @@ public class GameTunnel extends GameFragment {
                     (float) (mCurveStep + 1) / mCurveWidth)
                     - interpolate(mCurvePrevious, mCurveNext,
                             (float) (mCurveStep) / mCurveWidth);
-            double deltaX = 1;
-            Log.d(TAG, Double.toString(deltaY));
+            int deltaX = 1;
             double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
             double beta = 180 - 90 - Math.toDegrees(alpha);
-            float b = mTunnelHeight;
-            float c = (float) (b / Math.sin(Math.toRadians(beta)));
+            float c = (float) (mTunnelHeight / Math.sin(Math.toRadians(beta)));
 
             mCurveStep = (mCurveStep + 1) % mCurveWidth;
             if (mCurveStep == 0) {
@@ -209,8 +204,8 @@ public class GameTunnel extends GameFragment {
             mViewPortOffset = (mViewPortOffset + 1) % mBitmapWidth;
         }
 
-        private double interpolate(int y1, int y2, double mu) {
-            double mu2 = (1 - Math.cos(mu * Math.PI)) / 2;
+        private float interpolate(int y1, int y2, float mu) {
+            float mu2 = (float) ((1 - Math.cos(mu * Math.PI)) / 2.0f);
             return (y1 * (1 - mu2) + y2 * mu2);
         }
 
@@ -307,19 +302,19 @@ public class GameTunnel extends GameFragment {
          * @author Mike
          */
         private class Player {
-            private int mWidth = 120;
-            private int mHeight = 50;
-            private int mPositionX = mViewWidthMax / 2;
-            private int mPositionY = mViewHeightMax / 2;
+            private int mWidth;
+            private int mHeight;
+            private int mPositionX;
+            private int mPositionY;
             private Paint mPaint = new Paint();
             private Rect mRect = new Rect();
 
-            public Player() {
+            public Player(int width, int height) {
                 mPaint.setColor(Color.RED);
-                mRect.set(0,
-                        0,
-                        mWidth,
-                        mHeight);
+                mWidth = width;
+                mHeight = height;
+                mPositionX = mPadding + mWidth / 2;
+                mPositionY = mViewHeightMax / 2;
             }
 
             protected void draw(Canvas canvas) {
