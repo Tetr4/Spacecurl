@@ -14,12 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.util.cards.GameCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Training;
 
 public class TrainingBuilderActivity extends FragmentActivity {
+    public static final int NEW_TRAINING = Integer.MIN_VALUE;
     private Database mDatabase = Database.getInstance();
     private CardListView mCardListView;
     private CardArrayAdapter mCardArrayAdapter;
@@ -29,14 +31,17 @@ public class TrainingBuilderActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        int key = getIntent().getExtras().getInt(TrainingActivity.EXTRA_TRAINING_KEY);
+        if (key != NEW_TRAINING) {
+            mTraining = mDatabase.getTrainings().get(key);
+        } else {
+            mTraining = new Training("");
+        }
+
         setContentView(R.layout.activity_training_builder);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        setupTraining();
         setupCards();
-    }
-
-    private void setupTraining() {
-        mTraining = mDatabase.getTrainings().get(0);
     }
 
     private void setupCards() {

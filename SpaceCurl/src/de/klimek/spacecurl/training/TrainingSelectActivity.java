@@ -7,7 +7,6 @@ import java.util.List;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +41,7 @@ public class TrainingSelectActivity extends FragmentActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TrainingSelectActivity.this, TrainingBuilderActivity.class));
+                addTraining();
             }
         });
     }
@@ -64,9 +63,22 @@ public class TrainingSelectActivity extends FragmentActivity {
 
     private void startTraining(Training training) {
         Database.getInstance().getStatuses().clear();
+        int key = mTrainings.indexOf(training);
         Intent intent = new Intent(this, TrainingActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING, (Parcelable) training);
-        // intent.putExtra(TrainingActivity.EXTRA_TRAINING, training);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);
+        startActivity(intent);
+    }
+
+    private void editTraining(Training training) {
+        int key = mTrainings.indexOf(training);
+        Intent intent = new Intent(this, TrainingBuilderActivity.class);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);
+        startActivity(intent);
+    }
+
+    private void addTraining() {
+        Intent intent = new Intent(this, TrainingBuilderActivity.class);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, TrainingBuilderActivity.NEW_TRAINING);
         startActivity(intent);
     }
 
@@ -89,6 +101,13 @@ public class TrainingSelectActivity extends FragmentActivity {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View listItemView = inflater.inflate(R.layout.list_item_training, parent, false);
+            listItemView.setOnClickListener(new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    editTraining(training);
+                }
+            });
             TextView trainingName = (TextView) listItemView.findViewById(R.id.training_name);
             ImageButton playButton = (ImageButton) listItemView
                     .findViewById(R.id.training_play_button);
