@@ -164,7 +164,7 @@ public class GameUniversal extends GameFragment {
             @Override
             protected void onProgressUpdate(Void... values) {
                 if (mFinished) {
-                    postFinished();
+                    notifyFinished();
                     this.cancel(true);
                 }
                 mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)

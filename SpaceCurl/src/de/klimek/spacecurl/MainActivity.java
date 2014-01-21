@@ -206,7 +206,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         status.mScore = score;
         // card.addGraphData(new GraphViewData(5, score));
         mStatusFragment.addStatus(status);
-        newGameFragment.setStatus(status);
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
@@ -275,12 +274,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 mActionBar.getSelectedNavigationIndex());
     }
 
-    // @Override
-    // protected void onPause() {
-    // super.onPause();
-    // mState = State.Paused;
-    // pauseGame();
-    // }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mState = State.Paused;
+        pauseGame();
+    }
 
     @Override
     public void onUserInteraction() {

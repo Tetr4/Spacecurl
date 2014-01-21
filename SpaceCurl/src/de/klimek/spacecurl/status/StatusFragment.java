@@ -68,6 +68,7 @@ public class StatusFragment extends Fragment {
     public void addStatus(Status status) {
         mDatabase.getStatuses().add(status);
         if (isAdded()) {
+            mCards.add(createStatusCard(status));
             invalidateCardList();
         }
     }

@@ -103,10 +103,11 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     }
 
     private void setupPauseView() {
-        mPauseView = new PauseView(this);
         mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
         mGameFrame.setOnClickListener(this);
-        pauseGame();
+        mPauseView = new PauseView(this);
+        mPauseView.setVisibility(View.INVISIBLE);
+        mGameFrame.addView(mPauseView);
     }
 
     private void setupStatusFragment() {
@@ -170,6 +171,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         if (mTrainingIndex - 1 >= 0) {
             mGameSettingsPair = mTraining.get(--mTrainingIndex);
             switchToGame(mGameSettingsPair);
+            // TODO remove StatusCard and use previous
         }
     }
 
@@ -178,6 +180,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         if (mTrainingIndex + 1 < mTraining.size()) {
             mGameSettingsPair = mTraining.get(++mTrainingIndex);
             switchToGame(mGameSettingsPair);
+            // TODO add statuscard
         } else {
             // Arrived at end of training
             mSlidingUpPanel.expandPane();
@@ -187,6 +190,10 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     @Override
     public void onGameFinished() {
         nextGame();
+    }
+
+    @Override
+    public void onStatusChanged(Status status) {
     }
 
     /**
@@ -230,11 +237,15 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         status.mScore = score;
         // card.addGraphData(new GraphViewData(5, score));
         mStatusFragment.addStatus(status);
-        newGameFragment.setStatus(status);
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.game_frame, newGameFragment).commit();
+
+        // previous GameFragment will be garbage collected
+        mGameFragment = newGameFragment;
+        mState = State.Running;
+        resumeGame();
 
         // Actionbar title and icons
         mTitle = mGameSettingsPair.getSettings().getString(GameFragment.ARG_TITLE);
@@ -242,11 +253,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
                 mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
                 );
         invalidateOptionsMenu();
-
-        // previous GameFragment will be garbage collected
-        mGameFragment = newGameFragment;
-        mState = State.Running;
-        resumeGame();
     }
 
     /**
@@ -311,6 +317,8 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         if (mState == State.Running) {
             mState = State.Pausing;
             pauseGame();
+        } else if (mState == State.Pausing) {
+            mState = State.Paused;
         }
         Log.d(TAG, "UserInteraction");
         super.onUserInteraction();

@@ -83,14 +83,17 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return getFreeAxisCount() != FreeAxisCount.Zero;
     }
 
-    public void setStatus(Status status) {
-        mStatus = status;
-    }
-
-    protected void postFinished() {
+    protected void notifyFinished() {
         FragmentActivity activity = getActivity();
         if (activity instanceof GameCallBackListener) {
             ((GameCallBackListener) activity).onGameFinished();
+        }
+    }
+
+    protected void notifyStatusChanged(Status status) {
+        FragmentActivity activity = getActivity();
+        if (activity instanceof GameCallBackListener) {
+            ((GameCallBackListener) activity).onStatusChanged(status);
         }
     }
 
