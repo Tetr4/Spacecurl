@@ -29,11 +29,11 @@ import de.klimek.spacecurl.R;
 public class GameMaze extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_maze;
     // private StatusBundle mStatusBundle;
-    private GameDotView mGame;
+    private GameMazeView mGame;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGame = new GameDotView(getActivity());
+        mGame = new GameMazeView(getActivity());
         return mGame;
     }
 
@@ -61,7 +61,7 @@ public class GameMaze extends GameFragment {
         return e;
     }
 
-    public class GameDotView extends TextureView implements SurfaceTextureListener {
+    public class GameMazeView extends TextureView implements SurfaceTextureListener {
         private static final String TAG = "GameDot";
         private AsyncTask<SurfaceTexture, Void, Void> _renderThread;
         private FloatBuffer mVertices;
@@ -69,7 +69,7 @@ public class GameMaze extends GameFragment {
                 0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f
         };
 
-        public GameDotView(Context context) {
+        public GameMazeView(Context context) {
             super(context);
             mVertices = ByteBuffer.allocateDirect(mVerticesData.length * 4)
                     .order(ByteOrder.nativeOrder()).asFloatBuffer();

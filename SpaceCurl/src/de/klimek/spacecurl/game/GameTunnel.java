@@ -54,6 +54,11 @@ public class GameTunnel extends GameFragment {
         return e;
     }
 
+    private static float interpolate(int y1, int y2, float mu) {
+        float mu2 = (float) ((1 - Math.cos(mu * Math.PI)) / 2.0f);
+        return (y1 * (1 - mu2) + y2 * mu2);
+    }
+
     private class GameTunnelView extends View {
         private static final String TAG = "GameTunnel";
         private static final int FPS = 30;
@@ -66,6 +71,7 @@ public class GameTunnel extends GameFragment {
         private int mPadding = 12;
         private Player mPlayer = new Player(60, 60);;
 
+        private volatile boolean mSizeSet = false;
         private int mViewWidthMax;
         private int mViewHeightMax;
         private Bitmap mBitmap;
@@ -161,71 +167,9 @@ public class GameTunnel extends GameFragment {
                 // draw
                 wall.draw(mBufferCanvas, i);
             }
+            mSizeSet = true;
 
             invalidate();
-        }
-
-        private void updatePlayer() {
-            mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
-            mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
-        }
-
-        private void updateTunnel() {
-            // update tunnel position
-            int tunnelPosY = (int) interpolate(mCurvePrevious, mCurveNext,
-                    (float) mCurveStep / mCurveWidth);
-
-            double deltaY = interpolate(mCurvePrevious, mCurveNext,
-                    (float) (mCurveStep + 1) / mCurveWidth)
-                    - interpolate(mCurvePrevious, mCurveNext,
-                            (float) (mCurveStep) / mCurveWidth);
-            int deltaX = 1;
-            double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
-            double beta = 180 - 90 - Math.toDegrees(alpha);
-            float c = (float) (mTunnelHeight / Math.sin(Math.toRadians(beta)));
-
-            mCurveStep = (mCurveStep + 1) % mCurveWidth;
-            if (mCurveStep == 0) {
-                mCurvePrevious = mCurveNext;
-                mCurveNext = new Random().nextInt(mViewHeightMax);
-            }
-
-            // update tunnelHeight
-            mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
-                    + mMinTunnelHeight;
-
-            // generate wall
-            Wall wall = new Wall((int) (tunnelPosY - c / 2.0f),
-                    (int) (tunnelPosY + c / 2.0f));
-            mTunnel.removeFirst();
-            mTunnel.addLast(wall);
-
-            // draw offscreen
-            wall.draw(mBufferCanvas, (mViewPortOffset + mViewWidthMax + (mBufferColumns / 2))
-                    % mBitmapWidth);
-            mViewPortOffset = (mViewPortOffset + 1) % mBitmapWidth;
-        }
-
-        private float interpolate(int y1, int y2, float mu) {
-            float mu2 = (float) ((1 - Math.cos(mu * Math.PI)) / 2.0f);
-            return (y1 * (1 - mu2) + y2 * mu2);
-        }
-
-        private void checkCollisions() {
-            synchronized (mTunnel) {
-                for (int i = mPlayer.mPositionX; i <= mPlayer.mWidth; i++) {
-                    Wall wall = mTunnel.get(i);
-                    if (wall.top > mPlayer.mPositionY || wall.bottom < mPlayer.mPositionY) {
-                        gameOver();
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void gameOver() {
-            // TODO complete
-            Log.d(TAG, "Game Over");
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
@@ -237,14 +181,14 @@ public class GameTunnel extends GameFragment {
                 long timeSleep;
                 while (!isCancelled()) {
                     timeStart = System.currentTimeMillis();
-
-                    updatePlayer();
-                    for (int i = 0; i < mSpeed; i++) {
-                        updateTunnel();
+                    if (mSizeSet) {
+                        updatePlayer();
+                        for (int i = 0; i < mSpeed; i++) {
+                            updateTunnel();
+                        }
+                        checkCollisions();
+                        publishProgress();
                     }
-                    checkCollisions();
-                    publishProgress();
-
                     timeEnd = System.currentTimeMillis();
                     timeSleep = (1000 / FPS) - (timeEnd - timeStart);
                     // Delay
@@ -269,8 +213,66 @@ public class GameTunnel extends GameFragment {
                 Log.v(TAG, "Thread: Cancelled");
                 super.onCancelled(result);
             }
+
+            private void updatePlayer() {
+                mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
+                mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
+            }
+
+            private void updateTunnel() {
+                // update tunnel position
+                int tunnelPosY = (int) interpolate(mCurvePrevious, mCurveNext,
+                        (float) mCurveStep / mCurveWidth);
+
+                double deltaY = interpolate(mCurvePrevious, mCurveNext,
+                        (float) (mCurveStep + 1) / mCurveWidth)
+                        - interpolate(mCurvePrevious, mCurveNext,
+                                (float) (mCurveStep) / mCurveWidth);
+                int deltaX = 1;
+                double alpha = Math.atan((Math.abs((float) (deltaY / deltaX))));
+                double beta = 180 - 90 - Math.toDegrees(alpha);
+                float c = (float) (mTunnelHeight / Math.sin(Math.toRadians(beta)));
+
+                mCurveStep = (mCurveStep + 1) % mCurveWidth;
+                if (mCurveStep == 0) {
+                    mCurvePrevious = mCurveNext;
+                    mCurveNext = new Random().nextInt(mViewHeightMax);
+                }
+
+                // update tunnelHeight
+                mTunnelHeight = ((mTunnelHeight - mMinTunnelHeight) * 0.999f)
+                        + mMinTunnelHeight;
+
+                // generate wall
+                Wall wall = new Wall((int) (tunnelPosY - c / 2.0f),
+                        (int) (tunnelPosY + c / 2.0f));
+                mTunnel.removeFirst();
+                mTunnel.addLast(wall);
+                // draw offscreen
+                wall.draw(mBufferCanvas, (mViewPortOffset + mViewWidthMax + (mBufferColumns / 2))
+                        % mBitmapWidth);
+                mViewPortOffset = (mViewPortOffset + 1) % mBitmapWidth;
+            }
+
+            private void checkCollisions() {
+                for (int i = mPlayer.mPositionX; i <= mPlayer.mWidth; i++) {
+                    Wall wall = mTunnel.get(i);
+                    if (wall.top > mPlayer.mPositionY || wall.bottom < mPlayer.mPositionY) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+
+            private void gameOver() {
+                // TODO complete
+                Log.d(TAG, "Game Over");
+            }
         }
 
+        /**
+         * Wall
+         */
         private class Wall {
             private final int top;
             private final int bottom;
@@ -300,8 +302,6 @@ public class GameTunnel extends GameFragment {
 
         /**
          * Player
-         * 
-         * @author Mike
          */
         private class Player {
             private int mWidth;

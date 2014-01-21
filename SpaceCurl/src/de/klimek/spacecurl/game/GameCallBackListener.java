@@ -1,6 +1,6 @@
 
 package de.klimek.spacecurl.game;
 
-public interface OnGameFinishedListener {
+public interface GameCallBackListener {
     public void onGameFinished();
 }

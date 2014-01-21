@@ -60,14 +60,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     // List of pairs. Each pair contains a
     // Class object and a Bundle for its Settings.
     private Training mFreeplayGames;
-    private List<String> mGameTitles = new ArrayList<String>();;
 
     private FrameLayout mGameFrame;
     private PauseView mPauseView;
 
-    private State mState = State.Paused;
+    private State mState = State.Running;
 
-    private static enum State {
+    public static enum State {
         Paused, Pausing, Running
     }
 
@@ -117,14 +116,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // }
     }
 
-    private void setupPauseView() {
-        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
-        mGameFrame.setOnClickListener(this);
-        mPauseView = new PauseView(this);
-        mPauseView.setVisibility(View.INVISIBLE);
-        mGameFrame.addView(mPauseView);
-    }
-
     private void setupStatusFragment() {
         mStatusFragment = new StatusFragment();
         getSupportFragmentManager().beginTransaction()
@@ -137,9 +128,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         panel.setPanelHeight(cardHeight + padding);
     }
 
+    private void setupPauseView() {
+        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
+        mGameFrame.setOnClickListener(this);
+        mPauseView = new PauseView(this);
+        mPauseView.setVisibility(View.INVISIBLE);
+        mGameFrame.addView(mPauseView);
+    }
+
     /**
      * Creates the {@link ActionBar} and the {@link Spinner} and enables its
-     * Functionality
+     * functionality
      * 
      * @see <a
      *      href="http://developer.android.com/design/patterns/actionbar.html">
@@ -149,18 +148,19 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
      *      Spinner Design</a>
      */
     private void setupActionbar() {
-        for (GameSettingsPair curGame : mFreeplayGames) {
-            mGameTitles.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
-        }
         mActionBar = getActionBar();
         mActionBar.setDisplayShowTitleEnabled(false);
         // mActionbar.setDisplayShowHomeEnabled(false); // no "up-caret"
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+
         // Adapter to fill spinner with items
+        List<String> gameTitles = new ArrayList<String>();
+        for (GameSettingsPair curGame : mFreeplayGames) {
+            gameTitles.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
+        }
         SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
-                mGameTitles);
-        // Listener which calls selectSpinnerItem(position) when an item is
-        // selected
+                gameTitles);
+        // Listener which calls selectSpinnerItem(pos) when an item is selected
         OnNavigationListener onNavigationListener = new OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int position, long itemId) {
@@ -172,14 +172,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 onNavigationListener);
     }
 
-    /**
-     * Switches the GameFragment and registers the StatusFragment as an
-     * onStatusChangedListener. Hides status depending on
-     * GameFragment.usesStatus()
-     * 
-     * @param position position of the item in the spinner
-     */
     private void switchToGame(GameSettingsPair pair) {
+        if (mGameFragment != null) {
+            mGameFragment.setState(State.Paused);
+        }
         // GameFragment:
         GameFragment newGameFragment;
         try {
@@ -195,6 +191,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         }
 
         // StatusFragment:
+        // TODO functionality
         Status status = new Status();
         GraphViewSeries graphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
@@ -214,8 +211,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // Transaction
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.game_frame, newGameFragment).commit();
+
         // previous GameFragment will be garbage collected
         mGameFragment = newGameFragment;
+        mState = State.Running;
+        resumeGame();
     }
 
     /**
@@ -238,7 +238,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // myIntent.putExtra("key", value); //Optional parameters
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.action_about:
@@ -276,18 +275,20 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 mActionBar.getSelectedNavigationIndex());
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mState = State.Paused;
-        pauseGame();
-    }
+    // @Override
+    // protected void onPause() {
+    // super.onPause();
+    // mState = State.Paused;
+    // pauseGame();
+    // }
 
     @Override
     public void onUserInteraction() {
         if (mState == State.Running) {
             mState = State.Pausing;
             pauseGame();
+        } else if (mState == State.Pausing) {
+            mState = State.Paused;
         }
         Log.d(TAG, "UserInteraction");
         super.onUserInteraction();
@@ -303,36 +304,33 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             resumeGame();
             mState = State.Running;
         } else if (mState == State.Pausing) {
+            // just paused in onUserInteraction, dont resume
             mState = State.Paused;
         }
-
     }
 
     private void pauseGame() {
         Log.d(TAG, "Paused");
         if (mGameFragment != null) {
-            mGameFragment.pauseGame();
+            mGameFragment.setState(State.Paused);
         }
         // Show pause symbol and grey out screen
-        // mGameFrame.addView(mPauseView);
-        mPauseView.bringToFront();
         mPauseView.setVisibility(View.VISIBLE);
+        mPauseView.bringToFront();
     }
 
     private void resumeGame() {
         Log.d(TAG, "Resumed");
         // hide navigation bar.
-        // FIXME flags reset when actionbar spinner or overflow window opens
+        // XFIXME flags reset when actionbar spinner or overflow window opens
         // View decorView = getWindow().getDecorView();
         // int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         // // | View.SYSTEM_UI_FLAG_FULLSCREEN
         // // |View.SYSTEM_UI_FLAG_LOW_PROFILE
         // | View.SYSTEM_UI_FLAG_IMMERSIVE;
         // decorView.setSystemUiVisibility(uiOptions);
-        // remove pausescreen and resume game
-        // mGameFrame.removeView(mPauseView);
         mPauseView.setVisibility(View.INVISIBLE);
-        mGameFragment.resumeGame();
+        mGameFragment.setState(State.Running);
     }
 
     private class PauseView extends View {

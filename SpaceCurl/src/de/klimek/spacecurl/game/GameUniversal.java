@@ -32,6 +32,7 @@ public class GameUniversal extends GameFragment {
         // TODO get & set Target Position
         // getArguments().get...(ARG_TARGET_POSITION);
         mGame = new GameUniversalView(getActivity());
+        resumeGame();
         return mGame;
     }
 
@@ -65,6 +66,9 @@ public class GameUniversal extends GameFragment {
         private int mCenterX;
         private int mCenterY;
         private int mMinBorder;
+        private boolean mSizeChanged = false;
+
+        private boolean mFinished = false;
 
         private Player mPlayer;
         private Target mTarget;
@@ -115,7 +119,7 @@ public class GameUniversal extends GameFragment {
             int circleCount = 6;
             mCircles = new CenteredCircles(circleCount, mMinBorder / (circleCount * 2), mCenterX,
                     mCenterY);
-
+            mSizeChanged = true;
         }
 
         @Override
@@ -129,9 +133,11 @@ public class GameUniversal extends GameFragment {
             @Override
             protected Void doInBackground(Void... params) {
                 while (!isCancelled()) {
-                    updatePlayer();
-                    checkFinished();
-                    publishProgress();
+                    if (mSizeChanged) {
+                        updatePlayer();
+                        checkFinished();
+                        publishProgress();
+                    }
                     // Delay
                     try {
                         Thread.sleep(1000 / 30); // 30 FPS
@@ -150,13 +156,17 @@ public class GameUniversal extends GameFragment {
 
             private void checkFinished() {
                 if (mPlayer.intersects(mTarget)) {
-                    Log.d(TAG, "intersects");
+                    mFinished = true;
                 }
 
             }
 
             @Override
             protected void onProgressUpdate(Void... values) {
+                if (mFinished) {
+                    postFinished();
+                    this.cancel(true);
+                }
                 mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
                         + .5f;
                 mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
@@ -171,6 +181,9 @@ public class GameUniversal extends GameFragment {
             }
         }
 
+        /**
+         * Target
+         */
         private class Target {
             private int mRadius;
             private int mPositionX;
@@ -195,6 +208,9 @@ public class GameUniversal extends GameFragment {
             }
         }
 
+        /**
+         * Player
+         */
         private class Player {
             private int mAxisLength;
             private int mPositionX;
@@ -229,6 +245,9 @@ public class GameUniversal extends GameFragment {
             }
         }
 
+        /**
+         * CenteredCircles
+         */
         private class CenteredCircles {
             private int mPositionX;
             private int mPositionY;

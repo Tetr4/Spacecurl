@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import de.klimek.spacecurl.MainActivity.State;
 import de.klimek.spacecurl.util.collection.Status;
 
 /**
@@ -21,8 +22,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public static final String TAG = "GameFragment"; // Used for log output
     public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
     public static final String ARG_TITLE = "ARG_TITLE";
-
-    private Status mStatus;
 
     // Members for Sensor
     private SensorManager mSensorManager;
@@ -37,6 +36,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mHasAccel = false;
     private boolean mHasMag = false;
 
+    private Status mStatus;
+
+    private boolean mViewCreated = false;
+    private State mState = State.Running;
+
     public static enum FreeAxisCount {
         Zero, One, Two, Three
     }
@@ -50,9 +54,26 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     }
 
-    public abstract void pauseGame();
+    public void setState(State state) {
+        mState = state;
+        if (mViewCreated) {
+            switch (state) {
+                case Paused:
+                    pauseGame();
+                    break;
+                case Running:
+                    resumeGame();
+                    break;
 
-    public abstract void resumeGame();
+                default:
+                    break;
+            }
+        }
+    }
+
+    protected abstract void pauseGame();
+
+    protected abstract void resumeGame();
 
     public abstract FreeAxisCount getFreeAxisCount();
 
@@ -66,10 +87,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         mStatus = status;
     }
 
-    public void postFinished() {
+    protected void postFinished() {
         FragmentActivity activity = getActivity();
-        if (activity instanceof OnGameFinishedListener) {
-            ((OnGameFinishedListener) activity).onGameFinished();
+        if (activity instanceof GameCallBackListener) {
+            ((GameCallBackListener) activity).onGameFinished();
         }
     }
 
@@ -89,12 +110,29 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         // TODO maybe onActivitycreated instead
-        super.onCreate(savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
         if (isUsingSensor()) {
             // Setup Sensormanager
             mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        }
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        mViewCreated = true;
+        switch (mState) {
+            case Paused:
+                pauseGame();
+                break;
+            case Pausing:
+                pauseGame();
+                break;
+            case Running:
+                resumeGame();
+                break;
         }
     }
 

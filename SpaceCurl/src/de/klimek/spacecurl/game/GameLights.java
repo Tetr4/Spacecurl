@@ -21,14 +21,14 @@ public class GameLights extends GameFragment {
     private static final int FPS = 30;
     private int mGoalDistance = 60000;
     private volatile float mDistance = 0;
-    private volatile long mRemainingStageTime = 30000;
+    private volatile long mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;;
     private volatile long mTotalTime = 0;
     private volatile boolean mBonus = false;
     private float mAngularSpeed;
 
-    private State mState = State.Result;
+    private Stage mStage = Stage.Go;
 
-    private static enum State {
+    private static enum Stage {
         Go, Stop, Result
     }
 
@@ -71,7 +71,7 @@ public class GameLights extends GameFragment {
 
         mTextViewFinalTime = (TextView) rootView.findViewById(R.id.game_lights_final_time);
         mTextViewContinueTime = (TextView) rootView.findViewById(R.id.game_lights_continue_time);
-        stop();
+        go();
         return rootView;
     }
 
@@ -142,13 +142,6 @@ public class GameLights extends GameFragment {
     private class LogicThread extends AsyncTask<Void, Void, Void> {
 
         @Override
-        protected void onPreExecute() {
-            mState = State.Go;
-            mTotalTime = 0;
-            mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
-        }
-
-        @Override
         protected Void doInBackground(Void... params) {
             long _lastTime = System.currentTimeMillis();
             long _curTime;
@@ -163,10 +156,10 @@ public class GameLights extends GameFragment {
                     // TODO set mBonus
                     // prevent potential overflow
                     rotation = mAngularSpeed * _deltaTime;
-                    switch (mState) {
+                    switch (mStage) {
                         case Go:
                             if (Long.MAX_VALUE - _deltaTime < mTotalTime) { // Overflow
-                                mState = State.Result;
+                                mStage = Stage.Result;
                                 mRemainingStageTime = 10000;
                             }
                             mTotalTime += _deltaTime;
@@ -180,23 +173,23 @@ public class GameLights extends GameFragment {
                         case Result:
                             break;
                     }
-                    if (mState != State.Result && mDistance >= mGoalDistance) {
-                        mState = State.Result;
+                    if (mStage != Stage.Result && mDistance >= mGoalDistance) {
+                        mStage = Stage.Result;
                         mRemainingStageTime = 10000;
                     }
 
                 } else {
-                    switch (mState) {
+                    switch (mStage) {
                         case Go:
-                            mState = State.Stop;
+                            mStage = Stage.Stop;
                             mRemainingStageTime = new Random().nextInt(10000 - 5000) + 5000;
                             break;
                         case Stop:
-                            mState = State.Go;
+                            mStage = Stage.Go;
                             mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
                             break;
                         case Result:
-                            mState = State.Go;
+                            mStage = Stage.Go;
                             mTotalTime = 0;
                             mDistance = 0;
                             mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;
@@ -218,7 +211,7 @@ public class GameLights extends GameFragment {
 
         @Override
         protected void onProgressUpdate(Void... values) {
-            switch (mState) {
+            switch (mStage) {
                 case Go:
                     go();
                     break;

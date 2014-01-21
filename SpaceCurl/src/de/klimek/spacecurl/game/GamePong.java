@@ -56,9 +56,9 @@ public class GamePong extends GameFragment {
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
         private int mViewWidthMin = 0; // This view's bounds
-        private int mViewWidthMax;
+        private int mViewWidthMax = 0;
         private int mViewHeightMin = 0;
-        private int mViewHeightMax;
+        private int mViewHeightMax = 0;
 
         private Ball mBall;
         private Paddle mPaddleUp;
@@ -122,70 +122,12 @@ public class GamePong extends GameFragment {
             mPaddleRight.draw(canvas);
         }
 
-        private void updatePaddles() {
-            mPaddleUp.mPositionX = (int) (mPitch * mViewWidthMax);
-            mPaddleUp.mPositionY = mPaddlePadding;
-            mPaddleDown.mPositionX = (int) (mPitch * mViewWidthMax);
-            mPaddleDown.mPositionY = mViewHeightMax - mPaddlePadding;
-            mPaddleLeft.mPositionX = mViewWidthMin + mPaddlePadding;
-            mPaddleLeft.mPositionY = (int) (mRoll * mViewHeightMax);
-            mPaddleRight.mPositionX = mViewWidthMax - mPaddlePadding;
-            mPaddleRight.mPositionY = (int) (mRoll * mViewHeightMax);
-        }
-
-        private void updateBall() {
-            // Get new (x,y) position
-            mBall.mPositionX += mBall.mSpeedX;
-            mBall.mPositionY += mBall.mSpeedY;
-        }
-
-        private void checkCollisions() {
-            // Check paddle collisions and react
-            if (mBall.collidesWithPaddle(mPaddleUp)) {
-                mBall.mSpeedY = Math.abs(mBall.mSpeedY);
-            }
-            if (mBall.collidesWithPaddle(mPaddleDown)) {
-                mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
-            }
-            if (mBall.collidesWithPaddle(mPaddleLeft)) {
-                mBall.mSpeedX = Math.abs(mBall.mSpeedX);
-            }
-            if (mBall.collidesWithPaddle(mPaddleRight)) {
-                mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
-            }
-            // // Detect wall collisions and react
-            // if (mBall.mPositionX + mBall.mRadius > mViewWidthMax) {
-            // mBall.mSpeedX = -mBall.mSpeedX;
-            // mBall.mPositionX = mViewWidthMax - mBall.mRadius;
-            // } else if (mBall.mPositionX - mBall.mRadius < mViewWidthMin) {
-            // mBall.mSpeedX = -mBall.mSpeedX;
-            // mBall.mPositionX = mViewWidthMin + mBall.mRadius;
-            // }
-            // if (mBall.mPositionY + mBall.mRadius > mViewHeightMax) {
-            // mBall.mSpeedY = -mBall.mSpeedY;
-            // mBall.mPositionY = mViewHeightMax - mBall.mRadius;
-            // } else if (mBall.mPositionY - mBall.mRadius < mViewHeightMin) {
-            // mBall.mSpeedY = -mBall.mSpeedY;
-            // mBall.mPositionY = mViewHeightMin + mBall.mRadius;
-            // }
-            if (mBall.collidesWithWall())
-                serveBall();
-        }
-
-        private void serveBall() {
-            mBall.mPositionX = mViewWidthMax / 2;
-            mBall.mPositionY = mViewHeightMax / 2;
-            // mBall.mSpeed += mBallSpeedModifier;
-            // mBall.randomAngle();
-        }
-
         // Called back when the view is first created or its size changes.
         @Override
         public void onSizeChanged(int w, int h, int oldW, int oldH) {
             // Set the movement bounds for the ball
             mViewWidthMax = w - 1;
             mViewHeightMax = h - 1;
-            invalidate();
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
@@ -230,12 +172,69 @@ public class GamePong extends GameFragment {
                 Log.v(TAG, "Thread: Cancelled");
                 super.onCancelled(result);
             }
+
+            private void updatePaddles() {
+                mPaddleUp.mPositionX = (int) (mPitch * mViewWidthMax);
+                mPaddleUp.mPositionY = mPaddlePadding;
+                mPaddleDown.mPositionX = (int) (mPitch * mViewWidthMax);
+                mPaddleDown.mPositionY = mViewHeightMax - mPaddlePadding;
+                mPaddleLeft.mPositionX = mViewWidthMin + mPaddlePadding;
+                mPaddleLeft.mPositionY = (int) (mRoll * mViewHeightMax);
+                mPaddleRight.mPositionX = mViewWidthMax - mPaddlePadding;
+                mPaddleRight.mPositionY = (int) (mRoll * mViewHeightMax);
+            }
+
+            private void updateBall() {
+                // Get new (x,y) position
+                mBall.mPositionX += mBall.mSpeedX;
+                mBall.mPositionY += mBall.mSpeedY;
+            }
+
+            private void checkCollisions() {
+                // Check paddle collisions and react
+                if (mBall.collidesWithPaddle(mPaddleUp)) {
+                    mBall.mSpeedY = Math.abs(mBall.mSpeedY);
+                }
+                if (mBall.collidesWithPaddle(mPaddleDown)) {
+                    mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
+                }
+                if (mBall.collidesWithPaddle(mPaddleLeft)) {
+                    mBall.mSpeedX = Math.abs(mBall.mSpeedX);
+                }
+                if (mBall.collidesWithPaddle(mPaddleRight)) {
+                    mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
+                }
+                // // Detect wall collisions and react
+                // if (mBall.mPositionX + mBall.mRadius > mViewWidthMax) {
+                // mBall.mSpeedX = -mBall.mSpeedX;
+                // mBall.mPositionX = mViewWidthMax - mBall.mRadius;
+                // } else if (mBall.mPositionX - mBall.mRadius < mViewWidthMin)
+                // {
+                // mBall.mSpeedX = -mBall.mSpeedX;
+                // mBall.mPositionX = mViewWidthMin + mBall.mRadius;
+                // }
+                // if (mBall.mPositionY + mBall.mRadius > mViewHeightMax) {
+                // mBall.mSpeedY = -mBall.mSpeedY;
+                // mBall.mPositionY = mViewHeightMax - mBall.mRadius;
+                // } else if (mBall.mPositionY - mBall.mRadius < mViewHeightMin)
+                // {
+                // mBall.mSpeedY = -mBall.mSpeedY;
+                // mBall.mPositionY = mViewHeightMin + mBall.mRadius;
+                // }
+                if (mBall.collidesWithWall())
+                    serveBall();
+            }
+
+            private void serveBall() {
+                mBall.mPositionX = mViewWidthMax / 2;
+                mBall.mPositionY = mViewHeightMax / 2;
+                // mBall.mSpeed += mBallSpeedModifier;
+                // mBall.randomAngle();
+            }
         }
 
         /**
          * Ball
-         * 
-         * @author Mike
          */
         private class Ball {
             private int mRadius = 40; // Ball's radius
@@ -290,14 +289,12 @@ public class GamePong extends GameFragment {
 
         /**
          * Paddle
-         * 
-         * @author Mike
          */
         private class Paddle {
             private int mWidth = 196;
             private int mHeight = 50;
-            private int mPositionX = mViewWidthMax / 2;
-            private int mPositionY = mViewHeightMax / 2;
+            private int mPositionX;
+            private int mPositionY;
             private Paint mPaint = new Paint();
             private Rect mRect = new Rect();
             private boolean isHorizontal = true;

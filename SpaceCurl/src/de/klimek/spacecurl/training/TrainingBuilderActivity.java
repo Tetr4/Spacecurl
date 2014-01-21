@@ -36,9 +36,11 @@ public class TrainingBuilderActivity extends FragmentActivity {
         if (key != NEW_TRAINING) {
             mTraining = mDatabase.getTrainings().get(key);
         } else {
-            mTraining = new Training("");
+            mTraining = new Training("New Training");
+            mDatabase.getTrainings().add(mTraining);
         }
 
+        // TODO Add "delete training" to actionbar/overflow
         setContentView(R.layout.activity_training_builder);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setupCards();

@@ -25,8 +25,9 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
+import de.klimek.spacecurl.MainActivity.State;
+import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.OnGameFinishedListener;
 import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
@@ -43,7 +44,7 @@ import de.klimek.spacecurl.util.collection.Training;
  *      API</a>
  */
 public class TrainingActivity extends FragmentActivity implements OnClickListener,
-        OnGameFinishedListener {
+        GameCallBackListener {
     private static final String TAG = "TrainingActivity"; // Used for log output
     protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
@@ -57,10 +58,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     private PauseView mPauseView;
 
     private State mState = State.Paused;
-
-    private static enum State {
-        Paused, Pausing, Running
-    }
 
     private Training mTraining;
     private int mTrainingIndex = -1;
@@ -168,12 +165,19 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         mActionBar.setDisplayShowTitleEnabled(true);
     }
 
+    private void previousGame() {
+        Log.d("Training", "previousGame");
+        if (mTrainingIndex - 1 >= 0) {
+            mGameSettingsPair = mTraining.get(--mTrainingIndex);
+            switchToGame(mGameSettingsPair);
+        }
+    }
+
     private void nextGame() {
         Log.d("Training", "nextGame");
         if (mTrainingIndex + 1 < mTraining.size()) {
             mGameSettingsPair = mTraining.get(++mTrainingIndex);
             switchToGame(mGameSettingsPair);
-            Log.d("Training1", "Next GAME:" + mGameSettingsPair.getGameClassName());
         } else {
             // Arrived at end of training
             mSlidingUpPanel.expandPane();
@@ -185,15 +189,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         nextGame();
     }
 
-    private void previousGame() {
-        Log.d("Training", "previousGame");
-        if (mTrainingIndex - 1 >= 0) {
-            mGameSettingsPair = mTraining.get(--mTrainingIndex);
-            switchToGame(mGameSettingsPair);
-            Log.d("Training1", "Previous GAME:" + mGameSettingsPair.getGameClassName());
-        }
-    }
-
     /**
      * Switches the GameFragment and registers the StatusFragment as an
      * onStatusChangedListener. Hides status depending on
@@ -202,7 +197,9 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
      * @param position position of the item in the spinner
      */
     private void switchToGame(GameSettingsPair pair) {
-        pauseGame();
+        if (mGameFragment != null) {
+            mGameFragment.setState(State.Paused);
+        }
         // GameFragment:
         GameFragment newGameFragment;
         try {
@@ -218,6 +215,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         }
 
         // StatusFragment:
+        // TODO functionality
         Status status = new Status();
         GraphViewSeries graphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
@@ -233,14 +231,22 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         // card.addGraphData(new GraphViewData(5, score));
         mStatusFragment.addStatus(status);
         newGameFragment.setStatus(status);
+
         // Transaction
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.game_frame, newGameFragment).commit();
-        // previous GameFragment will be garbage collected
-        mTitle = pair.getSettings().getString(GameFragment.ARG_TITLE);
-        mActionBar.setTitle(mTitle);
-        mGameFragment = newGameFragment;
+
+        // Actionbar title and icons
+        mTitle = mGameSettingsPair.getSettings().getString(GameFragment.ARG_TITLE);
+        mActionBar.setTitle(
+                mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
+                );
         invalidateOptionsMenu();
+
+        // previous GameFragment will be garbage collected
+        mGameFragment = newGameFragment;
+        mState = State.Running;
+        resumeGame();
     }
 
     /**
@@ -254,7 +260,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         MenuItem itemNext = menu.findItem(R.id.action_next_game);
         itemNext.setVisible(mTrainingIndex + 1 < mTraining.size());
         MenuItem itemPrevious = menu.findItem(R.id.action_previous_game);
-        itemPrevious.setVisible(mTrainingIndex - 1 >= 0);
+        itemPrevious.setVisible(mTrainingIndex > 0);
         return true;
     }
 
@@ -320,36 +326,33 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
             resumeGame();
             mState = State.Running;
         } else if (mState == State.Pausing) {
+            // just paused in onUserInteraction, dont resume
             mState = State.Paused;
         }
-
     }
 
     private void pauseGame() {
         Log.d(TAG, "Paused");
         if (mGameFragment != null) {
-            mGameFragment.pauseGame();
+            mGameFragment.setState(State.Paused);
         }
         // Show pause symbol and grey out screen
-        // mGameFrame.addView(mPauseView);
-        mPauseView.bringToFront();
         mPauseView.setVisibility(View.VISIBLE);
+        mPauseView.bringToFront();
     }
 
     private void resumeGame() {
         Log.d(TAG, "Resumed");
         // hide navigation bar.
-        // FIXME flags reset when actionbar spinner or overflow window opens
+        // XFIXME flags reset when actionbar spinner or overflow window opens
         // View decorView = getWindow().getDecorView();
         // int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         // // | View.SYSTEM_UI_FLAG_FULLSCREEN
         // // |View.SYSTEM_UI_FLAG_LOW_PROFILE
         // | View.SYSTEM_UI_FLAG_IMMERSIVE;
         // decorView.setSystemUiVisibility(uiOptions);
-        // remove pausescreen and resume game
-        // mGameFrame.removeView(mPauseView);
         mPauseView.setVisibility(View.INVISIBLE);
-        mGameFragment.resumeGame();
+        mGameFragment.setState(State.Running);
     }
 
     private class PauseView extends View {
