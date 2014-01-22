@@ -84,7 +84,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         mDatabase = Database.getInstance(this);
         mFreeplayGames = mDatabase.getFreeplayGames();
         setupSettings();
-        setupStatusFragment();
+        setupStatusFragment(false);
         setupPauseView();
         setupActionbar();
         if (savedInstanceState == null) {
@@ -116,7 +116,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // }
     }
 
-    private void setupStatusFragment() {
+    private void setupStatusFragment(boolean show) {
         mStatusFragment = new StatusFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.status_frame, mStatusFragment).commit();
@@ -125,7 +125,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 .getDimension(R.dimen.card_height));
         int padding = 12;
         SlidingUpPanelLayout panel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
-        panel.setPanelHeight(cardHeight + padding);
+        if (show)
+            panel.setPanelHeight(cardHeight + padding);
+        else
+            panel.setPanelHeight(-1);
     }
 
     private void setupPauseView() {
