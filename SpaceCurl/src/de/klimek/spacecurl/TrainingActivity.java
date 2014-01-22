@@ -287,6 +287,9 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
             case R.id.action_next_game:
                 nextGame();
                 break;
+            case R.id.action_freeplay:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }

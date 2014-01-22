@@ -62,15 +62,15 @@ public class GameLights extends GameFragment {
 
         mLayoutStopAndGo = (LinearLayout) rootView
                 .findViewById(R.id.game_lights_layout_stop_and_go);
-        mLayoutResult = (LinearLayout) rootView.findViewById(R.id.game_lights_layout_result);
+        mLayoutResult = (LinearLayout) rootView.findViewById(R.id.game_result_layout);
         mTextViewMessage = (TextView) rootView.findViewById(R.id.game_lights_message);
         mTextViewRemainingTime = (TextView) rootView.findViewById(R.id.game_lights_remaining_time);
         mTextViewTotalTime = (TextView) rootView.findViewById(R.id.game_lights_total_time);
         mTextViewBonus = (TextView) rootView.findViewById(R.id.game_lights_bonus);
         mProgressBar = (ProgressBar) rootView.findViewById(R.id.game_lights_progress);
 
-        mTextViewFinalTime = (TextView) rootView.findViewById(R.id.game_lights_final_time);
-        mTextViewContinueTime = (TextView) rootView.findViewById(R.id.game_lights_continue_time);
+        mTextViewFinalTime = (TextView) rootView.findViewById(R.id.game_result_score);
+        mTextViewContinueTime = (TextView) rootView.findViewById(R.id.game_result_continue_time);
         go();
         return rootView;
     }
@@ -144,41 +144,47 @@ public class GameLights extends GameFragment {
         @Override
         protected Void doInBackground(Void... params) {
             long _lastTime = System.currentTimeMillis();
-            long _curTime;
+            long _startTime;
             long _deltaTime;
+            long _timeEnd;
+            long _timeSleep;
             float rotation;
             while (!isCancelled()) {
-                _curTime = System.currentTimeMillis();
-                _deltaTime = _curTime - _lastTime;
-                _lastTime = _curTime;
+                _startTime = System.currentTimeMillis();
+                _deltaTime = _startTime - _lastTime;
+                _lastTime = _startTime;
                 mRemainingStageTime -= _deltaTime;
+                // Stage time remaining
                 if (mRemainingStageTime > 1000) {
                     // TODO set mBonus
-                    // prevent potential overflow
                     rotation = mAngularSpeed * _deltaTime;
                     switch (mStage) {
                         case Go:
-                            if (Long.MAX_VALUE - _deltaTime < mTotalTime) { // Overflow
+                            // prevent potential overflow
+                            if (Long.MAX_VALUE - _deltaTime < mTotalTime) {
                                 mStage = Stage.Result;
                                 mRemainingStageTime = 10000;
                             }
                             mTotalTime += _deltaTime;
                             mDistance += rotation;
                             break;
+
                         case Stop:
                             mDistance -= rotation;
                             if (mDistance < 0)
                                 mDistance = 0;
                             break;
+
                         case Result:
                             break;
                     }
+                    // reached goal
                     if (mStage != Stage.Result && mDistance >= mGoalDistance) {
                         mStage = Stage.Result;
                         mRemainingStageTime = 10000;
                     }
 
-                } else {
+                } else { // Stage time ran out
                     switch (mStage) {
                         case Go:
                             mStage = Stage.Stop;
@@ -196,12 +202,13 @@ public class GameLights extends GameFragment {
                             break;
                     }
                 }
-
+                _timeEnd = System.currentTimeMillis();
+                _timeSleep = (1000 / FPS) - (_timeEnd - _startTime);
                 publishProgress();
 
                 // Delay
                 try {
-                    Thread.sleep(1000 / FPS);
+                    Thread.sleep(_timeSleep < 0 ? 0 : _timeSleep);
                 } catch (InterruptedException e) {
                     // e.printStackTrace();
                 }

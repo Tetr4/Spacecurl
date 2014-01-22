@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_result_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/game_result_color"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="invisible" >
+
+    <TextView
+        android:id="@+id/game_result_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="10.0"
+        android:text="Ergebnis"
+        android:textColor="@color/text_game_color"
+        android:textSize="70sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/game_result_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+                android:shadowColor="#FF000000"
+        android:shadowRadius="10.0"
+        android:gravity="center"
+        android:text="12:00"
+        android:textColor="@color/text_game_color"
+        android:textSize="80sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/game_result_continue_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="10.0"
+        android:text="Es geht weiter in:"
+        android:textColor="@color/text_game_color"
+        android:textSize="40sp" />
+
+    <TextView
+        android:id="@+id/game_result_continue_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="12"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="10.0"
+        android:textColor="@color/text_game_color"
+        android:textSize="60sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

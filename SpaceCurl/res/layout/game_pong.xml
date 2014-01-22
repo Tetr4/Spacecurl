@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <FrameLayout
+        android:id="@+id/game_pong_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/game_pong_color">
+
+        <TextView
+            android:id="@+id/game_pong_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:shadowColor="#FF000000"
+            android:shadowRadius="10.0"
+            android:text="Score"
+            android:textColor="@color/text_game_color"
+            android:textSize="50sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <include
+ 	  android:layout_width="match_parent"
+ 	  android:layout_height="match_parent"
+ 	  layout="@layout/game_result" />
+
+</RelativeLayout>

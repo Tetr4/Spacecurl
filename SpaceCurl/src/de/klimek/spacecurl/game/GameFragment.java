@@ -22,6 +22,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public static final String TAG = "GameFragment"; // Used for log output
     public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
     public static final String ARG_TITLE = "ARG_TITLE";
+    public static final String ARG_INVERSE_CONTROL = "ARG_INVERSE_CONTROL";
 
     // Members for Sensor
     private SensorManager mSensorManager;
@@ -35,6 +36,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mHasGrav = false;
     private boolean mHasAccel = false;
     private boolean mHasMag = false;
+    private boolean mHasGyro = false;
 
     private Status mStatus;
 
@@ -110,6 +112,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     protected float getRotationSpeed() {
         return Math.abs(mRotation[0]) + Math.abs(mRotation[1]) + Math.abs(mRotation[2]);
+    }
+
+    protected boolean hasOrientation() {
+        return !(getOrientation()[1] == 0.0f);
     }
 
     @Override
@@ -192,6 +198,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mRotation[0] = event.values[0];
                 mRotation[1] = event.values[1];
                 mRotation[2] = event.values[2];
+                mHasGyro = true;
                 break;
             default:
                 return;

@@ -124,6 +124,8 @@ public class GameUniversal extends GameFragment {
 
         @Override
         protected void onDraw(Canvas canvas) {
+            if (!hasOrientation())
+                return;
             mTarget.draw(canvas);
             mPlayer.draw(canvas);
             mCircles.draw(canvas);
@@ -149,9 +151,12 @@ public class GameUniversal extends GameFragment {
             }
 
             private void updatePlayer() {
+                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
+                        + .5f;
+                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
+                        + mPhoneInclination;
                 mPlayer.mPositionX = (int) (mPitch * mMinBorder);
                 mPlayer.mPositionY = (int) (mRoll * mMinBorder);
-
             }
 
             private void checkFinished() {
@@ -167,10 +172,6 @@ public class GameUniversal extends GameFragment {
                     notifyFinished();
                     this.cancel(true);
                 }
-                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
-                        + .5f;
-                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
-                        + mPhoneInclination;
                 invalidate();
             }
 

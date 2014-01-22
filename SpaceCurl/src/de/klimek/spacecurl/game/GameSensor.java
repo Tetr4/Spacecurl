@@ -27,10 +27,6 @@ public class GameSensor extends GameFragment {
         orientYValue = (TextView) rootView.findViewById(R.id.orient_y_value);
         orientZValue = (TextView) rootView.findViewById(R.id.orient_z_value);
 
-        orientXValue.setText("0.00");
-        orientYValue.setText("0.00");
-        orientZValue.setText("0.00");
-
         return rootView;
     }
 
