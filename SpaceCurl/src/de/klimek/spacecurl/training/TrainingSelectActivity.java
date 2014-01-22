@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -54,8 +56,19 @@ public class TrainingSelectActivity extends FragmentActivity {
     }
 
     private void setupListView() {
-        mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
         mListView = (ListView) findViewById(R.id.training_list);
+        View footerItem = getLayoutInflater()
+                .inflate(R.layout.list_item_training_footer, mListView, false);
+        mListView.addFooterView(footerItem, null, false);
+        mListView.setClickable(true);
+        mListView.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                editTraining(mTrainings.get(position));
+            }
+        });
+        mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
         if (mListView != null) {
             mListView.setAdapter(mArrayAdapter);
         }
@@ -101,25 +114,16 @@ public class TrainingSelectActivity extends FragmentActivity {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View listItemView = inflater.inflate(R.layout.list_item_training, parent, false);
-            listItemView.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    editTraining(training);
-                }
-            });
+            // listItemView.setOnClickListener(new OnClickListener() {
+            // @Override
+            // public void onClick(View v) {
+            // editTraining(training);
+            // }
+            // });
             TextView trainingName = (TextView) listItemView.findViewById(R.id.training_name);
             ImageButton playButton = (ImageButton) listItemView
                     .findViewById(R.id.training_play_button);
             playButton.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    startTraining(training);
-                }
-            });
-            playButton.setOnClickListener(new OnClickListener() {
-
                 @Override
                 public void onClick(View v) {
                     startTraining(training);

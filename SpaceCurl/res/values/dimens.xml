@@ -7,6 +7,10 @@
     <dimen name="drawer_width">240dp</dimen>
     <dimen name="drawer_divider_height">1dp</dimen>
     <dimen name="card_height">96dp</dimen>
-    <dimen name="training_item_height">48dp</dimen>
-
+    <dimen name="training_item_height">56dp</dimen>
+    
+    <dimen name="add_button_diameter">56dip</dimen>
+    <dimen name="add_button_margin">16dip</dimen>
+	<dimen name="footer_height">88dip</dimen>
+	<dimen name="margin_card_game">10dp</dimen>
 </resources>

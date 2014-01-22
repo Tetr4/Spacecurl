@@ -3,7 +3,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:background="@color/card_background" >
 
     <!-- android:layout_height="@dimen/training_item_height" -->
 
@@ -13,16 +14,19 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:layout_margin="@dimen/margin_card_game"
         android:src="@drawable/ic_launcher" />
 
     <TextView
         android:id="@+id/card_game_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_margin="@dimen/margin_card_game"
         android:layout_alignBottom="@id/card_game_target"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/card_game_target"
+        android:textSize="40sp"
         android:text="TextView" />
 
     <ImageView
@@ -30,6 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_margin="@dimen/margin_card_game"
         android:layout_below="@id/card_game_target"
         android:src="@drawable/ic_launcher" />
 
@@ -37,7 +42,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/card_game_target"
+        android:layout_alignBottom="@id/card_game_free_axes"
         android:layout_toRightOf="@id/card_game_free_axes"
         android:gravity="center"
         android:orientation="horizontal" >
