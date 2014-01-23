@@ -9,7 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import de.klimek.spacecurl.MainActivity.State;
+import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.Status;
 
@@ -59,10 +59,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     }
 
-    public void setState(State state) {
-        mState = state;
+    public void setState(State running) {
+        mState = running;
         if (mViewCreated) {
-            switch (state) {
+            switch (running) {
                 case Paused:
                     pauseGame();
                     break;
@@ -144,6 +144,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 break;
             case Running:
                 resumeGame();
+                break;
+            default:
                 break;
         }
     }

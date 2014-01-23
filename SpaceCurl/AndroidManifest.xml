@@ -25,9 +25,10 @@
         android:screenOrientation="portrait"
         android:theme="@style/AppBaseTheme" >
         
+        
         <!-- MainActivity -->
         <activity
-            android:name="de.klimek.spacecurl.MainActivity"
+            android:name="de.klimek.spacecurl.FreePlayActivity"
             android:theme="@style/ThemeWithoutOverlay">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,7 +40,7 @@
         <activity
             android:name="de.klimek.spacecurl.TrainingActivity"
             android:label="@string/title_activity_training"
-            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -49,7 +50,7 @@
         <!-- TrainingBuilderActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingBuilderActivity"
-            android:label="@string/title_activity_training_select"
+            android:label="@string/title_activity_training_builder"
             android:parentActivityName="de.klimek.spacecurl.training.TrainingSelectActivity"
             android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
@@ -61,7 +62,7 @@
         <activity
             android:name="de.klimek.spacecurl.training.TrainingSelectActivity"
             android:label="@string/title_activity_training_select"
-            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -72,7 +73,7 @@
         <activity
             android:name="de.klimek.spacecurl.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="de.klimek.spacecurl.MainActivity"
+            android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

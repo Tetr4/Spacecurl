@@ -1,19 +1,25 @@
 
 package de.klimek.spacecurl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import de.klimek.spacecurl.game.GameCallBackListener;
+import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
@@ -28,25 +34,17 @@ import de.klimek.spacecurl.util.collection.Training;
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public class TrainingActivity extends MainActivityPrototype implements OnClickListener,
-        GameCallBackListener {
-    private static final String TAG = "TrainingActivity"; // Used for log output
-    protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
-    protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
-    public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
+public class FreePlayActivity extends MainActivityPrototype implements OnClickListener {
+    private static final String TAG = FreePlayActivity.class.getName();
+    protected static final String STATE_ACTIONBAR_SELECTED_ITEM = "STATE_ACTIONBAR_SELECTED_ITEM";
 
-    private SlidingUpPanelLayout mSlidingUpPanel;
-
+    private Database mDatabase;
     private ActionBar mActionBar;
-    private String mTitle = "";
-
-    private Training mTraining;
-    private int mTrainingIndex = -1;
-    private GameSettingsPair mGameSettingsPair;
+    private Training mFreeplayGames;
 
     @Override
     protected boolean usesStatus() {
-        return true;
+        return false;
     }
 
     /**
@@ -59,37 +57,54 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
-        mTraining = Database.getInstance(this).getTrainings().get(key);
+        mDatabase = Database.getInstance(this);
+        mFreeplayGames = mDatabase.getFreeplayGames();
         setupActionbar();
-        nextGame();
+        if (savedInstanceState == null) {
+            // Select first game on new start
+            mActionBar.setSelectedNavigationItem(0);
+        }
+        else {
+            // select saved game on restart
+            mActionBar.setSelectedNavigationItem(
+                    savedInstanceState.getInt(STATE_ACTIONBAR_SELECTED_ITEM));
+        }
     }
 
+    /**
+     * Creates the {@link ActionBar} and the {@link Spinner} and enables its
+     * functionality
+     * 
+     * @see <a
+     *      href="http://developer.android.com/design/patterns/actionbar.html">
+     *      ActionBar Design</a>
+     * @see <a
+     *      href="http://developer.android.com/design/building-blocks/spinners.html">
+     *      Spinner Design</a>
+     */
     private void setupActionbar() {
         mActionBar = getActionBar();
-        mActionBar.setTitle(mTitle);
-        mActionBar.setDisplayShowTitleEnabled(true);
-    }
+        mActionBar.setDisplayShowTitleEnabled(false);
+        // mActionbar.setDisplayShowHomeEnabled(false); // no "up-caret"
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
-    private void previousGame() {
-        Log.v(TAG, "previousGame");
-        if (mTrainingIndex - 1 >= 0) {
-            mGameSettingsPair = mTraining.get(--mTrainingIndex);
-            switchToGame(mGameSettingsPair);
-            // TODO remove StatusCard and use previous
+        // Adapter to fill spinner with items
+        List<String> gameTitles = new ArrayList<String>();
+        for (GameSettingsPair curGame : mFreeplayGames) {
+            gameTitles.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
         }
-    }
-
-    private void nextGame() {
-        Log.v(TAG, "nextGame");
-        if (mTrainingIndex + 1 < mTraining.size()) {
-            mGameSettingsPair = mTraining.get(++mTrainingIndex);
-            switchToGame(mGameSettingsPair);
-            // TODO add statuscard
-        } else {
-            // Arrived at end of training
-            // mSlidingUpPanel.expandPane();
-        }
+        SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
+                gameTitles);
+        // Listener which calls selectSpinnerItem(pos) when an item is selected
+        OnNavigationListener onNavigationListener = new OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int position, long itemId) {
+                switchToGame(mFreeplayGames.get(position));
+                return true;
+            }
+        };
+        mActionBar.setListNavigationCallbacks(spinnerAdapter,
+                onNavigationListener);
     }
 
     @Override
@@ -107,20 +122,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
         int score = (int) (Math.random() * 9) + 1;
         status.mScore = score;
         addStatus(status);
-        mTitle = mTraining.getTitle();
-        mActionBar.setTitle(
-                mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
-                );
-        invalidateOptionsMenu();
-    }
-
-    @Override
-    public void onGameFinished() {
-        nextGame();
-    }
-
-    @Override
-    public void onStatusChanged(Status status) {
     }
 
     /**
@@ -130,11 +131,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.training, menu);
-        MenuItem itemNext = menu.findItem(R.id.action_next_game);
-        itemNext.setVisible(mTrainingIndex + 1 < mTraining.size());
-        MenuItem itemPrevious = menu.findItem(R.id.action_previous_game);
-        itemPrevious.setVisible(mTrainingIndex > 0);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -146,17 +143,18 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.action_about:
+                Toast.makeText(this, R.string.action_about, Toast.LENGTH_LONG)
+                        .show();
+                break;
             case R.id.action_new_training:
                 startActivity(new Intent(this, TrainingSelectActivity.class));
                 break;
-            case R.id.action_previous_game:
-                previousGame();
-                break;
-            case R.id.action_next_game:
-                nextGame();
-                break;
-            case R.id.action_freeplay:
-                startActivity(new Intent(this, FreePlayActivity.class));
+            case R.id.action_help:
+
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -172,7 +170,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-
+        outState.putInt(STATE_ACTIONBAR_SELECTED_ITEM,
+                mActionBar.getSelectedNavigationIndex());
     }
 
 }

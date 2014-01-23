@@ -8,11 +8,8 @@ import it.gmariotti.cardslib.library.view.CardListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,18 +19,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
-import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphViewSeries;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameFragment;
@@ -42,7 +32,6 @@ import de.klimek.spacecurl.util.cards.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
-import de.klimek.spacecurl.util.collection.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -52,9 +41,13 @@ import de.klimek.spacecurl.util.collection.Training;
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public class MainActivity extends FragmentActivity implements OnClickListener {
-    private static final String TAG = "MainActivity"; // Used for log output
-    protected static final String STATE_ACTIONBAR_SELECTED_ITEM = "STATE_ACTIONBAR_SELECTED_ITEM";
+public abstract class MainActivityPrototype extends FragmentActivity implements OnClickListener {
+    // Used for log output
+    private static final String TAG = MainActivityPrototype.class.getName();
+
+    protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
+    protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
+    public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
 
     private Database mDatabase;
 
@@ -63,11 +56,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     private CardArrayAdapter mCardArrayAdapter;
     private List<Card> mCards = new ArrayList<Card>();
 
-    private ActionBar mActionBar;
-
     private FrameLayout mGameFrame;
     private GameFragment mGameFragment;
-    private Training mFreeplayGames;
 
     private PauseView mPauseView;
     private State mState = State.Running;
@@ -75,6 +65,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     public static enum State {
         Paused, Pausing, Running
     }
+
+    protected abstract boolean usesStatus();
 
     /**
      * Called by OS when the activity is first created.
@@ -86,22 +78,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         mDatabase = Database.getInstance(this);
-        mFreeplayGames = mDatabase.getFreeplayGames();
+        // Log.d(TAG, mDatabase.getTrainings().get(0).getTitle());
+        setContentView(R.layout.activity_main);
         setupSettings();
-        setupStatus(false);
+        setupStatus(usesStatus());
         setupPauseView();
-        setupActionbar();
-        if (savedInstanceState == null) {
-            // Select first game on new start
-            mActionBar.setSelectedNavigationItem(0);
-        }
-        else {
-            // select saved game on restart
-            mActionBar.setSelectedNavigationItem(
-                    savedInstanceState.getInt(STATE_ACTIONBAR_SELECTED_ITEM));
-        }
     }
 
     /**
@@ -118,78 +100,94 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // PreferenceManager.getDefaultSharedPreferences(this);
         // Boolean orientation = sharedPref.getBoolean("orientation", false);
         // if (orientation) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         // }
     }
 
+    private void setupPauseView() {
+        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
+        mPauseView = new PauseView(this);
+        mPauseView.setVisibility(View.INVISIBLE);
+        mGameFrame.addView(mPauseView);
+        mGameFrame.setOnClickListener(this);
+    }
+
     private void setupStatus(boolean show) {
+        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
+        if (show) {
+            int cardHeight = (int) (getResources()
+                    .getDimension(R.dimen.card_height));
+            int padding = 12;
+            mSlidingUpPanel.setPanelHeight(cardHeight + padding);
+        }
+        else {
+            mSlidingUpPanel.setPanelHeight(-1);
+            return;
+        }
+
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         if (mCardListView != null) {
             mCardListView.setAdapter(mCardArrayAdapter);
         }
         // Set SildingUpPanel Height to only show upper card
-        int cardHeight = (int) (getResources()
-                .getDimension(R.dimen.card_height));
-        int padding = 12;
-        SlidingUpPanelLayout panel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
-        if (show)
-            panel.setPanelHeight(cardHeight + padding);
-        else
-            panel.setPanelHeight(-1);
+
+        // mSlidingUpPanel.setEnableDragViewTouchEvents(true);
+        // mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
+        // @Override
+        // public void onPanelSlide(View panel, float slideOffset) {
+        // Log.i(TAG, "onPanelSlide, offset " + slideOffset);
+        // Log.d(TAG,
+        // Boolean.toString(mSlidingUpPanel.canScrollVertically(1)));
+        // if (slideOffset < 0.2) {
+        // if (getActionBar().isShowing()) {
+        // getActionBar().hide();
+        // }
+        // } else {
+        // if (!getActionBar().isShowing()) {
+        // getActionBar().show();
+        // }
+        // }
+        // }
+        //
+        // @Override
+        // public void onPanelCollapsed(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        //
+        // @Override
+        // public void onPanelExpanded(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        //
+        // @Override
+        // public void onPanelAnchored(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        // });
     }
 
-    private void setupPauseView() {
-        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
-        mGameFrame.setOnClickListener(this);
-        mPauseView = new PauseView(this);
-        mPauseView.setVisibility(View.INVISIBLE);
-        mGameFrame.addView(mPauseView);
-    }
-
-    /**
-     * Creates the {@link ActionBar} and the {@link Spinner} and enables its
-     * functionality
-     * 
-     * @see <a
-     *      href="http://developer.android.com/design/patterns/actionbar.html">
-     *      ActionBar Design</a>
-     * @see <a
-     *      href="http://developer.android.com/design/building-blocks/spinners.html">
-     *      Spinner Design</a>
-     */
-    private void setupActionbar() {
-        mActionBar = getActionBar();
-        mActionBar.setDisplayShowTitleEnabled(false);
-        // mActionbar.setDisplayShowHomeEnabled(false); // no "up-caret"
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-
-        // Adapter to fill spinner with items
-        List<String> gameTitles = new ArrayList<String>();
-        for (GameSettingsPair curGame : mFreeplayGames) {
-            gameTitles.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
+    protected void addStatus(Status status) {
+        if (!usesStatus()) {
+            // Exception
+            return;
         }
-        SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
-                gameTitles);
-        // Listener which calls selectSpinnerItem(pos) when an item is selected
-        OnNavigationListener onNavigationListener = new OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int position, long itemId) {
-                switchToGame(mFreeplayGames.get(position));
-                return true;
-            }
-        };
-        mActionBar.setListNavigationCallbacks(spinnerAdapter,
-                onNavigationListener);
-    }
-
-    public void addStatus(Status status) {
         mDatabase.getStatuses().add(status);
         mCards.add(new StatusCard(this, status));
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
-    private void switchToGame(GameSettingsPair pair) {
+    /**
+     * Switches the GameFragment and registers the StatusFragment as an
+     * onStatusChangedListener. Hides status depending on
+     * GameFragment.usesStatus()
+     * 
+     * @param position position of the item in the spinner
+     */
+    protected void switchToGame(GameSettingsPair pair) {
         if (mGameFragment != null) {
             mGameFragment.setState(State.Paused);
         }
@@ -207,23 +205,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             throw new RuntimeException(e.getMessage());
         }
 
-        // StatusFragment:
-        // TODO functionality
-        Status status = new Status();
-        GraphViewSeries graphViewSeries = new GraphViewSeries(new
-                GraphViewData[] {
-                        new GraphViewData(0, 0),
-                        new GraphViewData(1, 3),
-                        new GraphViewData(2, 5),
-                        new GraphViewData(3, 2),
-                        new GraphViewData(4, 6)
-                });
-        status.mGraphViewSeries = graphViewSeries;
-        int score = (int) (Math.random() * 9) + 1;
-        status.mScore = score;
-        // card.addGraphData(new GraphViewData(5, score));
-        addStatus(status);
-
         // Transaction
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.game_frame, newGameFragment).commit();
@@ -232,18 +213,16 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         mGameFragment = newGameFragment;
         mState = State.Running;
         resumeGame();
+
+        // Actionbar title and icons
+        // mTitle = mGameSettingsPair.getSettings().getString(
+        // GameFragment.ARG_TITLE);
+
+        onGameSwitched();
+
     }
 
-    /**
-     * Called by OS the first time the options menu (icons and overflow menu
-     * [three vertical dots] in the ActionBar) is displayed.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+    protected abstract void onGameSwitched();
 
     /**
      * Called by OS when an item in the ActionBar is selected
@@ -253,17 +232,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                break;
-            case R.id.action_about:
-                Toast.makeText(this, R.string.action_about, Toast.LENGTH_LONG)
-                        .show();
-                break;
             case R.id.action_new_training:
                 startActivity(new Intent(this, TrainingSelectActivity.class));
-                break;
-            case R.id.action_help:
+
                 // NotificationManager nm =
                 // (NotificationManager)getSystemService( NOTIFICATION_SERVICE);
                 // Notification notif = new Notification();
@@ -277,18 +248,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 return super.onOptionsItemSelected(item);
         }
         return true;
-    }
-
-    /**
-     * Called by OS when the App will be destroyed to (e.g. to free Memory), but
-     * may be opened again.
-     * 
-     * @param outState a {@link Bundle} containing key-Value Pairs to be saved
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(STATE_ACTIONBAR_SELECTED_ITEM,
-                mActionBar.getSelectedNavigationIndex());
     }
 
     @Override
@@ -361,7 +320,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
             mPlaySign = BitmapFactory.decodeResource(res, R.drawable.ic_play);
         }
 
-        // Called back when the view is first created or its size changes.
         @Override
         public void onSizeChanged(int w, int h, int oldW, int oldH) {
             mViewWidthMax = w - 1;

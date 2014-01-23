@@ -32,7 +32,7 @@ public class SettingsActivity extends FragmentActivity implements OnSharedPrefer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // enable "up-caret" to navigate back to MainActivity
+        // enable "up-caret" to navigate back to FreePlayActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
         // replace screencontent with a SettingsFragment containing current
         // settings
