@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     android:background="@color/game_result_color"
     android:gravity="center"
-    android:orientation="vertical"
-    android:visibility="invisible" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/game_result_message"
@@ -25,9 +24,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-                android:shadowColor="#FF000000"
-        android:shadowRadius="10.0"
         android:gravity="center"
+        android:shadowColor="#FF000000"
+        android:shadowRadius="10.0"
         android:text="12:00"
         android:textColor="@color/text_game_color"
         android:textSize="80sp"
@@ -51,9 +50,9 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="12"
         android:shadowColor="#FF000000"
         android:shadowRadius="10.0"
+        android:text="12"
         android:textColor="@color/text_game_color"
         android:textSize="60sp"
         android:textStyle="bold" />

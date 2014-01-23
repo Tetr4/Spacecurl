@@ -22,7 +22,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:screenOrientation="locked"
+        android:screenOrientation="portrait"
         android:theme="@style/AppBaseTheme" >
         
         <!-- MainActivity -->
@@ -60,7 +60,7 @@
         <!-- TrainingSelectActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingSelectActivity"
-            android:label="@string/title_activity_training_builder"
+            android:label="@string/title_activity_training_select"
             android:parentActivityName="de.klimek.spacecurl.MainActivity"
             android:theme = "@style/ThemeWithoutOverlay" >
             <meta-data
