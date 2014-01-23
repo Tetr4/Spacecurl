@@ -11,7 +11,6 @@ import android.view.View.OnClickListener;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
@@ -34,8 +33,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
     public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
-
-    private SlidingUpPanelLayout mSlidingUpPanel;
 
     private ActionBar mActionBar;
     private String mTitle = "";
@@ -87,9 +84,18 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
             switchToGame(mGameSettingsPair);
             // TODO add statuscard
         } else {
-            // Arrived at end of training
-            // mSlidingUpPanel.expandPane();
+            expandSlidingPane();
         }
+    }
+
+    @Override
+    public void onStatusChanged(Status status) {
+
+    }
+
+    @Override
+    public void onGameFinished() {
+        nextGame();
     }
 
     @Override
@@ -112,15 +118,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
                 mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
                 );
         invalidateOptionsMenu();
-    }
-
-    @Override
-    public void onGameFinished() {
-        nextGame();
-    }
-
-    @Override
-    public void onStatusChanged(Status status) {
     }
 
     /**
@@ -162,17 +159,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
                 return super.onOptionsItemSelected(item);
         }
         return true;
-    }
-
-    /**
-     * Called by OS when the App will be destroyed to (e.g. to free Memory), but
-     * may be opened again.
-     * 
-     * @param outState a {@link Bundle} containing key-Value Pairs to be saved
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-
     }
 
 }

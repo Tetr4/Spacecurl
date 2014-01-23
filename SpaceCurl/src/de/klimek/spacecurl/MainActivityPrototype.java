@@ -170,6 +170,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // });
     }
 
+    protected void expandSlidingPane() {
+        mSlidingUpPanel.expandPane();
+    }
+
     protected void addStatus(Status status) {
         if (!usesStatus()) {
             // Exception
