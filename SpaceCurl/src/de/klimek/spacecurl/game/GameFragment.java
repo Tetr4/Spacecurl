@@ -38,6 +38,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mHasGrav = false;
     private boolean mHasAccel = false;
     private boolean mHasMag = false;
+    private boolean mInverseControl = true;
     private float mPhoneInclination = Database.getInstance().getPhoneInclination();
 
     private Status mStatus;
@@ -218,7 +219,9 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
             // azimuth
             // TODO Adjust
-            mOrientationScaled[1] = mOrientation[0];
+            mOrientationScaled[0] = mOrientation[0];// ((mOrientation[0] /
+                                                    // (float) Math.PI) + 1) /
+                                                    // 2.0f;
             // Pitch
             mOrientationScaled[1] = mOrientation[1] / (float) Math.PI + 0.5f;
             // Roll adjusted
@@ -227,6 +230,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mOrientationScaled[2] = 0.0f;
             if (mOrientationScaled[2] > 1 || mOrientationScaled[2] < -0.5f)
                 mOrientationScaled[2] = 1.0f;
+
+            if (mInverseControl) {
+                mOrientationScaled[1] = -mOrientationScaled[1] + 1;
+                mOrientationScaled[2] = -mOrientationScaled[2] + 1;
+            }
 
             // float incl = SensorManager.getInclination(mInclinationMatrix);
             // Log.d(TAG, "Azimuth: " + (int) (mOrientation[0] * DEG));

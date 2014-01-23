@@ -13,14 +13,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.util.collection.Database;
 
+// TODO replace with 3d render, similar to http://code.google.com/p/stardroid/
 public class GameUniversal extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_universal;
-    public static final String ARG_TARGET_POSITION = "ARG_TARGET_POSITION";
-    public static final String ARG_TOLERANCE = "ARG_TOLERANCE";
+    public static final String ARG_TARGET_POSITION_X = "ARG_TARGET_POSITION_X";
+    public static final String ARG_TARGET_POSITION_Y = "ARG_TARGET_POSITION_Y";
+    // TODO more complex shape. ellipse?
+    public static final String ARG_TARGET_RADIUS = "ARG_TARGET_RADIUS";
     public static final String ARG_HOLDING_TIME = "ARG_HOLDING_TIME";
-    public static final String ARG_RESET_IF_LEFT = "ARG_RESET_IF_LEFT";
+    public static final String ARG_RESET_HOLDING_TIME_IF_LEFT = "ARG_RESET_HOLDING_TIME_IF_LEFT";
 
     // private int score;
     private GameUniversalView mGame;
@@ -29,9 +31,12 @@ public class GameUniversal extends GameFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // TODO get & set Target Position
-        // getArguments().get...(ARG_TARGET_POSITION);
         mGame = new GameUniversalView(getActivity());
+        mGame.mTargetPositionX = getArguments().getFloat(ARG_TARGET_POSITION_X, 0.66f);
+        mGame.mTargetPositionY = getArguments().getFloat(ARG_TARGET_POSITION_Y, 0.66f);
+        mGame.mTargetRadius = getArguments().getFloat(ARG_TARGET_RADIUS, 0.05f);
+        mGame.mHoldingTime = getArguments().getLong(ARG_HOLDING_TIME, 1000);
+        mGame.mResetIfLeft = getArguments().getBoolean(ARG_RESET_HOLDING_TIME_IF_LEFT, true);
         resumeGame();
         return mGame;
     }
@@ -79,11 +84,16 @@ public class GameUniversal extends GameFragment {
         private float mInclinationRangeFactor = 2.0f;
         // TODO Calibrate
         // Phone is not attached straight for better visibilty of the screen
-        private float mPhoneInclination;
+
+        private float mTargetPositionX;
+        private float mTargetPositionY;
+        private float mTargetRadius;
+        private long mHoldingTime;
+        private long mCurHoldingTime;
+        private boolean mResetIfLeft;
 
         public GameUniversalView(Context context) {
             super(context);
-            mPhoneInclination = Database.getInstance().getPhoneInclination();
         }
 
         public void pause() {
@@ -113,8 +123,9 @@ public class GameUniversal extends GameFragment {
             mPlayer.mPositionX = mCenterX;
             mPlayer.mPositionY = mCenterY;
 
-            mTarget = new Target(mMinBorder / 24, mCenterX - mMinBorder / 6, mCenterY + mMinBorder
-                    / 4);
+            mTarget = new Target((int) (mTargetRadius * mMinBorder),
+                    (int) ((mTargetPositionX * mMinBorder - (mMinBorder - mViewWidthMax) / 2)),
+                    (int) ((mTargetPositionY * mMinBorder - (mMinBorder - mViewHeightMax) / 2)));
 
             int circleCount = 6;
             mCircles = new CenteredCircles(circleCount, mMinBorder / (circleCount * 2), mCenterX,
@@ -124,18 +135,24 @@ public class GameUniversal extends GameFragment {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            if (!hasOrientation())
-                return;
-            mTarget.draw(canvas);
-            mPlayer.draw(canvas);
             mCircles.draw(canvas);
+            mTarget.draw(canvas);
+            if (hasOrientation())
+                mPlayer.draw(canvas);
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
+            long _lastTime = System.currentTimeMillis();
+            long _startTime;
+            long _deltaTime;
+
             @Override
             protected Void doInBackground(Void... params) {
                 while (!isCancelled()) {
-                    if (mSizeChanged) {
+                    _startTime = System.currentTimeMillis();
+                    _deltaTime = _startTime - _lastTime;
+                    _lastTime = _startTime;
+                    if (mSizeChanged && hasOrientation()) {
                         updatePlayer();
                         checkFinished();
                         publishProgress();
@@ -153,13 +170,17 @@ public class GameUniversal extends GameFragment {
             private void updatePlayer() {
                 mPitch = getScaledOrientation()[1];
                 mRoll = getScaledOrientation()[2];
-                mPlayer.mPositionX = (int) (mPitch * mViewWidthMax);
-                mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
+                mPlayer.mPositionX = (int) (mPitch * mMinBorder - (mMinBorder - mViewWidthMax) / 2);
+                mPlayer.mPositionY = (int) (mRoll * mMinBorder - (mMinBorder - mViewHeightMax) / 2);
             }
 
             private void checkFinished() {
                 if (mPlayer.intersects(mTarget)) {
-                    mFinished = true;
+                    mCurHoldingTime -= _deltaTime;
+                    if (mCurHoldingTime < 0)
+                        mFinished = true;
+                } else if (mResetIfLeft) {
+                    mCurHoldingTime = mHoldingTime;
                 }
 
             }

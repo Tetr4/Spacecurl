@@ -139,13 +139,13 @@ public class GamePong extends GameFragment {
         // Called back to draw the view. Also called by invalidate().
         @Override
         protected void onDraw(Canvas canvas) {
-            if (!hasOrientation())
-                return;
-            mPaddleTop.draw(canvas);
-            mPaddleBottom.draw(canvas);
-            mPaddleLeft.draw(canvas);
-            mPaddleRight.draw(canvas);
             mBall.draw(canvas);
+            if (hasOrientation()) {
+                mPaddleTop.draw(canvas);
+                mPaddleBottom.draw(canvas);
+                mPaddleLeft.draw(canvas);
+                mPaddleRight.draw(canvas);
+            }
         }
 
         // Called back when the view is first created or its size changes.
@@ -185,10 +185,7 @@ public class GamePong extends GameFragment {
 
             private void updatePaddles() {
                 mPitch = getScaledOrientation()[1];
-
-                // mInclinationFaktor
                 mRoll = getScaledOrientation()[2];
-                Log.d(TAG, String.format("mPitch: %.2f mRoll: %.2f", mPitch, mRoll));
                 mPaddleLeft.mPosition = mRoll;
                 mPaddleTop.mPosition = mPitch;
                 mPaddleRight.mPosition = mRoll;
@@ -355,8 +352,7 @@ public class GamePong extends GameFragment {
                 switch (mSide) {
                     case Left:
                         mOnScreenCenterX = mPadding + mHeight / 2;
-                        mOnScreenCenterY = (int) (mPosition * (canvas.getHeight() -
-                                mWidth));
+                        mOnScreenCenterY = (int) (mPosition * (canvas.getHeight()));
                         break;
                     case Top:
                         mOnScreenCenterX = (int) (mPosition * canvas.getWidth());

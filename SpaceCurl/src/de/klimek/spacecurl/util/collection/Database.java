@@ -25,8 +25,8 @@ public class Database {
     private ArrayList<Status> mStatuses = new ArrayList<Status>();
     private Training mFreeplayGames = new Training("Freeplay");
     private float mPhoneInclination = 0.1f;
+    // TODO mInclinationFaktor
     private Resources mResources;
-
     private Orientation mOrientation = Orientation.Portrait;
 
     private static enum Orientation {
@@ -96,6 +96,40 @@ public class Database {
 
     private void fillTrainings() {
         // TODO SQL
+
+        // 8
+        Training training0 = new Training("8");
+        // upperLeft
+        Bundle upperLeft = new Bundle();
+        upperLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.33f);
+        upperLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.33f);
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(), upperLeft));
+        // upperRight
+        Bundle upperRight = new Bundle();
+        upperRight.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.66f);
+        upperRight.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.33f);
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(), upperRight));
+        // middle
+        Bundle middle = new Bundle();
+        middle.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.5f);
+        middle.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.5f);
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(), middle));
+        // lowerLeft
+        Bundle lowerLeft = new Bundle();
+        lowerLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.33f);
+        lowerLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.66f);
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(), lowerLeft));
+        // lowerRight
+        Bundle lowerRight = new Bundle();
+        lowerRight.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.66f);
+        lowerRight.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.66f);
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(), lowerRight));
+        // middle
+        training0.add(new GameSettingsPair(GameUniversal.class.getName(),
+                (Bundle) middle.clone()));
+        mTrainings.add(training0);
+
+        // Test training
         Training training1 = new Training("Test Training");
         training1.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
         training1.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));

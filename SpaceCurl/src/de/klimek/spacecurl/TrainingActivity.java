@@ -248,7 +248,9 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         resumeGame();
 
         // Actionbar title and icons
-        mTitle = mGameSettingsPair.getSettings().getString(GameFragment.ARG_TITLE);
+        // mTitle =
+        // mGameSettingsPair.getSettings().getString(GameFragment.ARG_TITLE);
+        mTitle = mTraining.getTitle();
         mActionBar.setTitle(
                 mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
                 );

@@ -142,16 +142,6 @@ public class GameTunnel extends GameFragment {
             }
         }
 
-        // Called back to draw the view. Also called by invalidate().
-        @Override
-        protected void onDraw(Canvas canvas) {
-            if (!hasOrientation())
-                return;
-            canvas.drawBitmap(mBitmap, -mViewPortOffset, 0, null);
-            canvas.drawBitmap(mBitmap, -mViewPortOffset + mBitmapWidth, 0, null);
-            mPlayer.draw(canvas);
-        }
-
         private Wall generateRightmostWall() { // warning: lots of side effects
             // update tunnel position
             int tunnelPosY = (int) interpolate(mCurvePrevious, mCurveNext,
@@ -179,6 +169,15 @@ public class GameTunnel extends GameFragment {
             // generate wall
             return new Wall((int) (tunnelPosY - c / 2.0f),
                     (int) (tunnelPosY + c / 2.0f));
+        }
+
+        // Called back to draw the view. Also called by invalidate().
+        @Override
+        protected void onDraw(Canvas canvas) {
+            canvas.drawBitmap(mBitmap, -mViewPortOffset, 0, null);
+            canvas.drawBitmap(mBitmap, -mViewPortOffset + mBitmapWidth, 0, null);
+            if (hasOrientation())
+                mPlayer.draw(canvas);
         }
 
         // Called back when the view is first created or its size changes.
@@ -230,10 +229,10 @@ public class GameTunnel extends GameFragment {
                             break;
 
                         case Running:
-                            updatePlayer();
                             for (int i = 0; i < mSpeed; i++) {
                                 updateTunnel();
                             }
+                            updatePlayer();
                             checkCollisions();
                             mDistance += 0.1;
                             break;
