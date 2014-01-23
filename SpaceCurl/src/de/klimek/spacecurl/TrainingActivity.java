@@ -1,6 +1,13 @@
 
 package de.klimek.spacecurl;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.view.CardListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -23,13 +30,12 @@ import android.widget.Spinner;
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import de.klimek.spacecurl.MainActivity.State;
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
+import de.klimek.spacecurl.util.cards.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
@@ -50,19 +56,24 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
     public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
 
-    private ActionBar mActionBar;
-    private StatusFragment mStatusFragment;
-    private GameFragment mGameFragment;
-    private FrameLayout mGameFrame;
+    private Database mDatabase = Database.getInstance();
+
+    private CardListView mCardListView;
     private SlidingUpPanelLayout mSlidingUpPanel;
-    private PauseView mPauseView;
+    private CardArrayAdapter mCardArrayAdapter;
+    private List<Card> mCards = new ArrayList<Card>();
 
-    private State mState = State.Paused;
+    private ActionBar mActionBar;
+    private String mTitle = "";
 
+    private FrameLayout mGameFrame;
+    private GameFragment mGameFragment;
     private Training mTraining;
     private int mTrainingIndex = -1;
     private GameSettingsPair mGameSettingsPair;
-    private String mTitle = "";
+
+    private PauseView mPauseView;
+    private State mState = State.Paused;
 
     /**
      * Called by OS when the activity is first created.
@@ -78,7 +89,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
         mTraining = Database.getInstance().getTrainings().get(key);
         setupSettings();
-        setupStatusFragment();
+        setupStatus();
         setupPauseView();
         setupActionbar();
         nextGame();
@@ -110,43 +121,54 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         mGameFrame.addView(mPauseView);
     }
 
-    private void setupStatusFragment() {
-        mStatusFragment = new StatusFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.status_frame, mStatusFragment).commit();
+    private void setupStatus() {
+        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
+        mCardListView = (CardListView) findViewById(R.id.card_list);
+        if (mCardListView != null) {
+            mCardListView.setAdapter(mCardArrayAdapter);
+        }
         // Set SildingUpPanel Height to only show upper card
         final int cardHeight = (int) (getResources()
                 .getDimension(R.dimen.card_height));
         final int padding = 12;
         mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
         mSlidingUpPanel.setPanelHeight(cardHeight + padding);
-        mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                Log.i(TAG, "onPanelSlide, offset " + slideOffset);
-                if (slideOffset < 0.2) {
-                    if (mActionBar.isShowing()) {
-                        mActionBar.hide();
-                    }
-                } else {
-                    if (!mActionBar.isShowing()) {
-                        mActionBar.show();
-                    }
-                }
-            }
-
-            @Override
-            public void onPanelCollapsed(View panel) {
-            }
-
-            @Override
-            public void onPanelExpanded(View panel) {
-            }
-
-            @Override
-            public void onPanelAnchored(View panel) {
-            }
-        });
+        // mSlidingUpPanel.setEnableDragViewTouchEvents(true);
+        // mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
+        // @Override
+        // public void onPanelSlide(View panel, float slideOffset) {
+        // Log.i(TAG, "onPanelSlide, offset " + slideOffset);
+        // Log.d(TAG,
+        // Boolean.toString(mSlidingUpPanel.canScrollVertically(1)));
+        // if (slideOffset < 0.2) {
+        // if (getActionBar().isShowing()) {
+        // getActionBar().hide();
+        // }
+        // } else {
+        // if (!getActionBar().isShowing()) {
+        // getActionBar().show();
+        // }
+        // }
+        // }
+        //
+        // @Override
+        // public void onPanelCollapsed(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        //
+        // @Override
+        // public void onPanelExpanded(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        //
+        // @Override
+        // public void onPanelAnchored(View panel) {
+        // // TODO Auto-generated method stub
+        //
+        // }
+        // });
     }
 
     /**
@@ -196,6 +218,12 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     public void onStatusChanged(Status status) {
     }
 
+    public void addStatus(Status status) {
+        mDatabase.getStatuses().add(status);
+        mCards.add(new StatusCard(this, status));
+        mCardArrayAdapter.notifyDataSetChanged();
+    }
+
     /**
      * Switches the GameFragment and registers the StatusFragment as an
      * onStatusChangedListener. Hides status depending on
@@ -236,7 +264,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         int score = (int) (Math.random() * 9) + 1;
         status.mScore = score;
         // card.addGraphData(new GraphViewData(5, score));
-        mStatusFragment.addStatus(status);
+        addStatus(status);
 
         // Transaction
         getSupportFragmentManager().beginTransaction()

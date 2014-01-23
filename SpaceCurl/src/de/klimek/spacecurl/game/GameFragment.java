@@ -32,9 +32,9 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private float[] mRotation = new float[3];
     private float[] mRotationMatrix = new float[9];
     private float[] mInclinationMatrix = new float[9];
-    private float[] mResultRotationMatrix = new float[9];
-    private float[] mOrientation = new float[3];
-    private float[] mOrientationScaled = new float[3];
+    private volatile float[] mResultRotationMatrix = new float[9];
+    private volatile float[] mOrientation = new float[3];
+    private volatile float[] mOrientationScaled = new float[3];
     private boolean mHasGrav = false;
     private boolean mHasAccel = false;
     private boolean mHasMag = false;

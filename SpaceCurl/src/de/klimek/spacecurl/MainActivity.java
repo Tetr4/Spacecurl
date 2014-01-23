@@ -1,6 +1,10 @@
 
 package de.klimek.spacecurl;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.view.CardListView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +37,8 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.status.StatusFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
+import de.klimek.spacecurl.util.cards.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
@@ -51,19 +55,21 @@ import de.klimek.spacecurl.util.collection.Training;
 public class MainActivity extends FragmentActivity implements OnClickListener {
     private static final String TAG = "MainActivity"; // Used for log output
     protected static final String STATE_ACTIONBAR_SELECTED_ITEM = "STATE_ACTIONBAR_SELECTED_ITEM";
+
     private Database mDatabase;
 
-    private ActionBar mActionBar;
-    private StatusFragment mStatusFragment;
-    private GameFragment mGameFragment;
+    private CardListView mCardListView;
+    private SlidingUpPanelLayout mSlidingUpPanel;
+    private CardArrayAdapter mCardArrayAdapter;
+    private List<Card> mCards = new ArrayList<Card>();
 
-    // List of pairs. Each pair contains a
-    // Class object and a Bundle for its Settings.
-    private Training mFreeplayGames;
+    private ActionBar mActionBar;
 
     private FrameLayout mGameFrame;
-    private PauseView mPauseView;
+    private GameFragment mGameFragment;
+    private Training mFreeplayGames;
 
+    private PauseView mPauseView;
     private State mState = State.Running;
 
     public static enum State {
@@ -84,7 +90,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         mDatabase = Database.getInstance(this);
         mFreeplayGames = mDatabase.getFreeplayGames();
         setupSettings();
-        setupStatusFragment(false);
+        setupStatus(false);
         setupPauseView();
         setupActionbar();
         if (savedInstanceState == null) {
@@ -116,10 +122,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         // }
     }
 
-    private void setupStatusFragment(boolean show) {
-        mStatusFragment = new StatusFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.status_frame, mStatusFragment).commit();
+    private void setupStatus(boolean show) {
+        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
+        mCardListView = (CardListView) findViewById(R.id.card_list);
+        if (mCardListView != null) {
+            mCardListView.setAdapter(mCardArrayAdapter);
+        }
         // Set SildingUpPanel Height to only show upper card
         int cardHeight = (int) (getResources()
                 .getDimension(R.dimen.card_height));
@@ -175,6 +183,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
                 onNavigationListener);
     }
 
+    public void addStatus(Status status) {
+        mDatabase.getStatuses().add(status);
+        mCards.add(new StatusCard(this, status));
+        mCardArrayAdapter.notifyDataSetChanged();
+    }
+
     private void switchToGame(GameSettingsPair pair) {
         if (mGameFragment != null) {
             mGameFragment.setState(State.Paused);
@@ -208,7 +222,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         int score = (int) (Math.random() * 9) + 1;
         status.mScore = score;
         // card.addGraphData(new GraphViewData(5, score));
-        mStatusFragment.addStatus(status);
+        addStatus(status);
 
         // Transaction
         getSupportFragmentManager().beginTransaction()

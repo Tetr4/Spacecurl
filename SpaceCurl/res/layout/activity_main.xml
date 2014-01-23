@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     The main content view, which consumes the entire
-     space available using match_parent in both dimensions.-->
 <com.sothree.slidinguppanel.SlidingUpPanelLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
-    <!--
-         The upper content view in which training MODULES are shown. 
-		 It shares its space with the lower content view
-    -->
     <FrameLayout
         android:id="@+id/game_frame"
         android:layout_width="match_parent"
@@ -21,17 +15,10 @@
         android:orientation="horizontal" >
     </FrameLayout>
 
-    <!--
-          The lower content view which contains training STATUS information. 
-		 It shares its space with the upper content view, while its size 
-		 depends on layout_height
-    -->
-    <FrameLayout
-        android:id="@+id/status_frame"
+    <!-- CardList -->
+    <it.gmariotti.cardslib.library.view.CardListView
+        android:id="@+id/card_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/status_frame_background"
-        android:orientation="horizontal" >
-    </FrameLayout>
+        android:layout_height="match_parent"/>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
