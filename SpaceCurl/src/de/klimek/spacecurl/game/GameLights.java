@@ -24,7 +24,6 @@ public class GameLights extends GameFragment {
     private volatile long mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;;
     private volatile long mTotalTime = 0;
     private volatile boolean mBonus = false;
-    private float mAngularSpeed;
 
     private Stage mStage = Stage.Go;
 
@@ -157,7 +156,7 @@ public class GameLights extends GameFragment {
                 // Stage time remaining
                 if (mRemainingStageTime > 1000) {
                     // TODO set mBonus
-                    rotation = mAngularSpeed * _deltaTime;
+                    rotation = getRotationSpeed() * _deltaTime;
                     switch (mStage) {
                         case Go:
                             // prevent potential overflow
@@ -229,7 +228,6 @@ public class GameLights extends GameFragment {
                     result();
                     break;
             }
-            mAngularSpeed = getRotationSpeed();
         }
 
         @Override

@@ -292,7 +292,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
         } else if (mState == State.Pausing) {
             mState = State.Paused;
         }
-        Log.d(TAG, "UserInteraction");
         super.onUserInteraction();
     }
 
@@ -301,7 +300,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
      */
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "ClickVIew");
         if (mState == State.Paused) {
             resumeGame();
             mState = State.Running;
@@ -312,7 +310,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     }
 
     private void pauseGame() {
-        Log.d(TAG, "Paused");
+        Log.v(TAG, "Paused");
         if (mGameFragment != null) {
             mGameFragment.setState(State.Paused);
         }
@@ -322,7 +320,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener {
     }
 
     private void resumeGame() {
-        Log.d(TAG, "Resumed");
+        Log.v(TAG, "Resumed");
         // hide navigation bar.
         // XFIXME flags reset when actionbar spinner or overflow window opens
         // View decorView = getWindow().getDecorView();

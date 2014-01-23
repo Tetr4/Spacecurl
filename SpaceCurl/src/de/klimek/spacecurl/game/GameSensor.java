@@ -72,7 +72,7 @@ public class GameSensor extends GameFragment {
 
         @Override
         protected void onProgressUpdate(Void... values) {
-            float[] orientation = getOrientation();
+            float[] orientation = getScaledOrientation();
 
             orientXValue.setText(String.format(" %.2f", orientation[0]));
             orientYValue.setText(String.format(" %.2f", orientation[1]));

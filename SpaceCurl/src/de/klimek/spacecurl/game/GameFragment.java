@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.MainActivity.State;
+import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.Status;
 
 /**
@@ -33,10 +34,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private float[] mInclinationMatrix = new float[9];
     private float[] mResultRotationMatrix = new float[9];
     private float[] mOrientation = new float[3];
+    private float[] mOrientationScaled = new float[3];
     private boolean mHasGrav = false;
     private boolean mHasAccel = false;
     private boolean mHasMag = false;
-    private boolean mHasGyro = false;
+    private float mPhoneInclination = Database.getInstance().getPhoneInclination();
 
     private Status mStatus;
 
@@ -102,8 +104,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     /**
      * @return azimuth, pitch and roll
      */
-    protected float[] getOrientation() {
-        return mOrientation;
+    protected float[] getScaledOrientation() {
+        return mOrientationScaled;
     }
 
     protected float[] getRotationMatrix() {
@@ -115,7 +117,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     protected boolean hasOrientation() {
-        return !(getOrientation()[1] == 0.0f);
+        return !(getScaledOrientation()[1] == 0.0f);
     }
 
     @Override
@@ -198,7 +200,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mRotation[0] = event.values[0];
                 mRotation[1] = event.values[1];
                 mRotation[2] = event.values[2];
-                mHasGyro = true;
                 break;
             default:
                 return;
@@ -214,6 +215,19 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
             // we'll show it here anyway.
             // final int DEG = 360;
             SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
+
+            // azimuth
+            // TODO Adjust
+            mOrientationScaled[1] = mOrientation[0];
+            // Pitch
+            mOrientationScaled[1] = mOrientation[1] / (float) Math.PI + 0.5f;
+            // Roll adjusted
+            mOrientationScaled[2] = (mOrientation[2] / (float) (Math.PI)) + mPhoneInclination;
+            if (mOrientationScaled[2] <= 0.0f && mOrientationScaled[2] > -0.5f)
+                mOrientationScaled[2] = 0.0f;
+            if (mOrientationScaled[2] > 1 || mOrientationScaled[2] < -0.5f)
+                mOrientationScaled[2] = 1.0f;
+
             // float incl = SensorManager.getInclination(mInclinationMatrix);
             // Log.d(TAG, "Azimuth: " + (int) (mOrientation[0] * DEG));
             // Log.d(TAG, "pitch: " + (int) (mOrientation[1] * DEG));

@@ -184,11 +184,11 @@ public class GamePong extends GameFragment {
             }
 
             private void updatePaddles() {
-                // range 0.0 - 1.0
-                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
-                        + .5f;
-                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
-                        + mPhoneInclination;
+                mPitch = getScaledOrientation()[1];
+
+                // mInclinationFaktor
+                mRoll = getScaledOrientation()[2];
+                Log.d(TAG, String.format("mPitch: %.2f mRoll: %.2f", mPitch, mRoll));
                 mPaddleLeft.mPosition = mRoll;
                 mPaddleTop.mPosition = mPitch;
                 mPaddleRight.mPosition = mRoll;
@@ -355,21 +355,25 @@ public class GamePong extends GameFragment {
                 switch (mSide) {
                     case Left:
                         mOnScreenCenterX = mPadding + mHeight / 2;
-                        mOnScreenCenterY = (int) (mPosition * canvas.getHeight());
+                        mOnScreenCenterY = (int) (mPosition * (canvas.getHeight() -
+                                mWidth));
                         break;
                     case Top:
                         mOnScreenCenterX = (int) (mPosition * canvas.getWidth());
                         mOnScreenCenterY = mPadding + mHeight / 2;
                         break;
                     case Right:
-                        mOnScreenCenterX = canvas.getWidth() - mPadding - mHeight / 2;
+                        mOnScreenCenterX = canvas.getWidth() - mPadding - mHeight /
+                                2;
                         mOnScreenCenterY = (int) (mPosition * canvas.getHeight());
                         break;
                     case Bottom:
                         mOnScreenCenterX = (int) (mPosition * canvas.getWidth());
-                        mOnScreenCenterY = canvas.getHeight() - mPadding - mHeight / 2;
+                        mOnScreenCenterY = canvas.getHeight() - mPadding - mHeight /
+                                2;
                         break;
                 }
+
                 mRect.offsetTo(mOnScreenCenterX - mOnScreenWidth / 2, mOnScreenCenterY
                         - mOnScreenHeight / 2);
                 canvas.drawRect(mRect, mPaint);

@@ -151,12 +151,10 @@ public class GameUniversal extends GameFragment {
             }
 
             private void updatePlayer() {
-                mPitch = ((getOrientation()[1] / (float) Math.PI) * mInclinationRangeFactor)
-                        + .5f;
-                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
-                        + mPhoneInclination;
-                mPlayer.mPositionX = (int) (mPitch * mMinBorder);
-                mPlayer.mPositionY = (int) (mRoll * mMinBorder);
+                mPitch = getScaledOrientation()[1];
+                mRoll = getScaledOrientation()[2];
+                mPlayer.mPositionX = (int) (mPitch * mViewWidthMax);
+                mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
             }
 
             private void checkFinished() {

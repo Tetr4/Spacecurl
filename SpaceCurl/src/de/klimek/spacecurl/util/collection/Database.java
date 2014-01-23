@@ -111,7 +111,7 @@ public class Database {
         training2.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
         mTrainings.add(training2);
 
-        Training training3 = new Training("Blubb Training");
+        Training training3 = new Training("Noch ein Training");
         training3.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
         training3.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
         training3.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
@@ -119,17 +119,9 @@ public class Database {
         training3.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
         mTrainings.add(training3);
 
-        Training training4 = new Training("Bla Training");
-        training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training4.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
-        training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training4.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
-        mTrainings.add(training4);
-
         for (int i = 0; i < 10; i++) {
-            Training training5 = new Training("Bla Training" + i);
-            training4.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
+            Training training5 = new Training("Training" + i);
+            training5.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
             mTrainings.add(training5);
         }
 

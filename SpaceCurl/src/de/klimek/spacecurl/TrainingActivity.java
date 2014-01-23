@@ -167,7 +167,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     }
 
     private void previousGame() {
-        Log.d("Training", "previousGame");
+        Log.v(TAG, "previousGame");
         if (mTrainingIndex - 1 >= 0) {
             mGameSettingsPair = mTraining.get(--mTrainingIndex);
             switchToGame(mGameSettingsPair);
@@ -176,7 +176,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     }
 
     private void nextGame() {
-        Log.d("Training", "nextGame");
+        Log.v(TAG, "nextGame");
         if (mTrainingIndex + 1 < mTraining.size()) {
             mGameSettingsPair = mTraining.get(++mTrainingIndex);
             switchToGame(mGameSettingsPair);
@@ -323,7 +323,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
         } else if (mState == State.Pausing) {
             mState = State.Paused;
         }
-        Log.d(TAG, "UserInteraction");
         super.onUserInteraction();
     }
 
@@ -332,7 +331,6 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
      */
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "ClickVIew");
         if (mState == State.Paused) {
             resumeGame();
             mState = State.Running;
@@ -343,7 +341,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     }
 
     private void pauseGame() {
-        Log.d(TAG, "Paused");
+        Log.v(TAG, "Paused");
         if (mGameFragment != null) {
             mGameFragment.setState(State.Paused);
         }
@@ -353,7 +351,7 @@ public class TrainingActivity extends FragmentActivity implements OnClickListene
     }
 
     private void resumeGame() {
-        Log.d(TAG, "Resumed");
+        Log.v(TAG, "Resumed");
         // hide navigation bar.
         // XFIXME flags reset when actionbar spinner or overflow window opens
         // View decorView = getWindow().getDecorView();

@@ -265,8 +265,7 @@ public class GameTunnel extends GameFragment {
             }
 
             private void updatePlayer() {
-                mRoll = ((getOrientation()[2] / (float) Math.PI) * mInclinationRangeFactor)
-                        + mPhoneInclination;
+                mRoll = getScaledOrientation()[2];
                 mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
                 mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
             }
