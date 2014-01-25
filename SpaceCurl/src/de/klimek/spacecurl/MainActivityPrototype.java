@@ -10,6 +10,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +30,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
-import de.klimek.spacecurl.util.cards.StatusCard;
+import de.klimek.spacecurl.util.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
@@ -95,13 +97,14 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
      */
     private void setupSettings() {
         // Default setting values on first startup
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        // SharedPreferences sharedPref =
-        // PreferenceManager.getDefaultSharedPreferences(this);
-        // Boolean orientation = sharedPref.getBoolean("orientation", false);
-        // if (orientation) {
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        // }
+        // PreferenceManager.setDefaultValues(this, R.xml.prefersences, false);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean landscape = sharedPref.getBoolean("landscape", false);
+        if (landscape) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     private void setupPauseView() {

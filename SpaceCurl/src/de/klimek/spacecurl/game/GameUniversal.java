@@ -170,8 +170,8 @@ public class GameUniversal extends GameFragment {
             private void updatePlayer() {
                 mPitch = getScaledOrientation()[1];
                 mRoll = getScaledOrientation()[2];
-                mPlayer.mPositionX = (int) (mPitch * mMinBorder - (mMinBorder - mViewWidthMax) / 2);
-                mPlayer.mPositionY = (int) (mRoll * mMinBorder - (mMinBorder - mViewHeightMax) / 2);
+                mPlayer.mPositionX = (int) (((mRoll + 1.0f) / 2.0f) * mMinBorder - (mMinBorder - mViewWidthMax) / 2);
+                mPlayer.mPositionY = (int) (((mPitch + 1.0f) / 2.0f) * mMinBorder - (mMinBorder - mViewHeightMax) / 2);
             }
 
             private void checkFinished() {

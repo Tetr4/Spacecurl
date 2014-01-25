@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.util.cards;
+package de.klimek.spacecurl.util;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import android.content.Context;

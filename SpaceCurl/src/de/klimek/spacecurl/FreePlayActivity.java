@@ -20,6 +20,7 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
 import de.klimek.spacecurl.game.GameFragment;
+import de.klimek.spacecurl.settings.SettingsActivity;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;

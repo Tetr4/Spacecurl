@@ -186,10 +186,10 @@ public class GamePong extends GameFragment {
             private void updatePaddles() {
                 mPitch = getScaledOrientation()[1];
                 mRoll = getScaledOrientation()[2];
-                mPaddleLeft.mPosition = mRoll;
-                mPaddleTop.mPosition = mPitch;
-                mPaddleRight.mPosition = mRoll;
-                mPaddleBottom.mPosition = mPitch;
+                mPaddleLeft.mPosition = mPitch;
+                mPaddleTop.mPosition = mRoll;
+                mPaddleRight.mPosition = mPitch;
+                mPaddleBottom.mPosition = mRoll;
             }
 
             private void updateBall() {
@@ -352,19 +352,23 @@ public class GamePong extends GameFragment {
                 switch (mSide) {
                     case Left:
                         mOnScreenCenterX = mPadding + mHeight / 2;
-                        mOnScreenCenterY = (int) (mPosition * (canvas.getHeight()));
+                        mOnScreenCenterY = (int) ((mPosition + 1.0f) / 2.0f
+                                * (canvas.getHeight() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
                         break;
                     case Top:
-                        mOnScreenCenterX = (int) (mPosition * canvas.getWidth());
+                        mOnScreenCenterX = (int) ((mPosition + 1.0f) / 2.0f
+                                * (canvas.getWidth() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
                         mOnScreenCenterY = mPadding + mHeight / 2;
                         break;
                     case Right:
                         mOnScreenCenterX = canvas.getWidth() - mPadding - mHeight /
                                 2;
-                        mOnScreenCenterY = (int) (mPosition * canvas.getHeight());
+                        mOnScreenCenterY = (int) ((mPosition + 1.0f) / 2.0f
+                                * (canvas.getHeight() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
                         break;
                     case Bottom:
-                        mOnScreenCenterX = (int) (mPosition * canvas.getWidth());
+                        mOnScreenCenterX = (int) ((mPosition + 1.0f) / 2.0f
+                                * (canvas.getWidth() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
                         mOnScreenCenterY = canvas.getHeight() - mPadding - mHeight /
                                 2;
                         break;

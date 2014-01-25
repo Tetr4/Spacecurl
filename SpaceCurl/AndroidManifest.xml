@@ -22,59 +22,66 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:screenOrientation="portrait"
         android:theme="@style/AppBaseTheme" >
-        
-        
+
         <!-- MainActivity -->
         <activity
             android:name="de.klimek.spacecurl.FreePlayActivity"
-            android:theme="@style/ThemeWithoutOverlay">
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeWithoutOverlay" >
+>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <!-- TrainingActivity -->
         <activity
             android:name="de.klimek.spacecurl.TrainingActivity"
             android:label="@string/title_activity_training"
             android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
-            android:theme = "@style/ThemeWithoutOverlay" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeWithoutOverlay" >
+>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
-        
+
         <!-- TrainingBuilderActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingBuilderActivity"
             android:label="@string/title_activity_training_builder"
             android:parentActivityName="de.klimek.spacecurl.training.TrainingSelectActivity"
-            android:theme = "@style/ThemeWithoutOverlay" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeWithoutOverlay" >
+>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.training.TrainingSelectActivity" />
         </activity>
-        
+
         <!-- TrainingSelectActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingSelectActivity"
             android:label="@string/title_activity_training_select"
             android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
-            android:theme = "@style/ThemeWithoutOverlay" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
-        
-        <!--  SettingsActivity -->
+
+        <!-- SettingsActivity -->
         <activity
-            android:name="de.klimek.spacecurl.SettingsActivity"
+            android:name="de.klimek.spacecurl.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
-            android:theme = "@style/ThemeWithoutOverlay" >
+            android:screenOrientation="portrait"
+            android:theme="@style/ThemeWithoutOverlay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.klimek.spacecurl.MainActivity" />

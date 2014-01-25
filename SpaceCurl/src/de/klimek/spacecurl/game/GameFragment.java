@@ -2,11 +2,13 @@
 package de.klimek.spacecurl.game;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.MainActivityPrototype.State;
@@ -23,13 +25,16 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public static final String TAG = "GameFragment"; // Used for log output
     public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
     public static final String ARG_TITLE = "ARG_TITLE";
-    public static final String ARG_INVERSE_CONTROL = "ARG_INVERSE_CONTROL";
+    public static final String ARG_CONTROL_INVERSE = "ARG_CONTROL_INVERSE";
+    public static final String ARG_CONTROL_FACTOR_X = "ARG_CONTROL_FAKTOR_X";
+    public static final String ARG_CONTROL_FACTOR_Y = "ARG_CONTROL_FAKTOR_Y";
 
     // Members for Sensor
     private SensorManager mSensorManager;
     private float[] mGravityData = new float[3]; // Gravity or accelerometer
     private float[] mMagnetData = new float[3]; // Magnetometer
     private float[] mRotation = new float[3];
+    private float mRotationspeed = 0.0f;
     private float[] mRotationMatrix = new float[9];
     private float[] mInclinationMatrix = new float[9];
     private volatile float[] mResultRotationMatrix = new float[9];
@@ -38,11 +43,15 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mHasGrav = false;
     private boolean mHasAccel = false;
     private boolean mHasMag = false;
-    private boolean mInverseControl = true;
+
+    private boolean mInverseControls = false;
+    private float mControlFactorX = -3.0f;
+    private float mControlFactorY = -3.0f;
     private float mPhoneInclination = Database.getInstance().getPhoneInclination();
 
     private Status mStatus;
 
+    private boolean mLandscape;
     private boolean mViewCreated = false;
     private State mState = State.Running;
 
@@ -109,12 +118,17 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return mOrientationScaled;
     }
 
+    protected float[] getOrientation() {
+        return mOrientation;
+    }
+
     protected float[] getRotationMatrix() {
         return mResultRotationMatrix;
     }
 
     protected float getRotationSpeed() {
-        return Math.abs(mRotation[0]) + Math.abs(mRotation[1]) + Math.abs(mRotation[2]);
+        return mRotationspeed;
+
     }
 
     protected boolean hasOrientation() {
@@ -122,9 +136,18 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         // TODO maybe onActivitycreated instead
-        super.onActivityCreated(savedInstanceState);
+        mControlFactorX = getArguments().getFloat(ARG_CONTROL_FACTOR_X, mControlFactorX);
+        mControlFactorY = getArguments().getFloat(ARG_CONTROL_FACTOR_Y, mControlFactorY);
+        mInverseControls = getArguments().getBoolean(ARG_CONTROL_INVERSE, mInverseControls);
+        if (mInverseControls) {
+            mControlFactorX *= -1;
+            mControlFactorY *= -1;
+        }
+        super.onCreate(savedInstanceState);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mLandscape = sharedPref.getBoolean("landscape", false);
         if (isUsingSensor()) {
             // Setup Sensormanager
             mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -177,8 +200,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        // TODO Quaternion from TYPE_ROTATION_VECTOR to prevent gimbal lock
         switch (event.sensor.getType()) {
             case Sensor.TYPE_GRAVITY:
+                // inbuild sensorfusion (gyro drift eliminated by accelerometer)
                 mGravityData[0] = event.values[0];
                 mGravityData[1] = event.values[1];
                 mGravityData[2] = event.values[2];
@@ -203,40 +228,60 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mRotation[0] = event.values[0];
                 mRotation[1] = event.values[1];
                 mRotation[2] = event.values[2];
+                mRotationspeed = (float) Math.sqrt(mRotation[0] * mRotation[0]
+                        + mRotation[1] * mRotation[1]
+                        + mRotation[2] * mRotation[2]);
+                // return Math.abs(mRotation[0]) + Math.abs(mRotation[1]) +
+                // Math.abs(mRotation[2]);
                 break;
             default:
                 return;
         }
 
         if ((mHasGrav || mHasAccel) && mHasMag) {
+            // calculate rotationMatrix from rotation and magnetometer data
             SensorManager.getRotationMatrix(mRotationMatrix, mInclinationMatrix, mGravityData,
                     mMagnetData);
-            // TODO synchronized on cached array
-            SensorManager.remapCoordinateSystem(mRotationMatrix,
-                    SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mResultRotationMatrix);
-            // Orientation isn't as useful as a rotation matrix, but
-            // we'll show it here anyway.
-            // final int DEG = 360;
+
+            // remap rotationMatrix depending on landscape or portrait mode
+            if (mLandscape) {
+                SensorManager.remapCoordinateSystem(mRotationMatrix,
+                        SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X,
+                        mResultRotationMatrix);
+            } else {
+                // SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
+                SensorManager.remapCoordinateSystem(mRotationMatrix,
+                        SensorManager.AXIS_X, SensorManager.AXIS_Z, mResultRotationMatrix);
+            }
+            // TODO remap to spacecurl coordinate system
+            // TODO add phoneInclination
+
+            /*
+             * get matrix for azimuth, pitch, roll: All values are 0 when the
+             * phone is upright (NOT flat on a table), and facing north. Pitch
+             * increases when tilting the phone forward to a maximum of PI/2
+             * when horizontal. Roll increased when tilting the phone rightward
+             * to a maximum of PI when horizontal.
+             */
             SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
 
-            // azimuth
-            // TODO Adjust
-            mOrientationScaled[0] = mOrientation[0];// ((mOrientation[0] /
-                                                    // (float) Math.PI) + 1) /
-                                                    // 2.0f;
+            // Scaling azimuth, pitch, roll from -1.0f to 1.0f
+            // Azimuth
+            mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
             // Pitch
-            mOrientationScaled[1] = mOrientation[1] / (float) Math.PI + 0.5f;
-            // Roll adjusted
-            mOrientationScaled[2] = (mOrientation[2] / (float) (Math.PI)) + mPhoneInclination;
-            if (mOrientationScaled[2] <= 0.0f && mOrientationScaled[2] > -0.5f)
-                mOrientationScaled[2] = 0.0f;
-            if (mOrientationScaled[2] > 1 || mOrientationScaled[2] < -0.5f)
-                mOrientationScaled[2] = 1.0f;
+            mOrientationScaled[1] = (mOrientation[1] * mControlFactorX) / ((float) Math.PI / 2.0f);
+            // Roll
+            mOrientationScaled[2] = (mOrientation[2] * mControlFactorY) / ((float) Math.PI / 2.0f);
 
-            if (mInverseControl) {
-                mOrientationScaled[1] = -mOrientationScaled[1] + 1;
-                mOrientationScaled[2] = -mOrientationScaled[2] + 1;
-            }
+            // cutoff
+            if (mOrientationScaled[1] > 1.0f)
+                mOrientationScaled[1] = 1.0f;
+            if (mOrientationScaled[1] < -1.0f)
+                mOrientationScaled[1] = -1.0f;
+            if (mOrientationScaled[2] > 1.0f)
+                mOrientationScaled[2] = 1.0f;
+            if (mOrientationScaled[2] < -1.0f)
+                mOrientationScaled[2] = -1.0f;
 
             // float incl = SensorManager.getInclination(mInclinationMatrix);
             // Log.d(TAG, "Azimuth: " + (int) (mOrientation[0] * DEG));

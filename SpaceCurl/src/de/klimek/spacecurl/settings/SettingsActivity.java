@@ -1,9 +1,10 @@
 
-package de.klimek.spacecurl;
+package de.klimek.spacecurl.settings;
 
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -16,6 +17,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.util.collection.Database;
 
 /**
  * Activity showing general settings and headers leading to game settings. <br>
@@ -27,11 +30,13 @@ import android.widget.LinearLayout;
  *      Settings Guide</a>
  */
 public class SettingsActivity extends FragmentActivity implements OnSharedPreferenceChangeListener {
-    SharedPreferences mSharedPrefs;
+    private SharedPreferences mSharedPrefs;
+    private Database mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = Database.getInstance(this);
         // enable "up-caret" to navigate back to FreePlayActivity
         getActionBar().setDisplayHomeAsUpEnabled(true);
         // replace screencontent with a SettingsFragment containing current
@@ -41,10 +46,12 @@ public class SettingsActivity extends FragmentActivity implements OnSharedPrefer
                 .replace(android.R.id.content, createSettingFragment(R.xml.preferences))
                 .commit();
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        // Boolean orientation = mSharedPrefs.getBoolean("orientation", false);
-        // if(orientation) {
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        // }
+        Boolean landscape = mSharedPrefs.getBoolean("landscape", false);
+        if (landscape) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     @Override
@@ -61,8 +68,13 @@ public class SettingsActivity extends FragmentActivity implements OnSharedPrefer
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // if (key.equals("orientation")) {
-        // if(sharedPreferences.getBoolean(key, false)) {
+        if (key.equals("landscape")) {
+            if (sharedPreferences.getBoolean(key, false)) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            } else {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+        }
         // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         // } else
         // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

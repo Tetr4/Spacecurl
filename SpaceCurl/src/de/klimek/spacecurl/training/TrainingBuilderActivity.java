@@ -8,14 +8,18 @@ import it.gmariotti.cardslib.library.view.CardListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
-import de.klimek.spacecurl.util.cards.GameCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Training;
@@ -31,7 +35,15 @@ public class TrainingBuilderActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean landscape = sharedPref.getBoolean("landscape", false);
+        if (landscape) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
+        setContentView(R.layout.activity_training_builder);
         int key = getIntent().getExtras().getInt(TrainingActivity.EXTRA_TRAINING_KEY);
         if (key != NEW_TRAINING) {
             mTraining = mDatabase.getTrainings().get(key);
@@ -41,7 +53,6 @@ public class TrainingBuilderActivity extends FragmentActivity {
         }
 
         // TODO Add "delete training" to actionbar/overflow
-        setContentView(R.layout.activity_training_builder);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setupCards();
     }
@@ -86,6 +97,34 @@ public class TrainingBuilderActivity extends FragmentActivity {
     public void addGame(GameSettingsPair pair) {
         mTraining.add(pair);
         invalidateCardList();
+    }
+
+    private static class GameCard extends Card {
+        private TextView mGameTitleTextView;
+        private String mGameTitle;
+        private GameSettingsPair mGameSettingsPair;
+
+        public GameCard(Context context, GameSettingsPair gameSettingsPair) {
+            super(context, R.layout.card_game);
+            setGameSettingsPair(gameSettingsPair);
+            mGameTitle = "asdf";
+        }
+
+        @Override
+        public void setupInnerViewElements(ViewGroup parent, View view) {
+            mGameTitleTextView = (TextView) parent.findViewById(
+                    R.id.card_game_name);
+            mGameTitleTextView.setText(mGameTitle);
+        }
+
+        public GameSettingsPair getmGameSettingsPair() {
+            return mGameSettingsPair;
+        }
+
+        public void setGameSettingsPair(GameSettingsPair gameSettingsPair) {
+            mGameSettingsPair = gameSettingsPair;
+        }
+
     }
 
 }

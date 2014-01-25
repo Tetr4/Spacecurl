@@ -116,7 +116,7 @@ public class GameTunnel extends GameFragment {
         private int mCurveStep = 0;
 
         // Sensor variables
-        private float mRoll;
+        private float mPitch;
         private float mInclinationRangeFactor = 2.0f;
         private float mPhoneInclination;
 
@@ -264,9 +264,10 @@ public class GameTunnel extends GameFragment {
             }
 
             private void updatePlayer() {
-                mRoll = getScaledOrientation()[2];
+                mPitch = getScaledOrientation()[1];
                 mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
-                mPlayer.mPositionY = (int) (mRoll * mViewHeightMax);
+                mPlayer.mPositionY = (int) ((mPitch + 1.0f) / 2.0f
+                        * (mViewHeightMax - (mPlayer.mWidth + mPadding * 2)) + mPlayer.mWidth / 2 + mPadding);
             }
 
             private void updateTunnel() {
@@ -281,9 +282,11 @@ public class GameTunnel extends GameFragment {
             }
 
             private void checkCollisions() {
-                for (int i = mPlayer.mPositionX; i <= mPlayer.mWidth; i++) {
+                for (int i = mPlayer.mPositionX - mPlayer.mWidth / 2; i <= mPlayer.mPositionX
+                        + mPlayer.mWidth / 2; i++) {
                     Wall wall = mTunnel.get(i);
-                    if (wall.top > mPlayer.mPositionY || wall.bottom < mPlayer.mPositionY) {
+                    if (wall.top > mPlayer.mPositionY - mPlayer.mHeight / 2
+                            || wall.bottom < mPlayer.mPositionY + mPlayer.mHeight / 2) {
                         mStage = Stage.GameOver;
                         return;
                     }
