@@ -1,6 +1,8 @@
 
 package de.klimek.spacecurl.game;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,12 +33,17 @@ public class GameUniversal extends GameFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Random random = new Random();
         mGame = new GameUniversalView(getActivity());
-        mGame.mTargetPositionX = getArguments().getFloat(ARG_TARGET_POSITION_X, 0.66f);
-        mGame.mTargetPositionY = getArguments().getFloat(ARG_TARGET_POSITION_Y, 0.66f);
-        mGame.mTargetRadius = getArguments().getFloat(ARG_TARGET_RADIUS, 0.05f);
-        mGame.mHoldingTime = getArguments().getLong(ARG_HOLDING_TIME, 1000);
         mGame.mResetIfLeft = getArguments().getBoolean(ARG_RESET_HOLDING_TIME_IF_LEFT, true);
+        float targetPositionX = getArguments().getFloat(ARG_TARGET_POSITION_X,
+                random.nextFloat());
+        float targetPositionY = getArguments().getFloat(ARG_TARGET_POSITION_Y,
+                random.nextFloat());
+        float targetRadius = getArguments().getFloat(ARG_TARGET_RADIUS,
+                random.nextFloat() / 10.0f + 0.02f);
+        long holdingTime = getArguments().getLong(ARG_HOLDING_TIME, 1000);
+        mGame.mTarget = new Target(targetPositionX, targetPositionY, targetRadius, holdingTime);
         resumeGame();
         return mGame;
     }
@@ -73,24 +80,16 @@ public class GameUniversal extends GameFragment {
         private int mMinBorder;
         private boolean mSizeChanged = false;
 
-        private boolean mFinished = false;
-
         private Player mPlayer;
         private Target mTarget;
         private CenteredCircles mCircles;
 
         private float mPitch;
         private float mRoll;
-        private float mInclinationRangeFactor = 2.0f;
-        // TODO Calibrate
-        // Phone is not attached straight for better visibilty of the screen
 
-        private float mTargetPositionX;
-        private float mTargetPositionY;
-        private float mTargetRadius;
-        private long mHoldingTime;
-        private long mCurHoldingTime;
         private boolean mResetIfLeft;
+        private boolean mFinished = false;
+        private Random mRandom = new Random();
 
         public GameUniversalView(Context context) {
             super(context);
@@ -119,13 +118,9 @@ public class GameUniversal extends GameFragment {
             mCenterY = mViewHeightMax / 2;
             mMinBorder = mViewWidthMax <= mViewHeightMax ? mViewWidthMax : mViewHeightMax;
 
-            mPlayer = new Player(mMinBorder / 10);
-            mPlayer.mPositionX = mCenterX;
-            mPlayer.mPositionY = mCenterY;
-
-            mTarget = new Target((int) (mTargetRadius * mMinBorder),
-                    (int) ((mTargetPositionX * mMinBorder - (mMinBorder - mViewWidthMax) / 2)),
-                    (int) ((mTargetPositionY * mMinBorder - (mMinBorder - mViewHeightMax) / 2)));
+            mPlayer = new Player(0.1f);
+            // mPlayer.mPositionX = mCenterX;
+            // mPlayer.mPositionY = mCenterY;
 
             int circleCount = 6;
             mCircles = new CenteredCircles(circleCount, mMinBorder / (circleCount * 2), mCenterX,
@@ -170,17 +165,17 @@ public class GameUniversal extends GameFragment {
             private void updatePlayer() {
                 mPitch = getScaledOrientation()[1];
                 mRoll = getScaledOrientation()[2];
-                mPlayer.mPositionX = (int) (((mRoll + 1.0f) / 2.0f) * mMinBorder - (mMinBorder - mViewWidthMax) / 2);
-                mPlayer.mPositionY = (int) (((mPitch + 1.0f) / 2.0f) * mMinBorder - (mMinBorder - mViewHeightMax) / 2);
+                mPlayer.mPositionX = (mRoll + 1.0f) / 2.0f;
+                mPlayer.mPositionY = (mPitch + 1.0f) / 2.0f;
             }
 
             private void checkFinished() {
                 if (mPlayer.intersects(mTarget)) {
-                    mCurHoldingTime -= _deltaTime;
-                    if (mCurHoldingTime < 0)
+                    mTarget.mCurHoldingTime -= _deltaTime;
+                    if (mTarget.mCurHoldingTime < 0)
                         mFinished = true;
                 } else if (mResetIfLeft) {
-                    mCurHoldingTime = mHoldingTime;
+                    mTarget.mCurHoldingTime = mTarget.mHoldingTime;
                 }
 
             }
@@ -189,7 +184,10 @@ public class GameUniversal extends GameFragment {
             protected void onProgressUpdate(Void... values) {
                 if (mFinished) {
                     notifyFinished();
-                    this.cancel(true);
+                    mTarget = new Target(mRandom.nextFloat(), mRandom.nextFloat(),
+                            mRandom.nextFloat() / 10.0f + 0.02f, 0L);
+                    mTarget.mCurHoldingTime = mTarget.mHoldingTime;
+                    mFinished = false;
                 }
                 invalidate();
             }
@@ -201,107 +199,129 @@ public class GameUniversal extends GameFragment {
             }
         }
 
-        /**
-         * Target
-         */
-        private class Target {
-            private int mRadius;
-            private int mPositionX;
-            private int mPositionY;
-            private Paint mPaint;
+    }
 
-            private Target(int radius, int positionX, int positionY) {
-                mRadius = radius;
-                mPositionX = positionX;
-                mPositionY = positionY;
-                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPaint.setStyle(Paint.Style.FILL);
-                mPaint.setColor(Color.RED);
-            }
+    /**
+     * Target
+     */
+    private static class Target {
+        private float mPositionX;
+        private float mPositionY;
+        private float mRadius;
+        private Paint mPaint;
+        private long mHoldingTime;
+        private long mCurHoldingTime;
+        private int mMinBorder;
+        private int mOnScreenPositionX;
+        private int mOnScreenPositionY;
+        private int mOnScreenRadius;
 
-            private void draw(Canvas canvas) {
-                RectF r = new RectF(mPositionX - mRadius,
-                        mPositionY - mRadius,
-                        mPositionX + mRadius,
-                        mPositionY + mRadius);
-                canvas.drawOval(r, mPaint);
-            }
+        private Target(float positionX, float positionY, float radius, long holdingTime) {
+            mPositionX = positionX;
+            mPositionY = positionY;
+            mRadius = radius;
+            mHoldingTime = holdingTime;
+            mCurHoldingTime = mHoldingTime;
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setColor(Color.RED);
         }
 
-        /**
-         * Player
-         */
-        private class Player {
-            private int mAxisLength;
-            private int mPositionX;
-            private int mPositionY;
-            private Paint mPaint;
+        private void draw(Canvas canvas) {
+            mMinBorder = canvas.getWidth() <= canvas.getHeight() ? canvas.getWidth() : canvas
+                    .getHeight();
+            mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
+            mOnScreenPositionY = (int) (mPositionY * mMinBorder - (mMinBorder - canvas.getHeight()) / 2);
+            mOnScreenRadius = (int) (mRadius * mMinBorder);
+            RectF r = new RectF(mOnScreenPositionX - mOnScreenRadius,
+                    mOnScreenPositionY - mOnScreenRadius,
+                    mOnScreenPositionX + mOnScreenRadius,
+                    mOnScreenPositionY + mOnScreenRadius);
+            canvas.drawOval(r, mPaint);
+        }
+    }
 
-            private Player(int axisLength) {
-                mAxisLength = axisLength;
-                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPaint.setStyle(Paint.Style.STROKE);
-                mPaint.setStrokeWidth(4);
-                mPaint.setColor(Color.GREEN);
-            }
+    /**
+     * Player
+     */
+    private static class Player {
+        private float mAxisLength;
+        private float mPositionX;
+        private float mPositionY;
+        private Paint mPaint;
+        private int mMinBorder;
+        private int mOnScreenPositionX;
+        private int mOnScreenPositionY;
+        private int mOnScreenAxisLength;
 
-            public boolean intersects(Target mTarget) {
-                return (Math.pow((mPositionX - mTarget.mPositionX), 2)
-                        + Math.pow((mPositionY - mTarget.mPositionY), 2)
-                        < Math.pow(mTarget.mRadius, 2));
-            }
-
-            private void draw(Canvas canvas) {
-                canvas.drawLine(mPositionX,
-                        mPositionY - mAxisLength / 2,
-                        mPositionX,
-                        mPositionY + mAxisLength / 2,
-                        mPaint);
-                canvas.drawLine(mPositionX - mAxisLength / 2,
-                        mPositionY,
-                        mPositionX + mAxisLength / 2,
-                        mPositionY,
-                        mPaint);
-            }
+        private Player(float axisLength) {
+            mAxisLength = axisLength;
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(4);
+            mPaint.setColor(Color.GREEN);
         }
 
-        /**
-         * CenteredCircles
-         */
-        private class CenteredCircles {
-            private int mPositionX;
-            private int mPositionY;
-            private int mCircleCount = 6;
-            private int mRadiusIncrement;
-            private Paint mPaint;
-
-            private CenteredCircles(int circleCount, int radiusIncrement, int positionX,
-                    int positionY) {
-                mCircleCount = circleCount;
-                // mMinBorder / (mCircleCount * 2)
-                mRadiusIncrement = radiusIncrement;
-                mPositionX = positionX;
-                mPositionY = positionY;
-                mPaint = new Paint();
-                mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                mPaint.setStyle(Paint.Style.STROKE);
-                mPaint.setStrokeWidth(4);
-                mPaint.setColor(Color.MAGENTA);
-            }
-
-            private void draw(Canvas canvas) {
-                for (int i = 1; i < mCircleCount; i++) {
-                    int radius = mRadiusIncrement * i;
-                    RectF oval = new RectF(
-                            mPositionX - radius,
-                            mPositionY - radius,
-                            mPositionX + radius,
-                            mPositionY + radius);
-                    canvas.drawArc(oval, 0, 360, false, mPaint);
-                    radius += mRadiusIncrement;
-                }
-            }
+        public boolean intersects(Target mTarget) {
+            return (Math.pow((mPositionX - mTarget.mPositionX), 2)
+                    + Math.pow((mPositionY - mTarget.mPositionY), 2)
+                    < Math.pow(mTarget.mRadius, 2));
         }
 
+        private void draw(Canvas canvas) {
+            mMinBorder = canvas.getWidth() <= canvas.getHeight() ? canvas.getWidth() : canvas
+                    .getHeight();
+            mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
+            mOnScreenPositionY = (int) (mPositionY * mMinBorder - (mMinBorder - canvas.getHeight()) / 2);
+            mOnScreenAxisLength = (int) (mAxisLength * mMinBorder);
+            canvas.drawLine(mOnScreenPositionX,
+                    mOnScreenPositionY - mOnScreenAxisLength / 2,
+                    mOnScreenPositionX,
+                    mOnScreenPositionY + mOnScreenAxisLength / 2,
+                    mPaint);
+            canvas.drawLine(mOnScreenPositionX - mOnScreenAxisLength / 2,
+                    mOnScreenPositionY,
+                    mOnScreenPositionX + mOnScreenAxisLength / 2,
+                    mOnScreenPositionY,
+                    mPaint);
+        }
+    }
+
+    /**
+     * CenteredCircles
+     */
+    private static class CenteredCircles {
+        private int mPositionX;
+        private int mPositionY;
+        private int mCircleCount = 6;
+        private int mRadiusIncrement;
+        private Paint mPaint;
+
+        private CenteredCircles(int circleCount, int radiusIncrement, int positionX,
+                int positionY) {
+            mCircleCount = circleCount;
+            // mMinBorder / (mCircleCount * 2)
+            mRadiusIncrement = radiusIncrement;
+            mPositionX = positionX;
+            mPositionY = positionY;
+            mPaint = new Paint();
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(4);
+            mPaint.setColor(Color.MAGENTA);
+        }
+
+        private void draw(Canvas canvas) {
+            for (int i = 1; i < mCircleCount; i++) {
+                int radius = mRadiusIncrement * i;
+                RectF oval = new RectF(
+                        mPositionX - radius,
+                        mPositionY - radius,
+                        mPositionX + radius,
+                        mPositionY + radius);
+                canvas.drawArc(oval, 0, 360, false, mPaint);
+                radius += mRadiusIncrement;
+            }
+        }
     }
 }
