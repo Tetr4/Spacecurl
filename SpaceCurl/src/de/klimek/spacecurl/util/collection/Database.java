@@ -4,14 +4,15 @@ package de.klimek.spacecurl.util.collection;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameLights;
 import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
-import de.klimek.spacecurl.game.GameSensor;
 import de.klimek.spacecurl.game.GameTunnel;
 import de.klimek.spacecurl.game.GameUniversal;
 
@@ -24,14 +25,14 @@ public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
     private ArrayList<Status> mStatuses = new ArrayList<Status>();
     private Training mFreeplayGames = new Training("Freeplay");
-    private float mPhoneInclination = 0.1f;
-    // TODO mInclinationFaktor
-    private Resources mResources;
-    private Orientation mOrientation = Orientation.Portrait;
 
-    private static enum Orientation {
-        Landscape, Portrait
-    }
+    private SharedPreferences mSharedPreferences;
+    private Resources mResources;
+
+    private Boolean mOrientationLandscape;
+    private float mPhoneInclination;
+    private float mPitchMultiplier;
+    private float mRollMultiplier;
 
     private static Database sInstance;
 
@@ -48,8 +49,17 @@ public class Database {
 
     private Database(Context context) {
         mResources = context.getResources();
+        mSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(context);
         fillTrainings();
         fillFreeplayGames();
+        mOrientationLandscape = mSharedPreferences.getBoolean("pref_landscape", false);
+        mPhoneInclination = Float.parseFloat(
+                mSharedPreferences.getString("pref_inclination", "0.0"));
+        mPitchMultiplier = Float.parseFloat(
+                mSharedPreferences.getString("pref_pitch_multiplier", "1.0"));
+        mRollMultiplier = Float.parseFloat(
+                mSharedPreferences.getString("pref_roll_multiplier", "1.0"));
     }
 
     private void fillFreeplayGames() {
@@ -87,16 +97,15 @@ public class Database {
                 settingsUniversal);
         getFreeplayGames().add(gspUniversal);
 
-        Bundle settingsSensor = new Bundle();
-        settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");
-        GameSettingsPair gspSensor = new GameSettingsPair(GameSensor.class.getName(),
-                settingsSensor);
-        getFreeplayGames().add(gspSensor);
+        // Bundle settingsSensor = new Bundle();
+        // settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");
+        // GameSettingsPair gspSensor = new
+        // GameSettingsPair(GameSensor.class.getName(),
+        // settingsSensor);
+        // getFreeplayGames().add(gspSensor);
     }
 
     private void fillTrainings() {
-        // TODO SQL
-
         // 8
         Training training0 = new Training("8");
         // upperLeft
@@ -161,6 +170,10 @@ public class Database {
 
     }
 
+    public void loadDatabase() {
+        // TODO SQL
+    }
+
     public void saveDatabase() {
         // TODO SQL
     }
@@ -177,20 +190,36 @@ public class Database {
         return mFreeplayGames;
     }
 
-    public Orientation getOrientation() {
-        return mOrientation;
+    public boolean isOrientationLandscape() {
+        return mOrientationLandscape;
     }
 
-    public void setOrientation(Orientation orientation) {
-        mOrientation = orientation;
+    public void setOrientationLandscape(Boolean orientationLandscape) {
+        mOrientationLandscape = orientationLandscape;
     }
 
     public float getPhoneInclination() {
         return mPhoneInclination;
     }
 
-    public void setPhoneInclination(float mPhoneInclination) {
-        this.mPhoneInclination = mPhoneInclination;
+    public void setPhoneInclination(float phoneInclination) {
+        mPhoneInclination = phoneInclination;
+    }
+
+    public float getPitchMultiplier() {
+        return mPitchMultiplier;
+    }
+
+    public void setPitchMultiplier(float pitchMultiplier) {
+        mPitchMultiplier = pitchMultiplier;
+    }
+
+    public float getRollMultiplier() {
+        return mRollMultiplier;
+    }
+
+    public void setRollMultiplier(float rollMultiplier) {
+        mRollMultiplier = rollMultiplier;
     }
 
 }

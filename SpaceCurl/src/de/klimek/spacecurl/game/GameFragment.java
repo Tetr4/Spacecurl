@@ -26,9 +26,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
     public static final String ARG_TITLE = "ARG_TITLE";
     public static final String ARG_CONTROL_INVERSE = "ARG_CONTROL_INVERSE";
-    public static final String ARG_CONTROL_FACTOR_X = "ARG_CONTROL_FAKTOR_X";
-    public static final String ARG_CONTROL_FACTOR_Y = "ARG_CONTROL_FAKTOR_Y";
+    // public static final String ARG_CONTROL_FACTOR_X = "ARG_CONTROL_FAKTOR_X";
+    // public static final String ARG_CONTROL_FACTOR_Y = "ARG_CONTROL_FAKTOR_Y";
 
+    private Database mDatabase = Database.getInstance();
     // Members for Sensor
     private SensorManager mSensorManager;
     private float[] mGravityData = new float[3]; // Gravity or accelerometer
@@ -45,9 +46,9 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mHasMag = false;
 
     private boolean mInverseControls = false;
-    private float mControlFactorX = -3.0f;
-    private float mControlFactorY = -3.0f;
-    private float mPhoneInclination = Database.getInstance().getPhoneInclination();
+    private float mRollMultiplier = mDatabase.getRollMultiplier();
+    private float mPitchMultiplier = mDatabase.getPitchMultiplier();
+    private float mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
 
     private Status mStatus;
 
@@ -138,12 +139,14 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO maybe onActivitycreated instead
-        mControlFactorX = getArguments().getFloat(ARG_CONTROL_FACTOR_X, mControlFactorX);
-        mControlFactorY = getArguments().getFloat(ARG_CONTROL_FACTOR_Y, mControlFactorY);
+        // mRollMulitplier = getArguments().getFloat(ARG_CONTROL_FACTOR_X,
+        // mRollMulitplier);
+        // mPitchMultiplier = -getArguments().getFloat(ARG_CONTROL_FACTOR_Y,
+        // mPitchMultiplier);
         mInverseControls = getArguments().getBoolean(ARG_CONTROL_INVERSE, mInverseControls);
         if (mInverseControls) {
-            mControlFactorX *= -1;
-            mControlFactorY *= -1;
+            mRollMultiplier *= -1;
+            mPitchMultiplier *= -1;
         }
         super.onCreate(savedInstanceState);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -200,6 +203,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        mRollMultiplier = mDatabase.getRollMultiplier();
+        mPitchMultiplier = mDatabase.getPitchMultiplier();
+        mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
+
         // TODO Quaternion from TYPE_ROTATION_VECTOR to prevent gimbal lock
         switch (event.sensor.getType()) {
             case Sensor.TYPE_GRAVITY:
@@ -269,9 +276,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
             // Azimuth
             mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
             // Pitch
-            mOrientationScaled[1] = (mOrientation[1] * mControlFactorX) / ((float) Math.PI / 2.0f);
+            mOrientationScaled[1] = ((mOrientation[1] - mPhoneInclinationRadian) * mPitchMultiplier)
+                    / ((float) Math.PI / 2.0f);
             // Roll
-            mOrientationScaled[2] = (mOrientation[2] * mControlFactorY) / ((float) Math.PI / 2.0f);
+            mOrientationScaled[2] = ((mOrientation[2]) * mRollMultiplier)
+                    / ((float) Math.PI / 2.0f);
 
             // cutoff
             if (mOrientationScaled[1] > 1.0f)

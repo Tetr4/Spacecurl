@@ -42,7 +42,7 @@ public class GameUniversal extends GameFragment {
                 random.nextFloat());
         float targetRadius = getArguments().getFloat(ARG_TARGET_RADIUS,
                 random.nextFloat() / 10.0f + 0.02f);
-        long holdingTime = getArguments().getLong(ARG_HOLDING_TIME, 1000);
+        long holdingTime = getArguments().getLong(ARG_HOLDING_TIME, 0);
         mGame.mTarget = new Target(targetPositionX, targetPositionY, targetRadius, holdingTime);
         resumeGame();
         return mGame;

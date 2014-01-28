@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -29,56 +30,23 @@ import de.klimek.spacecurl.util.collection.Database;
  * @see <a href ="http://developer.android.com/guide/topics/ui/settings.html">
  *      Settings Guide</a>
  */
-public class SettingsActivity extends FragmentActivity implements OnSharedPreferenceChangeListener {
-    private SharedPreferences mSharedPrefs;
-    private Database mDatabase;
+public class SettingsActivity extends FragmentActivity {
+    private Database mDatabase = Database.getInstance(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabase = Database.getInstance(this);
-        // enable "up-caret" to navigate back to FreePlayActivity
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        // replace screencontent with a SettingsFragment containing current
-        // settings
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, createSettingFragment(R.xml.preferences))
-                .commit();
-        mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean landscape = mSharedPrefs.getBoolean("landscape", false);
-        if (landscape) {
+        if (mDatabase.isOrientationLandscape()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
-        super.onResume();
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("landscape")) {
-            if (sharedPreferences.getBoolean(key, false)) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
-        }
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        // } else
-        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        // }
+        // enable "up-caret" to navigate back to FreePlayActivity
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, createSettingFragment(R.xml.preferences))
+                .commit();
     }
 
     /**
@@ -100,8 +68,14 @@ public class SettingsActivity extends FragmentActivity implements OnSharedPrefer
      * Settings are loaded from an XML resource. Static for system access
      * (restoring)
      */
-    public static class SettingsFragment extends PreferenceFragment {
+    public static class SettingsFragment extends PreferenceFragment implements
+            OnSharedPreferenceChangeListener {
         public static final String ARG_SETTINGS_RESOURCE = "ARG_SETTINGS_RESOURCE";
+        private Database mDatabase = Database.getInstance();
+        public SharedPreferences mSharedPrefs;
+        private EditTextPreference mInclinationPreference;
+        private EditTextPreference mPitchMultPreference;
+        private EditTextPreference mRollMultPreference;
 
         // Empty constructor required for fragment subclasses
         public SettingsFragment() {
@@ -111,9 +85,59 @@ public class SettingsActivity extends FragmentActivity implements OnSharedPrefer
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            // Load the preferences from an XML resource
             int preferencesResId = getArguments().getInt(ARG_SETTINGS_RESOURCE);
             addPreferencesFromResource(preferencesResId);
+            mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            mInclinationPreference = (EditTextPreference) findPreference("pref_inclination");
+            mInclinationPreference.setSummary(mSharedPrefs.getString("pref_inclination", "0.0"));
+
+            mPitchMultPreference = (EditTextPreference) findPreference("pref_pitch_multiplier");
+            mPitchMultPreference.setSummary(mSharedPrefs.getString("pref_pitch_multiplier", "1.0"));
+
+            mRollMultPreference = (EditTextPreference) findPreference("pref_roll_multiplier");
+            mRollMultPreference.setSummary(mSharedPrefs.getString("pref_roll_multiplier", "1.0"));
+        }
+
+        @Override
+        public void onPause() {
+            mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
+            super.onPause();
+        }
+
+        @Override
+        public void onResume() {
+            mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
+            super.onResume();
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals("pref_landscape")) {
+                if (sharedPreferences.getBoolean(key, false)) {
+                    mDatabase.setOrientationLandscape(true);
+                    getActivity()
+                            .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                } else {
+                    mDatabase.setOrientationLandscape(false);
+                    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+            }
+            else if (key.equals("pref_inclination")) {
+                String value = sharedPreferences.getString(key, "0.0");
+                mInclinationPreference.setSummary(value);
+                mDatabase.setPhoneInclination(Float.parseFloat(value));
+            }
+            else if (key.equals("pref_pitch_multiplier")) {
+                String value = sharedPreferences.getString(key, "1.0");
+                mPitchMultPreference.setSummary(value);
+                mDatabase.setPitchMultiplier(Float.parseFloat(value));
+            }
+            else if (key.equals("pref_roll_multiplier")) {
+                String value = sharedPreferences.getString(key, "1.0");
+                mRollMultPreference.setSummary(value);
+                mDatabase.setRollMultiplier(Float.parseFloat(value));
+            }
+
         }
 
         @Override

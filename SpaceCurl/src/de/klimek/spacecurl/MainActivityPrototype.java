@@ -10,7 +10,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,7 +17,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -47,8 +45,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     // Used for log output
     private static final String TAG = MainActivityPrototype.class.getName();
 
-    protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
-    protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
     public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
 
     private Database mDatabase;
@@ -98,9 +94,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private void setupSettings() {
         // Default setting values on first startup
         // PreferenceManager.setDefaultValues(this, R.xml.prefersences, false);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean landscape = sharedPref.getBoolean("landscape", false);
-        if (landscape) {
+        // SharedPreferences sharedPref =
+        // PreferenceManager.getDefaultSharedPreferences(this);
+        if (mDatabase.isOrientationLandscape()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

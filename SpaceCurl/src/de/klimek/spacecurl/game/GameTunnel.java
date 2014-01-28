@@ -6,6 +6,7 @@ import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -93,11 +94,11 @@ public class GameTunnel extends GameFragment {
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
         // Game difficulty parameters
-        private int mCurveWidth = 200;
+        private int mCurveWidth = 300;
         private int mSpeed = 3;
-        private int mMinTunnelHeight = 160;
+        private int mMinTunnelHeight = 190;
         private int mPadding = 12;
-        private Player mPlayer = new Player(60, 60);;
+        private Player mPlayer = new Player(96, 59);;
 
         // Drawing variables
         private int mViewWidthMax;
@@ -383,24 +384,32 @@ public class GameTunnel extends GameFragment {
             private int mPositionX;
             private int mPositionY;
             private Paint mPaint = new Paint();
-            private Rect mRect = new Rect();
+            private Bitmap mRocket = BitmapFactory.decodeResource(getResources(),
+                    R.drawable.rocket);
+            private Bitmap mRocketScaled;
+            private Rect mSource = new Rect();
+            private Rect mDest = new Rect();
 
             public Player(int width, int height) {
-                mPaint.setColor(Color.RED);
+                // mPaint.setColor(Color.RED);
+                mPaint.setAlpha(100);
                 mWidth = width;
                 mHeight = height;
                 mPositionX = mPadding + mWidth / 2;
                 mPositionY = mViewHeightMax / 2;
-            }
-
-            protected void draw(Canvas canvas) {
-                mRect.set(0,
+                mSource.set(0,
                         0,
                         mWidth,
                         mHeight);
-                mRect.offsetTo(mPositionX - mWidth / 2
-                        , mPositionY - mHeight / 2);
-                canvas.drawRect(mRect, mPaint);
+                mRocketScaled = Bitmap.createScaledBitmap(mRocket, mWidth, mHeight, true);
+            }
+
+            protected void draw(Canvas canvas) {
+                mDest.set(mPositionX - mWidth / 2,
+                        mPositionY - mHeight / 2,
+                        mPositionX + mWidth / 2,
+                        mPositionY + mHeight / 2);
+                canvas.drawBitmap(mRocketScaled, mSource, mDest, null);
             }
         }
     }

@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:background="@color/game_lights_color_go"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/game_lights_message"
@@ -29,6 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:shadowColor="#FF000000"
+            android:shadowRadius="10.0"
             android:text="12"
             android:textColor="@color/text_game_color"
             android:textSize="60sp"
@@ -46,6 +48,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:shadowColor="#FF000000"
+                android:shadowRadius="10.0"
                 android:text="20:35"
                 android:textColor="@color/text_game_color"
                 android:textSize="30sp" />
@@ -56,6 +60,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/game_lights_total_time"
                 android:layout_alignParentRight="true"
+                android:shadowColor="#FF000000"
+                android:shadowRadius="10.0"
                 android:text="Kopfüberbonus!"
                 android:textColor="@color/text_game_color"
                 android:textSize="20sp" />
@@ -75,9 +81,9 @@
     </LinearLayout>
 
     <include
- 	  android:layout_width="match_parent"
- 	  android:layout_height="match_parent"
- 	  layout="@layout/game_result"
- 	      android:visibility="invisible"  />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/game_result"
+        android:visibility="invisible" />
 
 </RelativeLayout>

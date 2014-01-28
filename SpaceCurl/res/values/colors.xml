@@ -19,6 +19,6 @@
     <color name="blackish">#1c1e20</color>
     <color name="blackish_selected">#0cffffff</color>
     <color name="blackish_transparent">#cc1c1e20</color>
-    <color name="game_pong_color">@android:color/holo_blue_light</color>
+    <color name="game_pong_color">#ff0195ff</color>
 
 </resources>

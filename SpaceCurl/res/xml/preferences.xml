@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <!--
     <PreferenceCategory android:title="@string/pref_category_modules" >
 
-        <!-- Dot settings -->
+        Dot settings
         <PreferenceScreen
             android:icon="@drawable/ic_gamepad"
             android:key="pref_screen_game_dot"
@@ -17,10 +18,10 @@
                 android:negativeButtonText="@null"
                 android:positiveButtonText="@null"
                 android:title="pref_title_add_friends_to_messages" />
-            <!-- android:dependency="notifications_new_message" -->
+            android:dependency="notifications_new_message"
         </PreferenceScreen>
 
-        <!-- Pong settings -->
+        Pong settings
         <PreferenceScreen
             android:icon="@drawable/ic_gamepad"
             android:key="pref_screen_game_pong"
@@ -36,15 +37,15 @@
                 android:title="pref_title_sync_frequency" />
         </PreferenceScreen>
 
-        <!-- Plane settings -->
+        Plane settings
         <PreferenceScreen
             android:icon="@drawable/ic_gamepad"
             android:key="pref_screen_game_plane"
             android:persistent="false"
             android:title="@string/game_lights" >
 
-            <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-            <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+            NOTE: EditTextPreference accepts EditText attributes.
+            NOTE: EditTextPreference's summary should be set to its value by the activity code.
             <EditTextPreference
                 android:capitalize="words"
                 android:defaultValue="pref_default_display_name"
@@ -55,7 +56,9 @@
                 android:singleLine="true"
                 android:title="pref_title_display_name" />
         </PreferenceScreen>
-    </PreferenceCategory>
+    </PreferenceCategory>
+    -->
+
 
     <!-- general settings -->
     <PreferenceCategory
@@ -63,14 +66,29 @@
         android:title="@string/pref_category_general" >
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="landscape"
+            android:key="pref_landscape"
             android:title="Landscape" />
 
-        <de.klimek.spacecurl.settings.CalibrationPreference
+        <!--
+             <de.klimek.spacecurl.settings.CalibrationPreference
             android:dialogMessage="Click ok to calibrate"
             android:negativeButtonText="cancel"
             android:positiveButtonText="ok"
-            android:title="Calibrate"/>
+            android:title="Calibrate" />
+        -->
+
+        <EditTextPreference
+            android:digits="0123456789"
+            android:key="pref_inclination"
+            android:title="Inclination" />
+        <EditTextPreference
+            android:digits="0123456789."
+            android:key="pref_pitch_multiplier"
+            android:title="Pitch multiplier" />
+        <EditTextPreference
+            android:digits="0123456789."
+            android:key="pref_roll_multiplier"
+            android:title="Roll multiplier" />
     </PreferenceCategory>
 
 </PreferenceScreen>

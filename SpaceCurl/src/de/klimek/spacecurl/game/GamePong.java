@@ -4,6 +4,8 @@ package de.klimek.spacecurl.game;
 import java.util.Random;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -27,6 +29,10 @@ public class GamePong extends GameFragment {
     private LinearLayout mResultLayout;
     private TextView mResultScore;
     private TextView mResultContinueTime;
+
+    private static enum State {
+        Normal, Smiling, Frowning,
+    }
 
     private static enum PaddleSide {
         Left, Top, Right, Bottom
@@ -99,6 +105,7 @@ public class GamePong extends GameFragment {
         private float mPhoneInclination;
 
         private int mBallContacts;
+        private boolean mHaveSize = false;;
 
         // Constructor
         public GamePongView(Context context) {
@@ -139,13 +146,13 @@ public class GamePong extends GameFragment {
         // Called back to draw the view. Also called by invalidate().
         @Override
         protected void onDraw(Canvas canvas) {
-            mBall.draw(canvas);
             if (hasOrientation()) {
                 mPaddleTop.draw(canvas);
                 mPaddleBottom.draw(canvas);
                 mPaddleLeft.draw(canvas);
                 mPaddleRight.draw(canvas);
             }
+            mBall.draw(canvas);
         }
 
         // Called back when the view is first created or its size changes.
@@ -154,28 +161,33 @@ public class GamePong extends GameFragment {
             // Set the movement bounds for the ball
             mViewWidthMax = w - 1;
             mViewHeightMax = h - 1;
+            mHaveSize = true;
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected Void doInBackground(Void... params) {
-                long timeStart;
-                long timeEnd;
-                long timeSleep;
+                long _lastTime = System.currentTimeMillis();
+                long _startTime;
+                long _deltaTime;
+                long _timeEnd;
+                long _timeSleep;
                 while (!isCancelled()) {
-                    timeStart = System.currentTimeMillis();
-
-                    updatePaddles();
-                    updateBall();
-                    checkCollisions();
+                    _startTime = System.currentTimeMillis();
+                    _deltaTime = _startTime - _lastTime;
+                    _lastTime = _startTime;
+                    if (mHaveSize) {
+                        updatePaddles();
+                        updateBall();
+                        checkCollisions(_deltaTime);
+                    }
                     publishProgress();
-
-                    timeEnd = System.currentTimeMillis();
-                    timeSleep = (1000 / FPS) - (timeEnd - timeStart);
+                    _timeEnd = System.currentTimeMillis();
+                    _timeSleep = (1000 / FPS) - (_timeEnd - _startTime);
                     // Delay
                     try {
-                        Thread.sleep(timeSleep < 0 ? 0 : timeSleep);
+                        Thread.sleep(_timeSleep < 0 ? 0 : _timeSleep);
                     } catch (InterruptedException e) {
                         // e.printStackTrace();
                     }
@@ -193,42 +205,59 @@ public class GamePong extends GameFragment {
             }
 
             private void updateBall() {
-                // Get new (x,y) position
-                mBall.mPositionX += mBall.mSpeedX;
-                mBall.mPositionY += mBall.mSpeedY;
+                if (mBall.mState != State.Frowning) {
+                    // Get new (x,y) position
+                    mBall.mPositionX += mBall.mSpeedX;
+                    mBall.mPositionY += mBall.mSpeedY;
+                }
             }
 
-            private void checkCollisions() {
+            private void checkCollisions(long deltaTime) {
+                // ball has collided with wall
+                if (mBall.mState == State.Frowning) {
+                    if (mBall.mRemainingFaceTime > 0) {
+                        mBall.mRemainingFaceTime -= deltaTime;
+                    } else {
+                        mBall.mState = State.Normal;
+                        mBall.mPositionX = mViewWidthMax / 2;
+                        mBall.mPositionY = mViewHeightMax / 2;
+                        mBall.mSpeedX = new Random().nextBoolean() ? mBall.mSpeedX : -mBall.mSpeedX;
+                        mBall.mSpeedY = new Random().nextBoolean() ? mBall.mSpeedY : -mBall.mSpeedY;
+                        // mBall.mSpeed += mBallSpeedModifier;
+                        // mBall.randomAngle();
+                    }
+                }
                 // Check paddle collisions and react
-                if (mBall.collidesWithPaddle(mPaddleTop)) {
+                else if (mBall.collidesWithPaddle(mPaddleTop)) {
                     mBall.mSpeedY = Math.abs(mBall.mSpeedY);
                     ++mBallContacts;
-                }
-                if (mBall.collidesWithPaddle(mPaddleBottom)) {
+                    mBall.mRemainingFaceTime = 500;
+                    mBall.mState = State.Smiling;
+                } else if (mBall.collidesWithPaddle(mPaddleBottom)) {
                     mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
                     ++mBallContacts;
-                }
-                if (mBall.collidesWithPaddle(mPaddleLeft)) {
+                    mBall.mRemainingFaceTime = 500;
+                    mBall.mState = State.Smiling;
+                } else if (mBall.collidesWithPaddle(mPaddleLeft)) {
                     mBall.mSpeedX = Math.abs(mBall.mSpeedX);
                     ++mBallContacts;
-                }
-                if (mBall.collidesWithPaddle(mPaddleRight)) {
+                    mBall.mRemainingFaceTime = 500;
+                    mBall.mState = State.Smiling;
+                } else if (mBall.collidesWithPaddle(mPaddleRight)) {
                     mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
                     ++mBallContacts;
-                }
-                if (mBall.collidesWithWall()) {
-                    serveBall();
+                    mBall.mRemainingFaceTime = 500;
+                    mBall.mState = State.Smiling;
+                } else if (mBall.collidesWithWall()) {
                     mBallContacts = 0;
+                    mBall.mRemainingFaceTime = 500;
+                    mBall.mState = State.Frowning;
+                } else {
+                    mBall.mRemainingFaceTime -= deltaTime;
+                    if (mBall.mRemainingFaceTime <= 0) {
+                        mBall.mState = State.Normal;
+                    }
                 }
-            }
-
-            private void serveBall() {
-                mBall.mPositionX = mViewWidthMax / 2;
-                mBall.mPositionY = mViewHeightMax / 2;
-                mBall.mSpeedX = new Random().nextBoolean() ? mBall.mSpeedX : -mBall.mSpeedX;
-                mBall.mSpeedY = new Random().nextBoolean() ? mBall.mSpeedY : -mBall.mSpeedY;
-                // mBall.mSpeed += mBallSpeedModifier;
-                // mBall.randomAngle();
             }
 
             @Override
@@ -249,15 +278,60 @@ public class GamePong extends GameFragment {
          */
         private class Ball {
             private int mRadius = 40; // Ball's radius
-            private int mPositionX = mRadius + 20; // Ball's center (x,y)
-            private int mPositionY = mRadius + 40;
+            private int mPositionX = mRadius + 400; // Ball's center (x,y)
+            private int mPositionY = mRadius + 400;
             private int mSpeedX = 7; // Ball's speed (x,y)
             private int mSpeedY = 3;
             private Paint mPaint = new Paint();
+            private Bitmap mSmileyNormalScaled;
+            private Bitmap mSmileyFrowningScaled;
+            private Bitmap mSmileySmilingScaled;
+            private Rect mSource = new Rect();
+            private Rect mDest = new Rect();
+            private State mState = State.Normal;
+            private long mRemainingFaceTime = 500;
+
+            private Ball() {
+                mPaint.setColor(Color.RED);
+                mSource.set(0,
+                        0,
+                        mRadius * 2,
+                        mRadius * 2);
+                Bitmap smileyNormal = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.smiley_normal);
+                Bitmap smileyFrowning = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.smiley_frowning);
+                Bitmap smileySmiling = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.smiley_smiling);
+                mSmileyNormalScaled = Bitmap.createScaledBitmap(smileyNormal, mRadius * 2,
+                        mRadius * 2,
+                        true);
+                mSmileyFrowningScaled = Bitmap.createScaledBitmap(smileyFrowning, mRadius * 2,
+                        mRadius * 2,
+                        true);
+                mSmileySmilingScaled = Bitmap.createScaledBitmap(smileySmiling, mRadius * 2,
+                        mRadius * 2,
+                        true);
+            }
 
             protected void draw(Canvas canvas) {
-                mPaint.setColor(Color.RED);
-                canvas.drawCircle(mPositionX, mPositionY, mRadius, mPaint);
+                mDest.set(mPositionX - mRadius,
+                        mPositionY - mRadius,
+                        mPositionX + mRadius,
+                        mPositionY + mRadius);
+                switch (mState) {
+                    case Normal:
+                        canvas.drawBitmap(mSmileyNormalScaled, mSource, mDest, null);
+                        return;
+                    case Frowning:
+                        canvas.drawBitmap(mSmileyFrowningScaled, mSource, mDest, null);
+                        return;
+                    case Smiling:
+                        canvas.drawBitmap(mSmileySmilingScaled, mSource, mDest, null);
+                        return;
+                }
+
+                // canvas.drawCircle(mPositionX, mPositionY, mRadius, mPaint);
             }
 
             private boolean collidesWithWall() {
@@ -323,12 +397,14 @@ public class GamePong extends GameFragment {
             private int mPadding = 12;
             private volatile float mPosition;
             private Paint mPaint = new Paint();
-            private Rect mRect = new Rect();
+            private Rect mSource = new Rect();
+            private Rect mDest = new Rect();
             private PaddleSide mSide;
             private int mOnScreenCenterX;
             private int mOnScreenCenterY;
             private int mOnScreenWidth;
             private int mOnScreenHeight;
+            private Bitmap mPaddleBitmapScaled;
 
             public Paddle(PaddleSide side) {
                 mSide = side;
@@ -342,10 +418,14 @@ public class GamePong extends GameFragment {
                     mOnScreenWidth = mWidth;
                     mOnScreenHeight = mHeight;
                 }
-                mRect.set(-mOnScreenWidth / 2,
-                        -mOnScreenHeight / 2,
-                        mOnScreenWidth / 2,
-                        mOnScreenHeight / 2);
+                mSource.set(0,
+                        0,
+                        mOnScreenWidth,
+                        mOnScreenHeight);
+                Bitmap paddleBitmap = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.cloud);
+                mPaddleBitmapScaled = Bitmap.createScaledBitmap(paddleBitmap, mOnScreenWidth,
+                        mOnScreenHeight, true);
             }
 
             protected void draw(Canvas canvas) {
@@ -374,9 +454,11 @@ public class GamePong extends GameFragment {
                         break;
                 }
 
-                mRect.offsetTo(mOnScreenCenterX - mOnScreenWidth / 2, mOnScreenCenterY
-                        - mOnScreenHeight / 2);
-                canvas.drawRect(mRect, mPaint);
+                mDest.set(mOnScreenCenterX - mOnScreenWidth / 2, mOnScreenCenterY
+                        - mOnScreenHeight / 2, mOnScreenCenterX + mOnScreenWidth / 2,
+                        mOnScreenCenterY + mOnScreenHeight / 2);
+                canvas.drawBitmap(mPaddleBitmapScaled, mSource, mDest, null);
+                // canvas.drawRect(mRect, mPaint);
             }
         }
     }

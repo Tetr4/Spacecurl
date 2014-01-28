@@ -162,14 +162,14 @@ public class GameLights extends GameFragment {
                             // prevent potential overflow
                             if (Long.MAX_VALUE - _deltaTime < mTotalTime) {
                                 mStage = Stage.Result;
-                                mRemainingStageTime = 10000;
+                                mRemainingStageTime = 7000;
                             }
                             mTotalTime += _deltaTime;
                             mDistance += rotation;
                             break;
 
                         case Stop:
-                            mDistance -= rotation;
+                            mDistance -= rotation * 2;
                             if (mDistance < 0)
                                 mDistance = 0;
                             break;

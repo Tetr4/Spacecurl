@@ -14,14 +14,12 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.settings.SettingsActivity;
-import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
@@ -36,6 +34,7 @@ import de.klimek.spacecurl.util.collection.Training;
  *      API</a>
  */
 public class FreePlayActivity extends MainActivityPrototype implements OnClickListener {
+    @SuppressWarnings("unused")
     private static final String TAG = FreePlayActivity.class.getName();
     protected static final String STATE_ACTIONBAR_SELECTED_ITEM = "STATE_ACTIONBAR_SELECTED_ITEM";
 
@@ -147,16 +146,16 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
-            case R.id.action_about:
-                Toast.makeText(this, R.string.action_about, Toast.LENGTH_LONG)
-                        .show();
-                break;
-            case R.id.action_new_training:
-                startActivity(new Intent(this, TrainingSelectActivity.class));
-                break;
-            case R.id.action_help:
-
-                break;
+            // case R.id.action_about:
+            // Toast.makeText(this, R.string.action_about,
+            // Toast.LENGTH_LONG)
+            // .show();
+            // break;
+            // case R.id.action_new_training:
+            // startActivity(new Intent(this, TrainingSelectActivity.class));
+            // break;
+            // case R.id.action_help:
+            // break;
             default:
                 return super.onOptionsItemSelected(item);
         }

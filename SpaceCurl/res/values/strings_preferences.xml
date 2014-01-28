@@ -9,7 +9,7 @@
         <item>@string/game_lights</item>
     </string-array>
     
-        <string-array name="pref_example_list_values">
+    <string-array name="pref_example_list_values">
         <item>1234</item>
         <item>asdf</item>
         <item>blubb</item>
