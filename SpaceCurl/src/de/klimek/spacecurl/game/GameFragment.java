@@ -32,18 +32,13 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private Database mDatabase = Database.getInstance();
     // Members for Sensor
     private SensorManager mSensorManager;
-    private float[] mGravityData = new float[3]; // Gravity or accelerometer
-    private float[] mMagnetData = new float[3]; // Magnetometer
+    private float[] mRotationVector = new float[3];
     private float[] mRotation = new float[3];
     private float mRotationspeed = 0.0f;
     private float[] mRotationMatrix = new float[9];
-    private float[] mInclinationMatrix = new float[9];
     private volatile float[] mResultRotationMatrix = new float[9];
     private volatile float[] mOrientation = new float[3];
     private volatile float[] mOrientationScaled = new float[3];
-    private boolean mHasGrav = false;
-    private boolean mHasAccel = false;
-    private boolean mHasMag = false;
 
     private boolean mInverseControls = false;
     private float mRollMultiplier = mDatabase.getRollMultiplier();
@@ -113,6 +108,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     /**
+     * WARNING: may gimbal lock
+     * 
      * @return azimuth, pitch and roll
      */
     protected float[] getScaledOrientation() {
@@ -133,6 +130,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     protected boolean hasOrientation() {
+        // TODO maybe set boolean in onAccuracyChanged?
         return !(getScaledOrientation()[1] == 0.0f);
     }
 
@@ -180,7 +178,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public void onPause() {
         super.onPause();
         if (isUsingSensor()) {
-            // Unbind Sensor
+            // Unbind all sensors
             mSensorManager.unregisterListener(this);
         }
     }
@@ -189,15 +187,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public void onResume() {
         super.onResume();
         if (isUsingSensor()) {
-            // Bind Sensor
-            Sensor gsensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-            Sensor asensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Sensor msensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            Sensor rsensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-            mSensorManager.registerListener(this, gsensor, SensorManager.SENSOR_DELAY_GAME);
-            mSensorManager.registerListener(this, asensor, SensorManager.SENSOR_DELAY_GAME);
-            mSensorManager.registerListener(this, msensor, SensorManager.SENSOR_DELAY_GAME);
-            mSensorManager.registerListener(this, rsensor, SensorManager.SENSOR_DELAY_GAME);
+            Sensor gSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            Sensor rvSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            mSensorManager.registerListener(this, gSensor, SensorManager.SENSOR_DELAY_GAME);
+            mSensorManager.registerListener(this, rvSensor, SensorManager.SENSOR_DELAY_GAME);
         }
     }
 
@@ -207,96 +200,69 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         mPitchMultiplier = mDatabase.getPitchMultiplier();
         mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
 
-        // TODO Quaternion from TYPE_ROTATION_VECTOR to prevent gimbal lock
         switch (event.sensor.getType()) {
-            case Sensor.TYPE_GRAVITY:
-                // inbuild sensorfusion (gyro drift eliminated by accelerometer)
-                mGravityData[0] = event.values[0];
-                mGravityData[1] = event.values[1];
-                mGravityData[2] = event.values[2];
-                mHasGrav = true;
-                break;
-            case Sensor.TYPE_ACCELEROMETER:
-                if (mHasGrav)
-                    break; // don't need it, we have better
-                mGravityData[0] = event.values[0];
-                mGravityData[1] = event.values[1];
-                mGravityData[2] = event.values[2];
-                mHasAccel = true;
-                break;
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                mMagnetData[0] = event.values[0];
-                mMagnetData[1] = event.values[1];
-                mMagnetData[2] = event.values[2];
-                mHasMag = true;
+            case Sensor.TYPE_ROTATION_VECTOR:
+                mRotationVector[0] = event.values[0];
+                mRotationVector[1] = event.values[1];
+                mRotationVector[2] = event.values[2];
+
+                // get rotationMatrix
+                SensorManager.getRotationMatrixFromVector(mRotationMatrix, mRotationVector);
+
+                // remap rotationMatrix depending on landscape or portrait mode
+                if (mLandscape) {
+                    SensorManager.remapCoordinateSystem(mRotationMatrix,
+                            SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X,
+                            mResultRotationMatrix);
+                } else {
+                    // SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
+                    SensorManager.remapCoordinateSystem(mRotationMatrix,
+                            SensorManager.AXIS_X, SensorManager.AXIS_Z, mResultRotationMatrix);
+                }
+
+                /*
+                 * get matrix for azimuth, pitch, roll: All values are 0 when
+                 * the phone is upright (NOT flat on a table), and facing north.
+                 * Pitch increases when tilting the phone forward to a maximum
+                 * of PI/2 when horizontal. Roll increased when tilting the
+                 * phone rightward to a maximum of PI when horizontal.
+                 */
+                SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
+
+                // Scaling azimuth, pitch, roll from -1.0f to 1.0f
+
+                // Azimuth
+                mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
+                // Pitch
+                mOrientationScaled[1] = ((mOrientation[1] - mPhoneInclinationRadian) * mPitchMultiplier)
+                        / ((float) Math.PI / 2.0f);
+                // Roll
+                mOrientationScaled[2] = ((mOrientation[2]) * mRollMultiplier)
+                        / ((float) Math.PI / 2.0f);
+
+                // cutoff
+                if (mOrientationScaled[1] > 1.0f)
+                    mOrientationScaled[1] = 1.0f;
+                if (mOrientationScaled[1] < -1.0f)
+                    mOrientationScaled[1] = -1.0f;
+                if (mOrientationScaled[2] > 1.0f)
+                    mOrientationScaled[2] = 1.0f;
+                if (mOrientationScaled[2] < -1.0f)
+                    mOrientationScaled[2] = -1.0f;
+
                 break;
 
             case Sensor.TYPE_GYROSCOPE:
                 mRotation[0] = event.values[0];
                 mRotation[1] = event.values[1];
                 mRotation[2] = event.values[2];
+                // TODO add multipliers
                 mRotationspeed = (float) Math.sqrt(mRotation[0] * mRotation[0]
                         + mRotation[1] * mRotation[1]
                         + mRotation[2] * mRotation[2]);
-                // return Math.abs(mRotation[0]) + Math.abs(mRotation[1]) +
-                // Math.abs(mRotation[2]);
                 break;
             default:
                 return;
-        }
-
-        if ((mHasGrav || mHasAccel) && mHasMag) {
-            // calculate rotationMatrix from rotation and magnetometer data
-            SensorManager.getRotationMatrix(mRotationMatrix, mInclinationMatrix, mGravityData,
-                    mMagnetData);
-
-            // remap rotationMatrix depending on landscape or portrait mode
-            if (mLandscape) {
-                SensorManager.remapCoordinateSystem(mRotationMatrix,
-                        SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X,
-                        mResultRotationMatrix);
-            } else {
-                // SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
-                SensorManager.remapCoordinateSystem(mRotationMatrix,
-                        SensorManager.AXIS_X, SensorManager.AXIS_Z, mResultRotationMatrix);
-            }
-            // TODO remap to spacecurl coordinate system
-            // TODO add phoneInclination
-
-            /*
-             * get matrix for azimuth, pitch, roll: All values are 0 when the
-             * phone is upright (NOT flat on a table), and facing north. Pitch
-             * increases when tilting the phone forward to a maximum of PI/2
-             * when horizontal. Roll increased when tilting the phone rightward
-             * to a maximum of PI when horizontal.
-             */
-            SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
-
-            // Scaling azimuth, pitch, roll from -1.0f to 1.0f
-            // Azimuth
-            mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
-            // Pitch
-            mOrientationScaled[1] = ((mOrientation[1] - mPhoneInclinationRadian) * mPitchMultiplier)
-                    / ((float) Math.PI / 2.0f);
-            // Roll
-            mOrientationScaled[2] = ((mOrientation[2]) * mRollMultiplier)
-                    / ((float) Math.PI / 2.0f);
-
-            // cutoff
-            if (mOrientationScaled[1] > 1.0f)
-                mOrientationScaled[1] = 1.0f;
-            if (mOrientationScaled[1] < -1.0f)
-                mOrientationScaled[1] = -1.0f;
-            if (mOrientationScaled[2] > 1.0f)
-                mOrientationScaled[2] = 1.0f;
-            if (mOrientationScaled[2] < -1.0f)
-                mOrientationScaled[2] = -1.0f;
-
-            // float incl = SensorManager.getInclination(mInclinationMatrix);
-            // Log.d(TAG, "Azimuth: " + (int) (mOrientation[0] * DEG));
-            // Log.d(TAG, "pitch: " + (int) (mOrientation[1] * DEG));
-            // Log.d(TAG, "roll: " + (int) (mOrientation[2] * DEG));
-            // Log.d(TAG, "inclination: " + (int) (incl * DEG));
         }
     }
 
