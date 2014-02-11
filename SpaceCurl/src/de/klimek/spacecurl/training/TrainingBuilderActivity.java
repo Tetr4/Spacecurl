@@ -113,7 +113,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
             mGameTitleTextView.setText(mGameTitle);
         }
 
-        public GameSettingsPair getmGameSettingsPair() {
+        public GameSettingsPair getGameSettingsPair() {
             return mGameSettingsPair;
         }
 

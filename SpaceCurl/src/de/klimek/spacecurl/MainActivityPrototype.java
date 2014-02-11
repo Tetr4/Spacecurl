@@ -256,8 +256,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     @Override
     protected void onPause() {
         super.onPause();
-        mState = State.Paused;
-        pauseGame();
+        if (mState == State.Running) {
+            mState = State.Paused;
+            pauseGame();
+        }
     }
 
     @Override
