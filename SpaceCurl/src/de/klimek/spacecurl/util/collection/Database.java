@@ -15,6 +15,7 @@ import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
 import de.klimek.spacecurl.game.GameTunnel;
 import de.klimek.spacecurl.game.GameUniversal;
+import de.klimek.spacecurl.game.GameUniversal3D;
 
 /**
  * Singleton
@@ -96,6 +97,13 @@ public class Database {
         GameSettingsPair gspUniversal = new GameSettingsPair(GameUniversal.class.getName(),
                 settingsUniversal);
         getFreeplayGames().add(gspUniversal);
+
+        Bundle settingsUniversal3D = new Bundle();
+        settingsUniversal3D.putString(GameFragment.ARG_TITLE,
+                mResources.getString(R.string.game_universal3d));
+        GameSettingsPair gspUniversal3D = new GameSettingsPair(GameUniversal3D.class.getName(),
+                settingsUniversal3D);
+        getFreeplayGames().add(gspUniversal3D);
 
         // Bundle settingsSensor = new Bundle();
         // settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");

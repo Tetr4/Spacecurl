@@ -35,8 +35,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private float[] mRotationVector = new float[3];
     private float[] mRotation = new float[3];
     private float mRotationspeed = 0.0f;
-    private float[] mRotationMatrix = new float[9];
-    private volatile float[] mResultRotationMatrix = new float[9];
+    private float[] mRotationMatrix = new float[16];
+    private volatile float[] mResultRotationMatrix = new float[16];
     private volatile float[] mOrientation = new float[3];
     private volatile float[] mOrientationScaled = new float[3];
 
@@ -121,7 +121,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     protected float[] getRotationMatrix() {
-        return mResultRotationMatrix;
+        // return mResultRotationMatrix;
+        return mRotationMatrix;
     }
 
     protected float getRotationSpeed() {

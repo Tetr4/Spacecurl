@@ -19,9 +19,8 @@
     <string name="game_pong">Pong</string>
     <string name="game_lights">Green Light</string>
     <string name="game_maze">Maze</string>
-    <string  name="game_universal">Universal</string>
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
+    <string name="game_universal">Universal</string>
+    <string  name="game_universal3d">Universal 3D</string>
     
 
     <string name="training_name_hint">Enter a name for the new training</string>
