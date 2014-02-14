@@ -14,4 +14,5 @@
 	<dimen name="footer_height">88dip</dimen>
 	<dimen name="margin_card_game">10dp</dimen>
 	<dimen name="status_indicator_height">48dp</dimen>
+	<dimen name="card_game_icon_side">48dp</dimen>
 </resources>

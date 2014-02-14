@@ -10,20 +10,20 @@
 
     <ImageView
         android:id="@+id/card_game_target"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/card_game_icon_side"
+        android:layout_height="@dimen/card_game_icon_side"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_margin="@dimen/margin_card_game"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/flagge" />
 
     <TextView
         android:id="@+id/card_game_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:layout_margin="@dimen/margin_card_game"
-        android:layout_alignBottom="@id/card_game_target"
+
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@id/card_game_target"
         android:textSize="40sp"
@@ -31,16 +31,16 @@
 
     <ImageView
         android:id="@+id/card_game_free_axes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/card_game_icon_side"
+        android:layout_height="@dimen/card_game_icon_side"
         android:layout_alignParentLeft="true"
-        android:layout_margin="@dimen/margin_card_game"
         android:layout_below="@id/card_game_target"
-        android:src="@drawable/ic_launcher" />
+        android:layout_margin="@dimen/margin_card_game"
+        android:src="@drawable/achsen" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/card_game_icon_side"
+        android:layout_height="@dimen/card_game_icon_side"
         android:layout_alignParentRight="true"
         android:layout_alignBottom="@id/card_game_free_axes"
         android:layout_toRightOf="@id/card_game_free_axes"
@@ -49,33 +49,33 @@
 
         <ImageView
             android:id="@+id/card_game_effect_balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="@dimen/card_game_icon_side"
+            android:layout_height="@dimen/card_game_icon_side"
+            android:src="@drawable/balance" />
 
         <ImageView
             android:id="@+id/card_game_effect_perception"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="@dimen/card_game_icon_side"
+            android:layout_height="@dimen/card_game_icon_side"
+            android:src="@drawable/wahrnehmung" />
 
         <ImageView
             android:id="@+id/card_game_effect_fine_coordination"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="@dimen/card_game_icon_side"
+            android:layout_height="@dimen/card_game_icon_side"
+            android:src="@drawable/feinkoordination" />
 
         <ImageView
             android:id="@+id/card_game_effect_rough_coordination"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="@dimen/card_game_icon_side"
+            android:layout_height="@dimen/card_game_icon_side"
+            android:src="@drawable/grobkoordination" />
 
         <ImageView
             android:id="@+id/card_game_effect_fatigue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="@dimen/card_game_icon_side"
+            android:layout_height="@dimen/card_game_icon_side"
+            android:src="@drawable/ermuedung" />
     </LinearLayout>
 
 </RelativeLayout>
