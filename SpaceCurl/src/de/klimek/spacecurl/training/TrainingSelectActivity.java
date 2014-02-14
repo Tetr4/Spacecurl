@@ -25,7 +25,7 @@ import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
-    private Database mDatabase;
+    private Database mDatabase = Database.getInstance();
     private ListView mListView;
     private TrainingArrayAdapter mArrayAdapter;
     private List<Training> mTrainings = new ArrayList<Training>();
@@ -41,12 +41,20 @@ public class TrainingSelectActivity extends FragmentActivity {
         setContentView(R.layout.activity_training_select);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         setupAddButton();
-        setupTrainings();
+        mTrainings = Database.getInstance().getTrainings();
         setupListView();
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (mArrayAdapter != null) {
+            mArrayAdapter.notifyDataSetChanged();
+        }
+    }
+
     private void setupAddButton() {
-        ImageButton btn = (ImageButton) findViewById(R.id.game_add_button);
+        ImageButton btn = (ImageButton) findViewById(R.id.training_add_button);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,18 +63,13 @@ public class TrainingSelectActivity extends FragmentActivity {
         });
     }
 
-    private void setupTrainings() {
-        mTrainings = Database.getInstance().getTrainings();
-        if (mArrayAdapter != null) {
-            mArrayAdapter.notifyDataSetChanged();
-        }
-    }
-
     private void setupListView() {
         mListView = (ListView) findViewById(R.id.training_list);
+        // add footer (so nothing is behind add_button_bar when scrolled down)
         View footerItem = getLayoutInflater()
                 .inflate(R.layout.list_item_training_footer, mListView, false);
         mListView.addFooterView(footerItem, null, false);
+
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -76,13 +79,10 @@ public class TrainingSelectActivity extends FragmentActivity {
             }
         });
         mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
-        if (mListView != null) {
-            mListView.setAdapter(mArrayAdapter);
-        }
+        mListView.setAdapter(mArrayAdapter);
     }
 
     private void startTraining(Training training) {
-        Database.getInstance().getStatuses().clear();
         int key = mTrainings.indexOf(training);
         Intent intent = new Intent(this, TrainingActivity.class);
         intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);

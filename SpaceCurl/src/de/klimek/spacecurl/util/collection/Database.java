@@ -13,6 +13,7 @@ import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameLights;
 import de.klimek.spacecurl.game.GameMaze;
 import de.klimek.spacecurl.game.GamePong;
+import de.klimek.spacecurl.game.GameSensor;
 import de.klimek.spacecurl.game.GameTunnel;
 import de.klimek.spacecurl.game.GameUniversal;
 import de.klimek.spacecurl.game.GameUniversal3D;
@@ -26,6 +27,7 @@ public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
     private ArrayList<Status> mStatuses = new ArrayList<Status>();
     private Training mFreeplayGames = new Training("Freeplay");
+    private Training mTrainingGames = new Training("Trainings");
 
     private SharedPreferences mSharedPreferences;
     private Resources mResources;
@@ -49,18 +51,7 @@ public class Database {
     }
 
     private Database(Context context) {
-        mResources = context.getResources();
-        mSharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        fillTrainings();
-        fillFreeplayGames();
-        mOrientationLandscape = mSharedPreferences.getBoolean("pref_landscape", false);
-        mPhoneInclination = Float.parseFloat(
-                mSharedPreferences.getString("pref_inclination", "0.0"));
-        mPitchMultiplier = Float.parseFloat(
-                mSharedPreferences.getString("pref_pitch_multiplier", "1.0"));
-        mRollMultiplier = Float.parseFloat(
-                mSharedPreferences.getString("pref_roll_multiplier", "1.0"));
+        loadDatabase(context);
     }
 
     private void fillFreeplayGames() {
@@ -105,15 +96,16 @@ public class Database {
                 settingsUniversal3D);
         getFreeplayGames().add(gspUniversal3D);
 
-        // Bundle settingsSensor = new Bundle();
-        // settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");
-        // GameSettingsPair gspSensor = new
-        // GameSettingsPair(GameSensor.class.getName(),
-        // settingsSensor);
-        // getFreeplayGames().add(gspSensor);
+        Bundle settingsSensor = new Bundle();
+        settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");
+        GameSettingsPair gspSensor = new
+                GameSettingsPair(GameSensor.class.getName(),
+                        settingsSensor);
+        getFreeplayGames().add(gspSensor);
     }
 
     private void fillTrainings() {
+        mTrainingGames = (Training) mFreeplayGames.clone();
         // 8
         Training training0 = new Training("8");
         // upperLeft
@@ -178,8 +170,20 @@ public class Database {
 
     }
 
-    public void loadDatabase() {
-        // TODO SQL
+    public void loadDatabase(Context context) {
+        // TODO SQL instead of directly from code
+        mResources = context.getResources();
+        mSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(context);
+        fillFreeplayGames();
+        fillTrainings();
+        mOrientationLandscape = mSharedPreferences.getBoolean("pref_landscape", false);
+        mPhoneInclination = Float.parseFloat(
+                mSharedPreferences.getString("pref_inclination", "0.0"));
+        mPitchMultiplier = Float.parseFloat(
+                mSharedPreferences.getString("pref_pitch_multiplier", "1.0"));
+        mRollMultiplier = Float.parseFloat(
+                mSharedPreferences.getString("pref_roll_multiplier", "1.0"));
     }
 
     public void saveDatabase() {
@@ -228,6 +232,14 @@ public class Database {
 
     public void setRollMultiplier(float rollMultiplier) {
         mRollMultiplier = rollMultiplier;
+    }
+
+    public Training getTrainingGames() {
+        return mTrainingGames;
+    }
+
+    public void setTrainingGames(Training trainingGames) {
+        mTrainingGames = trainingGames;
     }
 
 }

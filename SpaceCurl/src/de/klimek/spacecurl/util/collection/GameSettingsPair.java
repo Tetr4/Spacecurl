@@ -7,8 +7,8 @@ public class GameSettingsPair {
     private final String mGameClassName;
     private final Bundle mSettingsBundle;
 
-    public GameSettingsPair(String game, Bundle settings) {
-        this.mGameClassName = game;
+    public GameSettingsPair(String className, Bundle settings) {
+        this.mGameClassName = className;
         this.mSettingsBundle = settings;
     }
 

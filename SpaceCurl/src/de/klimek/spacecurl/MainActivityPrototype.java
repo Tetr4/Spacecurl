@@ -8,14 +8,8 @@ import it.gmariotti.cardslib.library.view.CardListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -54,10 +48,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private CardArrayAdapter mCardArrayAdapter;
     private List<Card> mCards = new ArrayList<Card>();
 
-    private FrameLayout mGameFrame;
     private GameFragment mGameFragment;
 
-    private PauseView mPauseView;
+    private FrameLayout mPauseFrame;
     private State mState = State.Running;
 
     public static enum State {
@@ -104,20 +97,18 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     }
 
     private void setupPauseView() {
-        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
-        mPauseView = new PauseView(this);
-        mPauseView.setVisibility(View.INVISIBLE);
-        mGameFrame.addView(mPauseView);
-        mGameFrame.setOnClickListener(this);
+        mPauseFrame = (FrameLayout) findViewById(R.id.pause_layout);
+        FrameLayout gameFrame = (FrameLayout) findViewById(R.id.game_frame);
+        gameFrame.setOnClickListener(this);
     }
 
     private void setupStatus(boolean show) {
         mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
         if (show) {
-            int cardHeight = (int) (getResources()
-                    .getDimension(R.dimen.card_height));
-            int padding = 12;
-            mSlidingUpPanel.setPanelHeight(cardHeight + padding);
+            int statusIndicatorHeight = (int) (getResources()
+                    .getDimension(R.dimen.status_indicator_height));
+            int padding = 0;
+            mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
         }
         else {
             mSlidingUpPanel.setPanelHeight(-1);
@@ -282,7 +273,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
             resumeGame();
             mState = State.Running;
         } else if (mState == State.Pausing) {
-            // just paused in onUserInteraction, dont resume
+            // we have just paused in onUserInteraction, don't resume
             mState = State.Paused;
         }
     }
@@ -293,61 +284,18 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
             mGameFragment.setState(State.Paused);
         }
         // Show pause symbol and grey out screen
-        mPauseView.setVisibility(View.VISIBLE);
-        mPauseView.bringToFront();
+        mPauseFrame.setVisibility(View.VISIBLE);
+        mPauseFrame.bringToFront();
+        // Show navigation bar
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     private void resumeGame() {
         Log.v(TAG, "Resumed");
-        // hide navigation bar.
-        // XFIXME flags reset when actionbar spinner or overflow window opens
-        // View decorView = getWindow().getDecorView();
-        // int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        // // | View.SYSTEM_UI_FLAG_FULLSCREEN
-        // // |View.SYSTEM_UI_FLAG_LOW_PROFILE
-        // | View.SYSTEM_UI_FLAG_IMMERSIVE;
-        // decorView.setSystemUiVisibility(uiOptions);
-        mPauseView.setVisibility(View.INVISIBLE);
+        mPauseFrame.setVisibility(View.INVISIBLE);
         mGameFragment.setState(State.Running);
-    }
-
-    private class PauseView extends View {
-        private Bitmap mPlaySign;
-        private int mViewWidthMax;
-        private int mViewHeightMax;
-        private int mCenterX;
-        private int mCenterY;
-        private int mMinBorder;
-
-        public PauseView(Context context) {
-            super(context);
-            Resources res = context.getResources();
-            mPlaySign = BitmapFactory.decodeResource(res, R.drawable.ic_play);
-        }
-
-        @Override
-        public void onSizeChanged(int w, int h, int oldW, int oldH) {
-            mViewWidthMax = w - 1;
-            mViewHeightMax = h - 1;
-            mCenterX = mViewWidthMax / 2;
-            mCenterY = mViewHeightMax / 2;
-            mMinBorder = mViewWidthMax <= mViewHeightMax ? mViewWidthMax : mViewHeightMax;
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawARGB(160, 10, 10, 10);
-            drawPlaySign(canvas, mMinBorder / 6);
-        }
-
-        private void drawPlaySign(Canvas canvas, int size) {
-            // TODO Selber zeichnen
-            Rect r = new Rect(mCenterX - size,
-                    mCenterY - size,
-                    mCenterX + size,
-                    mCenterY + size);
-            canvas.drawBitmap(mPlaySign, null, r, null);
-        }
+        // Grey out navigation bar
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
 
 }

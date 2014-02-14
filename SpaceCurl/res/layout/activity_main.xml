@@ -1,24 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.SlidingUpPanelLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
 
+    <!-- Game -->
     <FrameLayout
         android:id="@+id/game_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/game_frame_background"
-        android:keepScreenOn="true"
-        android:orientation="horizontal" >
+        android:keepScreenOn="true" >
+        <include
+ 	  		android:layout_width="match_parent"
+ 	  		android:layout_height="match_parent"
+ 	  		layout="@layout/pause_layout" />
+
     </FrameLayout>
 
-    <!-- CardList -->
-    <it.gmariotti.cardslib.library.view.CardListView
-        android:id="@+id/card_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <!-- Status Panel -->
+    <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:orientation="vertical" >
+    	<FrameLayout
+	        android:id="@+id/status_indicator"
+    	    android:background="@color/rating_color"
+        	android:layout_width="match_parent"
+        	android:layout_height="@dimen/status_indicator_height"/>
+ 		<!-- CardList -->
+        <it.gmariotti.cardslib.library.view.CardListView
+            android:id="@+id/card_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

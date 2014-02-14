@@ -15,12 +15,12 @@
         android:title="@string/action_user"/> -->
         
            
-    <!-- <item
+    <item
         android:id="@+id/action_new_training"
         android:orderInCategory="11"
         android:showAsAction="never"
         android:icon="@drawable/ic_settings"
-        android:title="@string/action_new_training"/> -->
+        android:title="@string/action_new_training"/>
         
     <item
         android:id="@+id/action_settings"

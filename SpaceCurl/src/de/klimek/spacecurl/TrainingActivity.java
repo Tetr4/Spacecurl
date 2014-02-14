@@ -34,6 +34,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
     public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
 
+    private Database mDatabase;
     private ActionBar mActionBar;
     private String mTitle = "";
 
@@ -56,6 +57,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = Database.getInstance(this);
+        mDatabase.getStatuses().clear();
         int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
         mTraining = Database.getInstance(this).getTrainings().get(key);
         setupActionbar();

@@ -211,7 +211,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 SensorManager.getRotationMatrixFromVector(mRotationMatrix, mRotationVector);
 
                 // remap rotationMatrix depending on landscape or portrait mode
-                if (mLandscape) {
+                if (mLandscape) { // FIXME
                     SensorManager.remapCoordinateSystem(mRotationMatrix,
                             SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X,
                             mResultRotationMatrix);

@@ -62,7 +62,7 @@ public class GameTunnel extends GameFragment {
 
     @Override
     public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.Two;
+        return FreeAxisCount.One;
     }
 
     @Override

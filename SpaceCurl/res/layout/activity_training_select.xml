@@ -2,24 +2,23 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/blackish" >
 
+    <!-- Training List -->
     <ListView
         android:id="@+id/training_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent"/>
     
+    <!-- Add Bar -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/add_button_bar" >
-
+        android:background="@drawable/add_button_bar" >
         
         <ImageButton
-        android:id="@+id/game_add_button"
+        android:id="@+id/training_add_button"
         android:layout_width="@dimen/add_button_diameter"
         android:layout_height="@dimen/add_button_diameter"
         android:layout_margin="@dimen/add_button_margin"

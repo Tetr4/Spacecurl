@@ -10,6 +10,10 @@
     <string name="action_next_game">Next</string>
     <string name="action_freeplay">Freeplay</string>
     
+    <string name="action_play">Play</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_rename">Rename</string>
+    
     <string name="action_progress">Progress</string>
     <string name="action_user">Change User</string>
     <string name="action_new_training">New Training</string>

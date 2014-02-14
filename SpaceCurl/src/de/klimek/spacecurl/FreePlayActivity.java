@@ -44,7 +44,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     protected boolean usesStatus() {
-        return false;
+        return true;
     }
 
     /**
