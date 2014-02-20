@@ -22,7 +22,7 @@ import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
     private Database mDatabase = Database.getInstance();

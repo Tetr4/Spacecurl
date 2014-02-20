@@ -21,9 +21,9 @@ import com.jjoe64.graphview.GraphViewSeries;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.settings.SettingsActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.training.GameSettingsPair;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide

@@ -47,7 +47,7 @@ public class GameUniversal3D extends GameFragment {
 
     @Override
     public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.Two;
+        return FreeAxisCount.Three;
     }
 
     @Override

@@ -24,8 +24,8 @@ import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
 import de.klimek.spacecurl.util.collection.Status;
+import de.klimek.spacecurl.util.collection.training.GameSettingsPair;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -189,8 +189,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         GameFragment newGameFragment;
         try {
             // instantiate Fragment from Class
-            Class<?> c = (Class<?>) Class.forName(pair.getGameClassName());
-            newGameFragment = (GameFragment) c.newInstance();
+            newGameFragment = (GameFragment) pair.getGameClass().newInstance();
             newGameFragment.setArguments(pair.getSettings());
         }
         // no multicatch in dalvik (~ java 1.6)

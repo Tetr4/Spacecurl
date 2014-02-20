@@ -28,8 +28,8 @@ import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.training.GameSettingsPair;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingBuilderActivity extends FragmentActivity {
     public static final int NEW_TRAINING = Integer.MIN_VALUE;

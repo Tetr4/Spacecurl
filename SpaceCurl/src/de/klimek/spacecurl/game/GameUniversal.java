@@ -84,11 +84,10 @@ public class GameUniversal extends GameFragment {
         private Target mTarget;
         private CenteredCircles mCircles;
 
-        private float mPitch;
-        private float mRoll;
+        private boolean mFinished = false;
+        private float mStatus;
 
         private boolean mResetIfLeft;
-        private boolean mFinished = false;
         private Random mRandom = new Random();
 
         public GameUniversalView(Context context) {
@@ -137,9 +136,14 @@ public class GameUniversal extends GameFragment {
         }
 
         private class LogicThread extends AsyncTask<Void, Void, Void> {
-            long _lastTime = System.currentTimeMillis();
-            long _startTime;
-            long _deltaTime;
+            private long _lastTime = System.currentTimeMillis();
+            private long _startTime;
+            private long _deltaTime;
+            private float _pitch;
+            private float _roll;
+            private float _distance;
+            private float _innerBorder;
+            private float _outerBorder;
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -150,6 +154,7 @@ public class GameUniversal extends GameFragment {
                     if (mSizeChanged && hasOrientation()) {
                         updatePlayer();
                         checkFinished();
+                        updateStatus();
                         publishProgress();
                     }
                     // Delay
@@ -163,10 +168,10 @@ public class GameUniversal extends GameFragment {
             }
 
             private void updatePlayer() {
-                mPitch = getScaledOrientation()[1];
-                mRoll = getScaledOrientation()[2];
-                mPlayer.mPositionX = (mRoll + 1.0f) / 2.0f;
-                mPlayer.mPositionY = (mPitch + 1.0f) / 2.0f;
+                _pitch = getScaledOrientation()[1];
+                _roll = getScaledOrientation()[2];
+                mPlayer.mPositionX = (_roll + 1.0f) / 2.0f;
+                mPlayer.mPositionY = (_pitch + 1.0f) / 2.0f;
             }
 
             private void checkFinished() {
@@ -177,7 +182,21 @@ public class GameUniversal extends GameFragment {
                 } else if (mResetIfLeft) {
                     mTarget.mCurHoldingTime = mTarget.mHoldingTime;
                 }
+            }
 
+            private void updateStatus() {
+                if (hasOrientation()) {
+                    _distance = mPlayer.distanceTo(mTarget);
+                    if (_innerBorder == Float.NaN) {
+                        _innerBorder = _distance * 1.5f;
+                        _outerBorder = _innerBorder * 1.5f;
+                    } else {
+                        _innerBorder -= 1; // TODO SPEED
+                        _outerBorder = _innerBorder * 1.5f;
+                        mStatus = (_distance - _innerBorder) / (_outerBorder - _innerBorder);
+
+                    }
+                }
             }
 
             @Override
@@ -266,6 +285,16 @@ public class GameUniversal extends GameFragment {
             return (Math.pow((mPositionX - mTarget.mPositionX), 2)
                     + Math.pow((mPositionY - mTarget.mPositionY), 2)
                     < Math.pow(mTarget.mRadius, 2));
+        }
+
+        private float distanceTo(Target mTarget) {
+            if (intersects(mTarget)) {
+                return 0.0f;
+            } else {
+                return (float) (Math.pow((mPositionX - mTarget.mPositionX), 2)
+                        + Math.pow((mPositionY - mTarget.mPositionY), 2)
+                        - Math.pow(mTarget.mRadius, 2));
+            }
         }
 
         private void draw(Canvas canvas) {
