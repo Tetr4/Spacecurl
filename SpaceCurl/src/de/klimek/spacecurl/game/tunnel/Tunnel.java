@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.game;
+package de.klimek.spacecurl.game.tunnel;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -22,10 +22,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.util.collection.Database;
 
-public class GameTunnel extends GameFragment {
-    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_pong;
+public class Tunnel extends GameFragment {
     private GameTunnelView mGame;
     private FrameLayout mTunnelLayout;
     private LinearLayout mResultLayout;
@@ -89,7 +89,7 @@ public class GameTunnel extends GameFragment {
     }
 
     public class GameTunnelView extends View {
-        private static final String TAG = "GameTunnel";
+        private static final String TAG = "Tunnel";
         private static final int FPS = 30;
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 

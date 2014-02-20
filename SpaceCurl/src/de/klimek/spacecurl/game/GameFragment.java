@@ -13,7 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.Status;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
 
 /**
  * Prototype Class for GameFragments. <br>
@@ -23,11 +23,7 @@ import de.klimek.spacecurl.util.collection.Status;
  */
 public abstract class GameFragment extends Fragment implements SensorEventListener {
     public static final String TAG = "GameFragment"; // Used for log output
-    public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
-    public static final String ARG_TITLE = "ARG_TITLE";
     public static final String ARG_CONTROL_INVERSE = "ARG_CONTROL_INVERSE";
-    // public static final String ARG_CONTROL_FACTOR_X = "ARG_CONTROL_FAKTOR_X";
-    // public static final String ARG_CONTROL_FACTOR_Y = "ARG_CONTROL_FAKTOR_Y";
 
     private Database mDatabase = Database.getInstance();
     // Members for Sensor
@@ -40,12 +36,13 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private volatile float[] mOrientation = new float[3];
     private volatile float[] mOrientationScaled = new float[3];
 
-    private boolean mInverseControls = false;
+    private boolean mInverseControls = mDatabase.isControlInversed();
     private float mRollMultiplier = mDatabase.getRollMultiplier();
     private float mPitchMultiplier = mDatabase.getPitchMultiplier();
     private float mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
 
-    private Status mStatus;
+    private GameStatus mStatus;
+    private GameSettings mSettings;
 
     private boolean mLandscape;
     private boolean mViewCreated = false;
@@ -100,7 +97,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         }
     }
 
-    protected void notifyStatusChanged(Status status) {
+    protected void notifyStatusChanged(float status) {
         FragmentActivity activity = getActivity();
         if (activity instanceof GameCallBackListener) {
             ((GameCallBackListener) activity).onStatusChanged(status);
@@ -120,7 +117,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return mOrientation;
     }
 
-    protected float[] getRotationMatrix() {
+    public float[] getRotationMatrix() {
         // return mResultRotationMatrix;
         return mRotationMatrix;
     }
@@ -138,11 +135,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // TODO maybe onActivitycreated instead
-        // mRollMulitplier = getArguments().getFloat(ARG_CONTROL_FACTOR_X,
-        // mRollMulitplier);
-        // mPitchMultiplier = -getArguments().getFloat(ARG_CONTROL_FACTOR_Y,
-        // mPitchMultiplier);
-        mInverseControls = getArguments().getBoolean(ARG_CONTROL_INVERSE, mInverseControls);
         if (mInverseControls) {
             mRollMultiplier *= -1;
             mPitchMultiplier *= -1;
@@ -270,6 +262,18 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    public void setStatus(GameStatus status) {
+        mStatus = status;
+    }
+
+    public void setSettings(GameSettings settings) {
+        mSettings = settings;
+    }
+
+    protected GameSettings getSettings() {
+        return mSettings;
     }
 
 }

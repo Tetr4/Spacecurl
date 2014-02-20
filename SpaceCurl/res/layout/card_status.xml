@@ -14,24 +14,5 @@
         android:layout_weight="1"
         android:orientation="horizontal"
         android:background="#22000055"/>
-    
-
-    <!-- TODO: Trennstrich -->
-    
-    <!-- Score -->
-    <!-- TODO: TextSize Resource -->
-    <TextView
-        android:id="@+id/card_status_score"
-        android:layout_width="64dp"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:textSize="50sp"/>
-
-    <!-- Rating -->
-    <FrameLayout
-        android:id="@+id/card_status_rating"
-        android:background="@color/rating_color"
-        android:layout_width="24dp"
-        android:layout_height="match_parent"/>
 
 </LinearLayout>

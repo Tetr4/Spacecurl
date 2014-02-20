@@ -41,15 +41,10 @@
         <activity
             android:name="de.klimek.spacecurl.TrainingActivity"
             android:label="@string/title_activity_training"
-            android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeWithoutOverlay" >
->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
-
+<!-- android:parentActivityName="de.klimek.spacecurl.FreePlayActivity" -->
         <!-- TrainingBuilderActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingBuilderActivity"
@@ -57,10 +52,6 @@
             android:parentActivityName="de.klimek.spacecurl.training.TrainingSelectActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeWithoutOverlay" >
->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.klimek.spacecurl.training.TrainingSelectActivity" />
         </activity>
 
         <!-- TrainingSelectActivity -->
@@ -70,21 +61,15 @@
             android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeWithoutOverlay" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
 
         <!-- SettingsActivity -->
         <activity
-            android:name="de.klimek.spacecurl.settings.SettingsActivity"
+            android:name="de.klimek.spacecurl.preferences.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="de.klimek.spacecurl.FreePlayActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ThemeWithoutOverlay" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.klimek.spacecurl.MainActivity" />
         </activity>
     </application>
 

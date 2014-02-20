@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.game;
+package de.klimek.spacecurl.game.sensor;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,10 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameFragment;
 
-public class GameSensor extends GameFragment {
-    public static final int DEFAULT_TITLE_RESOURCE_ID = -1;
-
+public class Sensor extends GameFragment {
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
     private TextView orientXValue;

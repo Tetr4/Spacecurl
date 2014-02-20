@@ -21,11 +21,11 @@ import android.widget.FrameLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import de.klimek.spacecurl.game.GameFragment;
+import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
-import de.klimek.spacecurl.util.collection.Status;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -164,7 +164,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mSlidingUpPanel.expandPane();
     }
 
-    protected void addStatus(Status status) {
+    protected void addStatus(GameStatus status) {
         if (!usesStatus()) {
             // Exception
             return;
@@ -181,7 +181,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
      * 
      * @param position position of the item in the spinner
      */
-    protected void switchToGame(GameSettingsPair pair) {
+    protected void switchToGame(GameSettings settings) {
         if (mGameFragment != null) {
             mGameFragment.setState(State.Paused);
         }
@@ -189,9 +189,8 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         GameFragment newGameFragment;
         try {
             // instantiate Fragment from Class
-            Class<?> c = (Class<?>) Class.forName(pair.getGameClassName());
-            newGameFragment = (GameFragment) c.newInstance();
-            newGameFragment.setArguments(pair.getSettings());
+            newGameFragment = (GameFragment) settings.getGameClass().newInstance();
+            newGameFragment.setSettings(settings);
         }
         // no multicatch in dalvik (~ java 1.6)
         catch (Exception e) {
@@ -212,11 +211,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // mTitle = mGameSettingsPair.getSettings().getString(
         // GameFragment.ARG_TITLE);
 
-        onGameSwitched();
-
+        onGameSwitched(mGameFragment);
     }
 
-    protected abstract void onGameSwitched();
+    protected abstract void onGameSwitched(GameFragment gameFragment);
 
     /**
      * Called by OS when an item in the ActionBar is selected

@@ -19,11 +19,11 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.settings.SettingsActivity;
+import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.preferences.SettingsActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
-import de.klimek.spacecurl.util.collection.Status;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -90,8 +90,8 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
 
         // Adapter to fill spinner with items
         List<String> gameTitles = new ArrayList<String>();
-        for (GameSettingsPair curGame : mFreeplayGames) {
-            gameTitles.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
+        for (GameSettings curGame : mFreeplayGames) {
+            gameTitles.add(curGame.getTitle());
         }
         SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
                 gameTitles);
@@ -108,8 +108,8 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
     }
 
     @Override
-    protected void onGameSwitched() {
-        Status status = new Status();
+    protected void onGameSwitched(GameFragment gameFragment) {
+        GameStatus status = new GameStatus();
         GraphViewSeries graphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
                         new GraphViewData(0, 0),
@@ -119,8 +119,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
                         new GraphViewData(4, 6)
                 });
         status.mGraphViewSeries = graphViewSeries;
-        int score = (int) (Math.random() * 9) + 1;
-        status.mScore = score;
+        gameFragment.setStatus(status);
         addStatus(status);
     }
 

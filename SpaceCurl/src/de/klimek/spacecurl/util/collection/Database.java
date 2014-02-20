@@ -2,21 +2,22 @@
 package de.klimek.spacecurl.util.collection;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.GameLights;
-import de.klimek.spacecurl.game.GameMaze;
-import de.klimek.spacecurl.game.GamePong;
-import de.klimek.spacecurl.game.GameSensor;
-import de.klimek.spacecurl.game.GameTunnel;
-import de.klimek.spacecurl.game.GameUniversal;
-import de.klimek.spacecurl.game.GameUniversal3D;
+import de.klimek.spacecurl.game.maze.MazeSettings;
+import de.klimek.spacecurl.game.pong.PongSettings;
+import de.klimek.spacecurl.game.sensor.SensorSettings;
+import de.klimek.spacecurl.game.tunnel.TunnelSettings;
+import de.klimek.spacecurl.game.universal.Target;
+import de.klimek.spacecurl.game.universal.UniversalSettings;
+import de.klimek.spacecurl.game.universal3D.Universal3DSettings;
+import de.klimek.spacecurl.util.collection.status.TrainingStatus;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
  * Singleton
@@ -25,17 +26,16 @@ import de.klimek.spacecurl.game.GameUniversal3D;
  */
 public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
-    private ArrayList<Status> mStatuses = new ArrayList<Status>();
+    private TrainingStatus mStatuses = new TrainingStatus();
     private Training mFreeplayGames = new Training("Freeplay");
     private Training mTrainingGames = new Training("Trainings");
 
     private SharedPreferences mSharedPreferences;
-    private Resources mResources;
-
     private Boolean mOrientationLandscape;
     private float mPhoneInclination;
     private float mPitchMultiplier;
     private float mRollMultiplier;
+    private boolean mControlInversed = true;
 
     private static Database sInstance;
 
@@ -54,129 +54,95 @@ public class Database {
         loadDatabase(context);
     }
 
-    private void fillFreeplayGames() {
+    private void fillFreeplayGames(Context context) {
+        Resources resources = context.getResources();
         // Add games to Spinner
-        Bundle settingsTunnel = new Bundle();
-        settingsTunnel.putString(GameFragment.ARG_TITLE, "Tunnel");
-        GameSettingsPair gspTunnel = new GameSettingsPair(GameTunnel.class.getName(),
-                settingsTunnel);
-        getFreeplayGames().add(gspTunnel);
+        TunnelSettings settingsTunnel = new TunnelSettings();
+        settingsTunnel.setTitle("Tunnel");
+        mFreeplayGames.add(settingsTunnel);
 
-        Bundle settingsPong = new Bundle();
-        settingsPong.putString(GameFragment.ARG_TITLE, mResources.getString(R.string.game_pong));
-        GameSettingsPair gspPong = new GameSettingsPair(GamePong.class.getName(), settingsPong);
-        getFreeplayGames().add(gspPong);
+        PongSettings settingsPong = new PongSettings();
+        settingsPong.setTitle(resources.getString(R.string.game_pong));
+        mFreeplayGames.add(settingsPong);
 
-        // Bundle settingsMaze = new Bundle();
-        // settingsMaze.putString(GameFragment.ARG_TITLE,
-        // mResources.getString(R.string.game_maze));
-        // GameSettingsPair gspMaze = new
-        // GameSettingsPair(GameMaze.class.getName(),
-        // settings);
-        // mFreeplayGames.add(gspMaze);
+        MazeSettings settingsMaze = new MazeSettings();
+        settingsMaze.setTitle(resources.getString(R.string.game_maze));
+        mFreeplayGames.add(settingsMaze);
 
-        Bundle settingsLights = new Bundle();
-        settingsLights
-                .putString(GameFragment.ARG_TITLE, mResources.getString(R.string.game_lights));
-        GameSettingsPair gspLights = new GameSettingsPair(GameLights.class.getName(),
-                settingsLights);
-        getFreeplayGames().add(gspLights);
+        MazeSettings settingsLights = new MazeSettings();
+        settingsLights.setTitle(resources.getString(R.string.game_lights));
+        mFreeplayGames.add(settingsLights);
 
-        Bundle settingsUniversal = new Bundle();
-        settingsUniversal.putString(GameFragment.ARG_TITLE,
-                mResources.getString(R.string.game_universal));
-        GameSettingsPair gspUniversal = new GameSettingsPair(GameUniversal.class.getName(),
-                settingsUniversal);
-        getFreeplayGames().add(gspUniversal);
+        UniversalSettings settingsUniversal = new UniversalSettings();
+        settingsUniversal.setTitle(resources.getString(R.string.game_universal));
+        mFreeplayGames.add(settingsUniversal);
 
-        Bundle settingsUniversal3D = new Bundle();
-        settingsUniversal3D.putString(GameFragment.ARG_TITLE,
-                mResources.getString(R.string.game_universal3d));
-        GameSettingsPair gspUniversal3D = new GameSettingsPair(GameUniversal3D.class.getName(),
-                settingsUniversal3D);
-        getFreeplayGames().add(gspUniversal3D);
+        Universal3DSettings settingsUniversal3D = new Universal3DSettings();
+        settingsUniversal3D.setTitle(resources.getString(R.string.game_universal3d));
+        mFreeplayGames.add(settingsUniversal3D);
 
-        Bundle settingsSensor = new Bundle();
-        settingsSensor.putString(GameFragment.ARG_TITLE, "Sensor Test");
-        GameSettingsPair gspSensor = new
-                GameSettingsPair(GameSensor.class.getName(),
-                        settingsSensor);
-        getFreeplayGames().add(gspSensor);
+        SensorSettings settingsSensor = new SensorSettings();
+        settingsSensor.setTitle("Sensor Test");
+        mFreeplayGames.add(settingsSensor);
     }
 
-    private void fillTrainings() {
+    private void fillTrainings(Context context) {
+        Resources resources = context.getResources();
         mTrainingGames = (Training) mFreeplayGames.clone();
+
         // 8
         Training training0 = new Training("8");
-        // upperLeft
-        Bundle upperLeft = new Bundle();
-        upperLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.33f);
-        upperLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.33f);
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(), upperLeft));
-        // upperRight
-        Bundle upperRight = new Bundle();
-        upperRight.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.66f);
-        upperRight.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.33f);
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(), upperRight));
-        // middle
-        Bundle middle = new Bundle();
-        middle.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.5f);
-        middle.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.5f);
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(), middle));
-        // lowerLeft
-        Bundle lowerLeft = new Bundle();
-        lowerLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.33f);
-        lowerLeft.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.66f);
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(), lowerLeft));
-        // lowerRight
-        Bundle lowerRight = new Bundle();
-        lowerRight.putFloat(GameUniversal.ARG_TARGET_POSITION_X, 0.66f);
-        lowerRight.putFloat(GameUniversal.ARG_TARGET_POSITION_Y, 0.66f);
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(), lowerRight));
-        // middle
-        training0.add(new GameSettingsPair(GameUniversal.class.getName(),
-                (Bundle) middle.clone()));
+        UniversalSettings settingsUniversal = new UniversalSettings();
+        settingsUniversal.setTitle(resources.getString(R.string.game_universal));
+        training0.add(settingsUniversal);
+
+        PongSettings settingsPong = new PongSettings();
+        settingsPong.setTitle(resources.getString(R.string.game_pong));
+        training0.add(settingsPong);
+
         mTrainings.add(training0);
 
         // Test training
         Training training1 = new Training("Test Training");
-        training1.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
-        training1.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training1.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
-        training1.add(new GameSettingsPair(GameMaze.class.getName(), new Bundle()));
+        training1.add(new PongSettings());
+        training1.add(new MazeSettings());
+        training1.add(new Universal3DSettings());
+        training1.add(new UniversalSettings());
         mTrainings.add(training1);
 
-        Training training2 = new Training("Test Training 2");
-        training2.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training2.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
-        training2.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training2.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training2.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
+        Training training2 = new Training("Noch ein Training");
+        training2.add(new TunnelSettings());
+        training2.add(new TunnelSettings());
+        training2.add(new UniversalSettings());
+        training2.add(new UniversalSettings());
+        training2.add(new UniversalSettings());
+        training2.add(new TunnelSettings());
         mTrainings.add(training2);
 
-        Training training3 = new Training("Noch ein Training");
-        training3.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training3.add(new GameSettingsPair(GamePong.class.getName(), new Bundle()));
-        training3.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training3.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-        training3.add(new GameSettingsPair(GameLights.class.getName(), new Bundle()));
-        mTrainings.add(training3);
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) { // TODO inner loop
+            boolean resetIfLeft = true;
+            float targetPositionX = random.nextFloat();
+            float targetPositionY = random.nextFloat();
+            float targetRadius = random.nextFloat() / 10.0f + 0.02f;
+            long holdingTime = 0;
 
-        for (int i = 0; i < 10; i++) {
-            Training training5 = new Training("Training" + i);
-            training5.add(new GameSettingsPair(GameUniversal.class.getName(), new Bundle()));
-            mTrainings.add(training5);
+            Training trainingLoop = new Training("Training" + i);
+            UniversalSettings settings = new UniversalSettings();
+            settings.addTarget(new Target(targetPositionX, targetPositionY, targetRadius,
+                    holdingTime, resetIfLeft));
+            trainingLoop.add(new UniversalSettings());
+            mTrainings.add(trainingLoop);
         }
 
     }
 
     public void loadDatabase(Context context) {
         // TODO SQL instead of directly from code
-        mResources = context.getResources();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
-        fillFreeplayGames();
-        fillTrainings();
+        fillFreeplayGames(context);
+        fillTrainings(context);
         mOrientationLandscape = mSharedPreferences.getBoolean("pref_landscape", false);
         mPhoneInclination = Float.parseFloat(
                 mSharedPreferences.getString("pref_inclination", "0.0"));
@@ -194,7 +160,7 @@ public class Database {
         return mTrainings;
     }
 
-    public ArrayList<Status> getStatuses() {
+    public TrainingStatus getStatuses() {
         return mStatuses;
     }
 
@@ -240,6 +206,10 @@ public class Database {
 
     public void setTrainingGames(Training trainingGames) {
         mTrainingGames = trainingGames;
+    }
+
+    public boolean isControlInversed() {
+        return mControlInversed;
     }
 
 }

@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.settings;
+package de.klimek.spacecurl.preferences;
 
 import android.app.Dialog;
 import android.content.SharedPreferences;

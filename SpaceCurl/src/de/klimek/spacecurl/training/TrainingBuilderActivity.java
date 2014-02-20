@@ -26,10 +26,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
-import de.klimek.spacecurl.game.GameFragment;
+import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingBuilderActivity extends FragmentActivity {
     public static final int NEW_TRAINING = Integer.MIN_VALUE;
@@ -84,8 +83,8 @@ public class TrainingBuilderActivity extends FragmentActivity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 contextWithThemeHolo,
                 android.R.layout.select_dialog_singlechoice);
-        for (GameSettingsPair curGame : mDatabase.getTrainingGames()) {
-            arrayAdapter.add(curGame.getSettings().getString(GameFragment.ARG_TITLE));
+        for (GameSettings curGame : mDatabase.getTrainingGames()) {
+            arrayAdapter.add(curGame.getTitle());
         }
 
         alertBuilder.setAdapter(arrayAdapter,
@@ -157,7 +156,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
     }
 
     private void setupCards() {
-        for (GameSettingsPair curGame : mTraining) {
+        for (GameSettings curGame : mTraining) {
             mCards.add(createGameCard(curGame));
         }
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
@@ -165,32 +164,32 @@ public class TrainingBuilderActivity extends FragmentActivity {
         mCardListView.setAdapter(mCardArrayAdapter);
     }
 
-    public void addGame(GameSettingsPair pair) {
-        mTraining.add(pair);
-        mCards.add(createGameCard(pair));
+    public void addGame(GameSettings settings) {
+        mTraining.add(settings);
+        mCards.add(createGameCard(settings));
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
     public void removeGame(GameCard card) {
-        mTraining.remove(card.getGameSettingsPair());
+        mTraining.remove(card.getGameSettings());
         mCards.remove(card);
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
-    private GameCard createGameCard(GameSettingsPair pair) {
-        GameCard card = new GameCard(this, pair);
+    private GameCard createGameCard(GameSettings settings) {
+        GameCard card = new GameCard(this, settings);
         return card;
     }
 
     private static class GameCard extends Card {
         private TextView mGameTitleTextView;
         private String mGameTitle;
-        private GameSettingsPair mGameSettingsPair;
+        private GameSettings mGameSettings;
 
-        public GameCard(Context context, GameSettingsPair gameSettingsPair) {
+        public GameCard(Context context, GameSettings gameSettings) {
             super(context, R.layout.card_game);
-            setGameSettingsPair(gameSettingsPair);
-            mGameTitle = gameSettingsPair.getSettings().getString(GameFragment.ARG_TITLE);
+            setGameSettings(gameSettings);
+            mGameTitle = gameSettings.getTitle();
         }
 
         @Override
@@ -200,12 +199,12 @@ public class TrainingBuilderActivity extends FragmentActivity {
             mGameTitleTextView.setText(mGameTitle);
         }
 
-        public GameSettingsPair getGameSettingsPair() {
-            return mGameSettingsPair;
+        public GameSettings getGameSettings() {
+            return mGameSettings;
         }
 
-        public void setGameSettingsPair(GameSettingsPair gameSettingsPair) {
-            mGameSettingsPair = gameSettingsPair;
+        public void setGameSettings(GameSettings gameSettings) {
+            mGameSettings = gameSettings;
         }
 
     }

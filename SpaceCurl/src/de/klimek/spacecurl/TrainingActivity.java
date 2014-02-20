@@ -13,11 +13,12 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
 import de.klimek.spacecurl.game.GameCallBackListener;
+import de.klimek.spacecurl.game.GameFragment;
+import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.GameSettingsPair;
-import de.klimek.spacecurl.util.collection.Status;
-import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -40,7 +41,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
 
     private Training mTraining;
     private int mTrainingIndex = -1;
-    private GameSettingsPair mGameSettingsPair;
+    private GameSettings mGameSettings;
 
     @Override
     protected boolean usesStatus() {
@@ -74,8 +75,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     private void previousGame() {
         Log.v(TAG, "previousGame");
         if (mTrainingIndex - 1 >= 0) {
-            mGameSettingsPair = mTraining.get(--mTrainingIndex);
-            switchToGame(mGameSettingsPair);
+            mGameSettings = mTraining.get(--mTrainingIndex);
+            switchToGame(mGameSettings);
             // TODO remove StatusCard and use previous
         }
     }
@@ -83,8 +84,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     private void nextGame() {
         Log.v(TAG, "nextGame");
         if (mTrainingIndex + 1 < mTraining.size()) {
-            mGameSettingsPair = mTraining.get(++mTrainingIndex);
-            switchToGame(mGameSettingsPair);
+            mGameSettings = mTraining.get(++mTrainingIndex);
+            switchToGame(mGameSettings);
             // TODO add statuscard
         } else {
             expandSlidingPane();
@@ -92,7 +93,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     }
 
     @Override
-    public void onStatusChanged(Status status) {
+    public void onStatusChanged(float status) {
 
     }
 
@@ -102,8 +103,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     }
 
     @Override
-    protected void onGameSwitched() {
-        Status status = new Status();
+    protected void onGameSwitched(GameFragment gameFragment) {
+        GameStatus status = new GameStatus();
         GraphViewSeries graphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
                         new GraphViewData(0, 0),
@@ -113,9 +114,9 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
                         new GraphViewData(4, 6)
                 });
         status.mGraphViewSeries = graphViewSeries;
-        int score = (int) (Math.random() * 9) + 1;
-        status.mScore = score;
+        gameFragment.setStatus(status);
         addStatus(status);
+
         mTitle = mTraining.getTitle();
         mActionBar.setTitle(
                 mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"

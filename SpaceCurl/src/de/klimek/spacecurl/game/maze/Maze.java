@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.game;
+package de.klimek.spacecurl.game.maze;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -24,10 +24,9 @@ import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.ViewGroup;
-import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameFragment;
 
-public class GameMaze extends GameFragment {
-    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_maze;
+public class Maze extends GameFragment {
     // private StatusBundle mStatusBundle;
     private GameMazeView mGame;
 

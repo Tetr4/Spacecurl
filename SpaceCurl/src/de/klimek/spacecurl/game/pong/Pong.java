@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.game;
+package de.klimek.spacecurl.game.pong;
 
 import java.util.Random;
 
@@ -20,10 +20,10 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.util.collection.Database;
 
-public class GamePong extends GameFragment {
-    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_pong;
+public class Pong extends GameFragment {
     private FrameLayout mPongLayout;
     private TextView mPongScore;
     private LinearLayout mResultLayout;
@@ -82,7 +82,7 @@ public class GamePong extends GameFragment {
     }
 
     public class GamePongView extends View {
-        private static final String TAG = "GamePong";
+        private static final String TAG = "Pong";
         private static final int FPS = 30;
         private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 

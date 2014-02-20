@@ -5,24 +5,20 @@ import it.gmariotti.cardslib.library.internal.Card;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LineGraphView;
 
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.util.collection.Status;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
 
 public class StatusCard extends Card {
     // private int mRatingColor = 0xFFFF0000;
     private GraphView mGraphView;
-    private TextView mScoreTextView;
-    private FrameLayout mRatingLayout;
-    private Status mStatus;
+    private GameStatus mStatus;
 
-    public StatusCard(Context context, Status status) {
+    public StatusCard(Context context, GameStatus status) {
         super(context, R.layout.card_status);
         setStatus(status);
     }
@@ -38,24 +34,13 @@ public class StatusCard extends Card {
             // graphLayout.removeAllViews();
             graphLayout.addView(mGraphView);
         }
-        mScoreTextView = (TextView) parent.findViewById(
-                R.id.card_status_score);
-        if (mScoreTextView != null) {
-            // mScoreTextView.setText(Integer.toString(mScore));
-        }
-
-        mRatingLayout = (FrameLayout) parent.findViewById(
-                R.id.card_status_rating);
-        if (mRatingLayout != null) {
-            // mRatingLayout.setBackgroundColor(mRatingColor);
-        }
     }
 
-    public Status getStatus() {
+    public GameStatus getStatus() {
         return mStatus;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(GameStatus status) {
         this.mStatus = status;
     }
 

@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.game;
+package de.klimek.spacecurl.game.lights;
 
 import java.util.Random;
 
@@ -14,9 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameFragment;
 
-public class GameLights extends GameFragment {
-    public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_lights;
+public class Lights extends GameFragment {
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
     private static final int FPS = 30;
     private int mGoalDistance = 60000;
