@@ -1,3 +1,4 @@
+
 package de.klimek.spacecurl.game.universal3D;
 
 import java.nio.ByteBuffer;
@@ -74,13 +75,15 @@ public class Sphere {
     /** Total number of strips for the given depth. */
     private final int mTotalNumStrips;
 
+    /** The radius */
+    private static final float RADIUS = 1.0f;
+
     /**
      * Sphere constructor.
      * 
      * @param depth integer representing the split of the sphere.
-     * @param radius The spheres radius.
      */
-    public Sphere(final int depth, final float radius) {
+    public Sphere(final int depth) {
         // Clamp depth to the range 1 to MAXIMUM_ALLOWED_DEPTH;
         final int d = Math.max(1, Math.min(MAXIMUM_ALLOWED_DEPTH, depth));
 
@@ -106,8 +109,8 @@ public class Sphere {
             // Draw the rest of this strip.
             for (int vertexNum = 0; vertexNum < numVerticesPerStrip; vertexNum += 2) {
                 // First point - Vertex.
-                y = radius * Math.sin(altitude);
-                h = radius * Math.cos(altitude);
+                y = RADIUS * Math.sin(altitude);
+                h = RADIUS * Math.cos(altitude);
                 z = h * Math.sin(azimuth);
                 x = h * Math.cos(azimuth);
                 vertices[vertexPos++] = (float) x;
@@ -123,8 +126,8 @@ public class Sphere {
                 // Second point - Vertex.
                 altitude -= altitudeStepAngle;
                 azimuth -= azimuthStepAngle / 2.0;
-                y = radius * Math.sin(altitude);
-                h = radius * Math.cos(altitude);
+                y = RADIUS * Math.sin(altitude);
+                h = RADIUS * Math.cos(altitude);
                 z = h * Math.sin(azimuth);
                 x = h * Math.cos(azimuth);
                 vertices[vertexPos++] = (float) x;

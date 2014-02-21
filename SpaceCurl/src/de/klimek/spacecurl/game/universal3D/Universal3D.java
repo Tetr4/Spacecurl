@@ -53,24 +53,27 @@ public class Universal3D extends GameFragment {
 
     private static class GameUniversal3DRenderer implements GLSurfaceView.Renderer {
         private static final int FPS = 25;
+        private static final float FOV = 70.0f;
         private Sphere mSphere;
-        private long startTime;
-        private long endTime;
-        private long sleepTime;
-        private GameFragment mContext;
+        private Target mTarget;
+        private long mStartTime;
+        private long mEndTime;
+        private long mSleepTime;
+        private GameFragment mFragment;
         private Resources mResources;
 
-        public GameUniversal3DRenderer(GameFragment context, Resources res) {
+        public GameUniversal3DRenderer(GameFragment fragment, Resources res) {
             mResources = res;
-            mContext = context;
-            mSphere = new Sphere(3, 2);
+            mFragment = fragment;
+            mSphere = new Sphere(3);
+            mTarget = new Target(0, 1);
+
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             // initialize all the things required for openGL configurations
             // gl.glEnable(GL10.GL_POINT_SMOOTH);
             // gl.glPointSize(20.0f);
-
             mSphere.loadGLTexture(gl, mResources, R.drawable.earth);
             gl.glEnable(GL10.GL_TEXTURE_2D);
             gl.glShadeModel(GL10.GL_SMOOTH);
@@ -79,7 +82,6 @@ public class Universal3D extends GameFragment {
             gl.glEnable(GL10.GL_DEPTH_TEST);
             gl.glDepthFunc(GL10.GL_LEQUAL);
             gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
-
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -92,14 +94,14 @@ public class Universal3D extends GameFragment {
             gl.glLoadIdentity();
 
             // Calculate The Aspect Ratio Of The Window
-            GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f, 100.0f);
+            GLU.gluPerspective(gl, FOV, (float) width / (float) height, 0.1f, 100.0f);
 
             gl.glMatrixMode(GL10.GL_MODELVIEW); // Select The Modelview Matrix
             gl.glLoadIdentity(); // Reset The Modelview Matrix
         }
 
         public void onDrawFrame(GL10 gl) {
-            startTime = System.currentTimeMillis();
+            mStartTime = System.currentTimeMillis();
 
             // gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
             gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
@@ -107,16 +109,16 @@ public class Universal3D extends GameFragment {
             // Sensor dependent rotation
             gl.glLoadIdentity();
             // gl.glTranslatef(0.0f, 0.0f, -5.0f);
-            gl.glMultMatrixf(mContext.getRotationMatrix(), 0);
+            gl.glMultMatrixf(mFragment.getRotationMatrix(), 0);
             gl.glRotatef(90.0f, 1, 0, 0);
-
+            mTarget.draw(gl);
             mSphere.draw(gl);
             // Log.d("RENDER", "DRAW");
 
-            endTime = System.currentTimeMillis();
-            sleepTime = (1000 / FPS) - (endTime - startTime);
+            mEndTime = System.currentTimeMillis();
+            mSleepTime = (1000 / FPS) - (mEndTime - mStartTime);
             try {
-                Thread.sleep(sleepTime < 0 ? 0 : sleepTime);
+                Thread.sleep(mSleepTime < 0 ? 0 : mSleepTime);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
