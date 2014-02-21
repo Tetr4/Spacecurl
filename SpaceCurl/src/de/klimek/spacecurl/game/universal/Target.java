@@ -17,6 +17,7 @@ public class Target {
     long mHoldingTime;
     long mCurHoldingTime;
     boolean mResetIfLeft;
+    private RectF mRect;
     private int mMinBorder;
     private int mOnScreenPositionX;
     private int mOnScreenPositionY;
@@ -33,6 +34,7 @@ public class Target {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setColor(Color.RED);
+        mRect = new RectF();
     }
 
     public void draw(Canvas canvas) {
@@ -41,10 +43,10 @@ public class Target {
         mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
         mOnScreenPositionY = (int) (mPositionY * mMinBorder - (mMinBorder - canvas.getHeight()) / 2);
         mOnScreenRadius = (int) (mRadius * mMinBorder);
-        RectF r = new RectF(mOnScreenPositionX - mOnScreenRadius,
+        mRect = new RectF(mOnScreenPositionX - mOnScreenRadius,
                 mOnScreenPositionY - mOnScreenRadius,
                 mOnScreenPositionX + mOnScreenRadius,
                 mOnScreenPositionY + mOnScreenRadius);
-        canvas.drawOval(r, mPaint);
+        canvas.drawOval(mRect, mPaint);
     }
 }

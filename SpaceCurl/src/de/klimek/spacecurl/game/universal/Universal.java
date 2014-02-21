@@ -78,7 +78,6 @@ public class Universal extends GameFragment {
         private Target mTarget;
         private CenteredCircles mCircles;
 
-        private boolean mFinished = false;
         private float mStatus;
 
         private boolean mResetIfLeft;
@@ -136,8 +135,9 @@ public class Universal extends GameFragment {
             private float _pitch;
             private float _roll;
             private float _distance;
-            private float _innerBorder;
-            private float _outerBorder;
+            private float _innerBorder = Float.NaN;
+            private float _outerBorder = Float.NaN;
+            private boolean _finished = false;
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -172,7 +172,7 @@ public class Universal extends GameFragment {
                 if (mPlayer.intersects(mTarget)) {
                     mTarget.mCurHoldingTime -= _deltaTime;
                     if (mTarget.mCurHoldingTime < 0)
-                        mFinished = true;
+                        _finished = true;
                 } else if (mResetIfLeft) {
                     mTarget.mCurHoldingTime = mTarget.mHoldingTime;
                 }
@@ -185,21 +185,24 @@ public class Universal extends GameFragment {
                         _innerBorder = _distance * 1.5f;
                         _outerBorder = _innerBorder * 1.5f;
                     } else {
-                        _innerBorder -= 1; // TODO SPEED
+                        _innerBorder -= 0; // TODO SPEED
                         _outerBorder = _innerBorder * 1.5f;
                         mStatus = (_distance - _innerBorder) / (_outerBorder - _innerBorder);
+                        // Cutoff values between 0.0f and 1.0f
+                        mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
                     }
                 }
             }
 
             @Override
             protected void onProgressUpdate(Void... values) {
-                if (mFinished) {
+                if (_finished) {
                     notifyFinished();
                     mTarget = new Target(mRandom.nextFloat(), mRandom.nextFloat(),
                             mRandom.nextFloat() / 10.0f + 0.02f, 0L, false);
                     mTarget.mCurHoldingTime = mTarget.mHoldingTime;
-                    mFinished = false;
+                    _innerBorder = Float.NaN;
+                    _finished = false;
                 }
                 notifyStatusChanged(mStatus);
                 invalidate();

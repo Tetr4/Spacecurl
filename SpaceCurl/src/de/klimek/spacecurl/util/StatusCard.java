@@ -27,7 +27,7 @@ public class StatusCard extends Card {
     public void setupInnerViewElements(ViewGroup parent, View view) {
         mGraphView = new LineGraphView(getContext(), mTitle);
         mGraphView.setScrollable(true);
-        mGraphView.addSeries(mStatus.mGraphViewSeries);
+        mGraphView.addSeries(mStatus.getGraphViewSeries());
         LinearLayout graphLayout = (LinearLayout) parent.findViewById(
                 R.id.card_status_graph);
         if (graphLayout != null) {

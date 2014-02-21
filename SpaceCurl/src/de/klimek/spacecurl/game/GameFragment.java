@@ -13,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.status.GameStatus;
 
 /**
  * Prototype Class for GameFragments. <br>
@@ -41,7 +40,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private float mPitchMultiplier = mDatabase.getPitchMultiplier();
     private float mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
 
-    private GameStatus mStatus;
     private GameSettings mSettings;
 
     private boolean mLandscape;
@@ -234,15 +232,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                         / ((float) Math.PI / 2.0f);
 
                 // cutoff
-                if (mOrientationScaled[1] > 1.0f)
-                    mOrientationScaled[1] = 1.0f;
-                if (mOrientationScaled[1] < -1.0f)
-                    mOrientationScaled[1] = -1.0f;
-                if (mOrientationScaled[2] > 1.0f)
-                    mOrientationScaled[2] = 1.0f;
-                if (mOrientationScaled[2] < -1.0f)
-                    mOrientationScaled[2] = -1.0f;
-
+                mOrientationScaled[1] = Math.min(1.0f, Math.max(mOrientationScaled[1], -1.0f));
+                mOrientationScaled[2] = Math.min(1.0f, Math.max(mOrientationScaled[2], -1.0f));
                 break;
 
             case Sensor.TYPE_GYROSCOPE:
@@ -262,10 +253,6 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
-
-    public void setStatus(GameStatus status) {
-        mStatus = status;
     }
 
     public void setSettings(GameSettings settings) {

@@ -10,6 +10,7 @@ import java.util.List;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -26,6 +27,8 @@ import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.status.GameStatus;
+import de.klimek.spacecurl.util.collection.status.TrainingStatus;
+import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide
@@ -43,10 +46,15 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
     private Database mDatabase;
 
-    private CardListView mCardListView;
+    private FrameLayout mStatusIndicator;
     private SlidingUpPanelLayout mSlidingUpPanel;
+    private CardListView mCardListView;
     private CardArrayAdapter mCardArrayAdapter;
+
+    private Training mTraining;
     private List<Card> mCards = new ArrayList<Card>();
+    private TrainingStatus mStatus;
+    private GameStatus mCurGameStatus;
 
     private GameFragment mGameFragment;
 
@@ -56,8 +64,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     public static enum State {
         Paused, Pausing, Running
     }
-
-    protected abstract boolean usesStatus();
 
     /**
      * Called by OS when the activity is first created.
@@ -73,7 +79,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // Log.d(TAG, mDatabase.getTrainings().get(0).getTitle());
         setContentView(R.layout.activity_main);
         setupSettings();
-        setupStatus(usesStatus());
         setupPauseView();
     }
 
@@ -102,76 +107,67 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         gameFrame.setOnClickListener(this);
     }
 
-    private void setupStatus(boolean show) {
-        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
-        if (show) {
-            int statusIndicatorHeight = (int) (getResources()
-                    .getDimension(R.dimen.status_indicator_height));
-            int padding = 0;
-            mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
+    protected void expandSlidingPane() {
+        if (mSlidingUpPanel != null) {
+            pauseGame();
+            mSlidingUpPanel.expandPane();
         }
-        else {
-            mSlidingUpPanel.setPanelHeight(-1);
-            return;
-        }
+    }
 
+    protected void hideSlidingPane() {
+        if (mSlidingUpPanel == null) {
+            mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
+        }
+        mSlidingUpPanel.setPanelHeight(-1);
+        return;
+    }
+
+    protected void useStatusForTraining(int key) {
+        mTraining = mDatabase.getTrainings().get(key);
+        mStatus = new TrainingStatus(key);
+        mDatabase.getStatuses().add(mStatus);
+
+        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
+
+        // setup panel
+        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
+        int statusIndicatorHeight = (int) (getResources()
+                .getDimension(R.dimen.status_indicator_height));
+        int padding = 0;
+        mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
+
+        // setup cardlist
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
-        if (mCardListView != null) {
-            mCardListView.setAdapter(mCardArrayAdapter);
-        }
-        // Set SildingUpPanel Height to only show upper card
-
-        // mSlidingUpPanel.setEnableDragViewTouchEvents(true);
-        // mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
-        // @Override
-        // public void onPanelSlide(View panel, float slideOffset) {
-        // Log.i(TAG, "onPanelSlide, offset " + slideOffset);
-        // Log.d(TAG,
-        // Boolean.toString(mSlidingUpPanel.canScrollVertically(1)));
-        // if (slideOffset < 0.2) {
-        // if (getActionBar().isShowing()) {
-        // getActionBar().hide();
-        // }
-        // } else {
-        // if (!getActionBar().isShowing()) {
-        // getActionBar().show();
-        // }
-        // }
-        // }
-        //
-        // @Override
-        // public void onPanelCollapsed(View panel) {
-        // // TODO Auto-generated method stub
-        //
-        // }
-        //
-        // @Override
-        // public void onPanelExpanded(View panel) {
-        // // TODO Auto-generated method stub
-        //
-        // }
-        //
-        // @Override
-        // public void onPanelAnchored(View panel) {
-        // // TODO Auto-generated method stub
-        //
-        // }
-        // });
+        mCardListView.setAdapter(mCardArrayAdapter);
     }
 
-    protected void expandSlidingPane() {
-        mSlidingUpPanel.expandPane();
+    protected void switchStatus(int index) {
+        if (index >= mStatus.size()) {
+            mCurGameStatus = new GameStatus(mTraining.get(index).getTitle());
+            mStatus.add(mCurGameStatus);
+        } else {
+            mCurGameStatus = mStatus.get(index);
+        }
+        if (mStatus != null) {
+            mCards.clear();
+            for (GameStatus gameStatus : mStatus) {
+                mCards.add(new StatusCard(this, gameStatus));
+            }
+            mCardArrayAdapter.notifyDataSetChanged();
+        }
     }
 
-    protected void addStatus(GameStatus status) {
-        if (!usesStatus()) {
-            // Exception
-            return;
+    protected void onStatusChanged(float status) {
+        mCurGameStatus.addStatus(status);
+        if (status <= 0.3f) {
+            mStatusIndicator.setBackgroundColor(Color.GREEN);
         }
-        mDatabase.getStatuses().add(status);
-        mCards.add(new StatusCard(this, status));
-        mCardArrayAdapter.notifyDataSetChanged();
+        else if (status <= 0.6f) {
+            mStatusIndicator.setBackgroundColor(Color.YELLOW);
+        } else {
+            mStatusIndicator.setBackgroundColor(Color.RED);
+        }
     }
 
     /**

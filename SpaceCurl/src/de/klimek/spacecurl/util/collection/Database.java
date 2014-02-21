@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.game.maze.MazeSettings;
 import de.klimek.spacecurl.game.pong.PongSettings;
 import de.klimek.spacecurl.game.sensor.SensorSettings;
@@ -16,6 +17,7 @@ import de.klimek.spacecurl.game.tunnel.TunnelSettings;
 import de.klimek.spacecurl.game.universal.Target;
 import de.klimek.spacecurl.game.universal.UniversalSettings;
 import de.klimek.spacecurl.game.universal3D.Universal3DSettings;
+import de.klimek.spacecurl.util.collection.status.GameStatus;
 import de.klimek.spacecurl.util.collection.status.TrainingStatus;
 import de.klimek.spacecurl.util.collection.training.Training;
 
@@ -26,9 +28,11 @@ import de.klimek.spacecurl.util.collection.training.Training;
  */
 public class Database {
     private ArrayList<Training> mTrainings = new ArrayList<Training>();
-    private TrainingStatus mStatuses = new TrainingStatus();
-    private Training mFreeplayGames = new Training("Freeplay");
+    private ArrayList<TrainingStatus> mStatuses = new ArrayList<TrainingStatus>();
     private Training mTrainingGames = new Training("Trainings");
+
+    private Training mFreeplayGames = new Training("Freeplay");
+    private static final int FREEPLAY_STATUS_KEY = -1;
 
     private SharedPreferences mSharedPreferences;
     private Boolean mOrientationLandscape;
@@ -84,6 +88,11 @@ public class Database {
         SensorSettings settingsSensor = new SensorSettings();
         settingsSensor.setTitle("Sensor Test");
         mFreeplayGames.add(settingsSensor);
+
+        TrainingStatus freeplayStatus = new TrainingStatus(FREEPLAY_STATUS_KEY);
+        for (GameSettings game : mFreeplayGames) {
+            freeplayStatus.add(new GameStatus(game.getTitle()));
+        }
     }
 
     private void fillTrainings(Context context) {
@@ -160,7 +169,7 @@ public class Database {
         return mTrainings;
     }
 
-    public TrainingStatus getStatuses() {
+    public ArrayList<TrainingStatus> getStatuses() {
         return mStatuses;
     }
 

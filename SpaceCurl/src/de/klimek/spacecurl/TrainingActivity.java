@@ -8,16 +8,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
-
-import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphViewSeries;
-
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.status.GameStatus;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
@@ -43,11 +38,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     private int mTrainingIndex = -1;
     private GameSettings mGameSettings;
 
-    @Override
-    protected boolean usesStatus() {
-        return true;
-    }
-
     /**
      * Called by OS when the activity is first created.
      * 
@@ -59,9 +49,12 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
-        mDatabase.getStatuses().clear();
         int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
-        mTraining = Database.getInstance(this).getTrainings().get(key);
+
+        mTraining = mDatabase.getTrainings().get(key);
+
+        useStatusForTraining(key);
+
         setupActionbar();
         nextGame();
     }
@@ -75,18 +68,20 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     private void previousGame() {
         Log.v(TAG, "previousGame");
         if (mTrainingIndex - 1 >= 0) {
-            mGameSettings = mTraining.get(--mTrainingIndex);
+            --mTrainingIndex;
+            mGameSettings = mTraining.get(mTrainingIndex);
+            switchStatus(mTrainingIndex);
             switchToGame(mGameSettings);
-            // TODO remove StatusCard and use previous
         }
     }
 
     private void nextGame() {
         Log.v(TAG, "nextGame");
         if (mTrainingIndex + 1 < mTraining.size()) {
-            mGameSettings = mTraining.get(++mTrainingIndex);
+            ++mTrainingIndex;
+            mGameSettings = mTraining.get(mTrainingIndex);
+            switchStatus(mTrainingIndex);
             switchToGame(mGameSettings);
-            // TODO add statuscard
         } else {
             expandSlidingPane();
         }
@@ -94,7 +89,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     public void onStatusChanged(float status) {
-
+        super.onStatusChanged(status);
     }
 
     @Override
@@ -104,19 +99,6 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     protected void onGameSwitched(GameFragment gameFragment) {
-        GameStatus status = new GameStatus();
-        GraphViewSeries graphViewSeries = new GraphViewSeries(new
-                GraphViewData[] {
-                        new GraphViewData(0, 0),
-                        new GraphViewData(1, 3),
-                        new GraphViewData(2, 5),
-                        new GraphViewData(3, 2),
-                        new GraphViewData(4, 6)
-                });
-        status.mGraphViewSeries = graphViewSeries;
-        gameFragment.setStatus(status);
-        addStatus(status);
-
         mTitle = mTraining.getTitle();
         mActionBar.setTitle(
                 mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"

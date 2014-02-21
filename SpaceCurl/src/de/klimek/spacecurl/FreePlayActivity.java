@@ -14,15 +14,10 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-
-import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphViewSeries;
-
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.preferences.SettingsActivity;
 import de.klimek.spacecurl.util.collection.Database;
-import de.klimek.spacecurl.util.collection.status.GameStatus;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
@@ -42,11 +37,6 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
     private ActionBar mActionBar;
     private Training mFreeplayGames;
 
-    @Override
-    protected boolean usesStatus() {
-        return true;
-    }
-
     /**
      * Called by OS when the activity is first created.
      * 
@@ -58,7 +48,9 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
+
         mFreeplayGames = mDatabase.getFreeplayGames();
+        hideSlidingPane();
         setupActionbar();
         if (savedInstanceState == null) {
             // Select first game on new start
@@ -109,18 +101,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     protected void onGameSwitched(GameFragment gameFragment) {
-        GameStatus status = new GameStatus();
-        GraphViewSeries graphViewSeries = new GraphViewSeries(new
-                GraphViewData[] {
-                        new GraphViewData(0, 0),
-                        new GraphViewData(1, 3),
-                        new GraphViewData(2, 5),
-                        new GraphViewData(3, 2),
-                        new GraphViewData(4, 6)
-                });
-        status.mGraphViewSeries = graphViewSeries;
-        gameFragment.setStatus(status);
-        addStatus(status);
+        return; // TODO mark active status
     }
 
     /**
@@ -172,5 +153,4 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
         outState.putInt(STATE_ACTIONBAR_SELECTED_ITEM,
                 mActionBar.getSelectedNavigationIndex());
     }
-
 }
