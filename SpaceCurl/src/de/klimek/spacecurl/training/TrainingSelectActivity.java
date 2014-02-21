@@ -25,7 +25,7 @@ import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
-    private Database mDatabase = Database.getInstance();
+    private Database mDatabase;
     private ListView mListView;
     private TrainingArrayAdapter mArrayAdapter;
     private List<Training> mTrainings = new ArrayList<Training>();
@@ -33,6 +33,7 @@ public class TrainingSelectActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = Database.getInstance(this);
         if (mDatabase.isOrientationLandscape()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
