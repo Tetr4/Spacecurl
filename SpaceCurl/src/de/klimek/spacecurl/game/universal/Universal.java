@@ -15,16 +15,9 @@ import de.klimek.spacecurl.game.GameFragment;
 
 // TODO replace with 3d render, similar to http://code.google.com/p/stardroid/
 public class Universal extends GameFragment {
-    // TODO more complex shape. ellipse?
-    public static final String ARG_TARGET_RADIUS = "ARG_TARGET_RADIUS";
-    public static final String ARG_HOLDING_TIME = "ARG_HOLDING_TIME";
-    public static final String ARG_RESET_HOLDING_TIME_IF_LEFT = "ARG_RESET_HOLDING_TIME_IF_LEFT";
-
-    // private int score;
     private GameUniversalView mGame;
     private Effect[] mEffects;
     private FreeAxisCount mFreeAxisCount;
-
     private UniversalSettings mSettings;
 
     @Override
@@ -135,8 +128,8 @@ public class Universal extends GameFragment {
             private float _pitch;
             private float _roll;
             private float _distance;
-            private float _innerBorder = Float.NaN;
-            private float _outerBorder = Float.NaN;
+            private float _innerBorder = -1.0f;
+            private float _outerBorder = -1.0f;
             private boolean _finished = false;
 
             @Override
@@ -181,7 +174,7 @@ public class Universal extends GameFragment {
             private void updateStatus() {
                 if (hasOrientation()) {
                     _distance = mPlayer.distanceTo(mTarget);
-                    if (_innerBorder == Float.NaN) {
+                    if (_innerBorder < 0.0f) {
                         _innerBorder = _distance * 1.5f;
                         _outerBorder = _innerBorder * 1.5f;
                     } else {

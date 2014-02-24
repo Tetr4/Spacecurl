@@ -8,7 +8,7 @@ public class GameStatus {
     private String mTitle = "";
     private GraphViewSeries mGraphViewSeries;
     private int valueX = 0;
-    private static final int MAX_DATA_COUNT = 200;
+    private static final int MAX_DATA_COUNT = 800;
 
     public GameStatus(String title) {
         mTitle = title;
