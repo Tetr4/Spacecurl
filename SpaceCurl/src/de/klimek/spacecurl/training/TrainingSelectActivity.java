@@ -41,9 +41,9 @@ public class TrainingSelectActivity extends FragmentActivity {
         }
         setContentView(R.layout.activity_training_select);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        setupAddButton();
-        mTrainings = Database.getInstance().getTrainings();
+        mTrainings = mDatabase.getTrainings();
         setupListView();
+        setupAddButton();
     }
 
     @Override
@@ -69,14 +69,17 @@ public class TrainingSelectActivity extends FragmentActivity {
         // add footer (so nothing is behind add_button_bar when scrolled down)
         View footerItem = getLayoutInflater()
                 .inflate(R.layout.list_item_training_footer, mListView, false);
+        View headerItem = getLayoutInflater()
+                .inflate(R.layout.list_item_training_header, mListView, false);
         mListView.addFooterView(footerItem, null, false);
+        mListView.addHeaderView(headerItem, null, false);
 
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
-                editTraining(mTrainings.get(position));
+                editTraining(mTrainings.get(position - 1));
             }
         });
         mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
