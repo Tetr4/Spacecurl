@@ -138,6 +138,9 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
             case R.id.action_next_game:
                 nextGame();
                 break;
+            case R.id.action_show_status:
+                expandSlidingPane();
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
