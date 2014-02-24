@@ -7,8 +7,8 @@
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
     android:descendantFocusability="blocksDescendants"
-            android:layout_marginLeft="16dp" 
-        android:layout_marginRight="16dp" >
+    android:layout_marginLeft="16dp" 
+    android:layout_marginRight="16dp" >
  
     <!-- Name -->
     <TextView
@@ -21,19 +21,21 @@
         android:textSize="24sp"
         android:text="@string/action_freeplay"/>
     
+    <!-- Divider -->
     <View
-    android:layout_width="1dp"
-    android:layout_height="match_parent"
-    android:layout_marginTop="5dip"
-    android:layout_marginBottom="5dip"
-    android:background="?android:attr/dividerVertical" />
+	    android:layout_width="1dp"
+	    android:layout_height="match_parent"
+	    android:layout_marginTop="5dip"
+	    android:layout_marginBottom="5dip"
+	    android:background="?android:attr/dividerVertical" />
 
+    <!-- Edit Button -->
     <ImageButton
-        android:id="@+id/training_play_button"
+        android:id="@+id/training_edit_button"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:contentDescription="@string/training_play_button"
-        android:src="@drawable/ic_play2"/>
+        android:src="@drawable/ic_settings"/>
 
 </LinearLayout>

@@ -17,11 +17,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import de.klimek.spacecurl.FreePlayActivity;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
+import de.klimek.spacecurl.preferences.SettingsActivity;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
@@ -49,19 +51,25 @@ public class TrainingSelectActivity extends FragmentActivity {
     }
 
     private void setupFreePlayItem() {
-        ImageButton btn = (ImageButton) findViewById(R.id.freeplay_play_button);
+        LinearLayout freePlayLayout = (LinearLayout) findViewById(R.id.freeplay_layout);
+        freePlayLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // start Freeplay
+                Intent intent = new Intent(TrainingSelectActivity.this, FreePlayActivity.class);
+                startActivity(intent);
+            }
+        });
+        ImageButton btn = (ImageButton) findViewById(R.id.freeplay_edit_button);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startFreeplay();
+                // edit Freeplay
+                Intent intent = new Intent(TrainingSelectActivity.this, SettingsActivity.class);
+                startActivity(intent);
             }
         });
 
-    }
-
-    protected void startFreeplay() {
-        Intent intent = new Intent(this, FreePlayActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -97,7 +105,7 @@ public class TrainingSelectActivity extends FragmentActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
-                editTraining(mTrainings.get(position - 1));
+                startTraining(mTrainings.get(position - 1));
             }
         });
         mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
@@ -150,12 +158,12 @@ public class TrainingSelectActivity extends FragmentActivity {
             // }
             // });
             TextView trainingName = (TextView) listItemView.findViewById(R.id.training_name);
-            ImageButton playButton = (ImageButton) listItemView
-                    .findViewById(R.id.training_play_button);
-            playButton.setOnClickListener(new OnClickListener() {
+            ImageButton editButton = (ImageButton) listItemView
+                    .findViewById(R.id.training_edit_button);
+            editButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startTraining(training);
+                    editTraining(training);
                 }
             });
             trainingName.setText(training.getTitle());
