@@ -174,13 +174,13 @@ public class Universal extends GameFragment {
             private void updateStatus() {
                 if (hasOrientation()) {
                     _distance = mPlayer.distanceTo(mTarget);
-                    if (_innerBorder < 0.0f) {
-                        _innerBorder = _distance * 1.5f;
-                        _outerBorder = _innerBorder * 1.5f;
+                    if (_innerBorder < 0.0f) { // not yet set
+                        _innerBorder = _distance * 1.00f;
+                        _outerBorder = _innerBorder * 2.0f;
                     } else {
                         _innerBorder -= 0; // TODO SPEED
-                        _outerBorder = _innerBorder * 1.5f;
-                        mStatus = (_distance - _innerBorder) / (_outerBorder - _innerBorder);
+                        _outerBorder = _innerBorder * 2.0f;
+                        mStatus = -(_distance - _innerBorder) / (_outerBorder - _innerBorder);
                         // Cutoff values between 0.0f and 1.0f
                         mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
                     }

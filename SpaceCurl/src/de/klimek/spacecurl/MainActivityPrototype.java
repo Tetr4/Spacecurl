@@ -127,14 +127,16 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mStatus = new TrainingStatus(key);
         mDatabase.getStatuses().add(mStatus);
 
-        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
-
         // setup panel
         mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
         int statusIndicatorHeight = (int) (getResources()
                 .getDimension(R.dimen.status_indicator_height));
         int padding = 0;
         mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
+        mSlidingUpPanel.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
+
+        // setup indicator
+        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
 
         // setup cardlist
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
@@ -160,14 +162,36 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
     protected void onStatusChanged(float status) {
         mCurGameStatus.addStatus(status);
-        if (status <= 0.3f) {
-            mStatusIndicator.setBackgroundColor(Color.GREEN);
-        }
-        else if (status <= 0.6f) {
-            mStatusIndicator.setBackgroundColor(Color.YELLOW);
+        int statusColor;
+        if (status <= 0.5f) {
+            statusColor = interpolateColor(Color.RED, Color.YELLOW, status * 2.0f);
         } else {
-            mStatusIndicator.setBackgroundColor(Color.RED);
+            statusColor = interpolateColor(Color.YELLOW, Color.GREEN, (status - 0.5f) * 2.0f);
         }
+        Log.d(TAG, Integer.toString(statusColor, 16));
+        mStatusIndicator.setBackgroundColor(statusColor);
+    }
+
+    private static int interpolateColor(int color1, int color2, float fraction) {
+        fraction = Math.min(fraction, 1.0f);
+        fraction = Math.max(fraction, 0.0f);
+
+        int deltaAlpha = Color.alpha(color2) - Color.alpha(color1);
+        int deltaRed = Color.red(color2) - Color.red(color1);
+        int deltaGreen = Color.green(color2) - Color.green(color1);
+        int deltaBlue = Color.blue(color2) - Color.blue(color1);
+
+        int resultAlpha = (int) (Color.alpha(color1) + (deltaAlpha * fraction));
+        int resultRed = (int) (Color.red(color1) + (deltaRed * fraction));
+        int resultGreen = (int) (Color.green(color1) + (deltaGreen * fraction));
+        int resultBlue = (int) (Color.blue(color1) + (deltaBlue * fraction));
+
+        resultAlpha = Math.max(Math.min(resultAlpha, 255), 0);
+        resultRed = Math.max(Math.min(resultRed, 255), 0);
+        resultGreen = Math.max(Math.min(resultGreen, 255), 0);
+        resultBlue = Math.max(Math.min(resultBlue, 255), 0);
+
+        return Color.argb(resultAlpha, resultRed, resultGreen, resultBlue);
     }
 
     /**
@@ -287,7 +311,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private void resumeGame() {
         Log.v(TAG, "Resumed");
         mPauseFrame.setVisibility(View.INVISIBLE);
-        mGameFragment.setState(State.Running);
+        if (mGameFragment != null) {
+            mGameFragment.setState(State.Running);
+        }
         // Grey out navigation bar
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
