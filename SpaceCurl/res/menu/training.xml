@@ -21,12 +21,19 @@
         android:showAsAction="never"
         android:icon="@drawable/ic_settings"
         android:title="@string/action_new_training"/>
-          
+    
     <item
+        android:id="@+id/action_show_status"
+        android:orderInCategory="12"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_show_status"/>
+          
+    <!-- <item
         android:id="@+id/action_freeplay"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_freeplay"/>
+        android:title="@string/action_freeplay"/> -->
     
 
 </menu>
