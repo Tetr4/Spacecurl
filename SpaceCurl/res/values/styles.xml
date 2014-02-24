@@ -4,12 +4,17 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
+    <style name="AppBaseTheme" parent="android:Theme.Holo">
+        <item name="android:actionBarStyle">@style/GrayActionBar</item>
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+    </style>
+    
+    <style name="GrayActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/holo_gray_light</item>
     </style>
 
     <!-- Theme with Overlay -->
@@ -18,13 +23,7 @@
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:actionBarStyle">@style/TransparentActionBar</item>
     </style>
-
-    <!-- Theme without Overlay -->
-    <style name="ThemeWithoutOverlay" parent ="AppBaseTheme">
-		<item name="android:windowActionBarOverlay">false</item>
-	    <!-- <item name="android:displayOptions">showHome|homeAsUp|showTitle</item> -->
-    </style>
-    
+  
     
     <!--  Transparent ActionBar -->
     <style name="TransparentActionBar" parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">

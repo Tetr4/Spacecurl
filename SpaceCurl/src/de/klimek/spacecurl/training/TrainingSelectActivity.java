@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import de.klimek.spacecurl.FreePlayActivity;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.util.collection.Database;
@@ -40,10 +41,27 @@ public class TrainingSelectActivity extends FragmentActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
         setContentView(R.layout.activity_training_select);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        // getActionBar().setDisplayHomeAsUpEnabled(true);
         mTrainings = mDatabase.getTrainings();
+        setupFreePlayItem();
         setupListView();
         setupAddButton();
+    }
+
+    private void setupFreePlayItem() {
+        ImageButton btn = (ImageButton) findViewById(R.id.freeplay_play_button);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startFreeplay();
+            }
+        });
+
+    }
+
+    protected void startFreeplay() {
+        Intent intent = new Intent(this, FreePlayActivity.class);
+        startActivity(intent);
     }
 
     @Override

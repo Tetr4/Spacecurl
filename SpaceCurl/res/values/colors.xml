@@ -18,7 +18,9 @@
     <color name="black">#ff000000</color>
     <color name="blackish">#1c1e20</color>
     <color name="blackish_selected">#0cffffff</color>
+    <color name="blackish_light">#414549</color>
     <color name="blackish_transparent">#cc1c1e20</color>
     <color name="game_pong_color">#ff0195ff</color>
+    <color name="holo_gray_light">#33999999</color> 
 
 </resources>

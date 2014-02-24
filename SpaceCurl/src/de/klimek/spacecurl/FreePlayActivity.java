@@ -77,7 +77,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
     private void setupActionbar() {
         mActionBar = getActionBar();
         mActionBar.setDisplayShowTitleEnabled(false);
-        // mActionbar.setDisplayShowHomeEnabled(false); // no "up-caret"
+        mActionBar.setDisplayShowHomeEnabled(true); // "up-caret"
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
         // Adapter to fill spinner with items
