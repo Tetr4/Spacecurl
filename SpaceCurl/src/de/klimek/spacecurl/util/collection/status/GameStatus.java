@@ -14,10 +14,6 @@ public class GameStatus {
         mTitle = title;
         mGraphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
-                        new GraphViewData(valueX++, 0),
-                        new GraphViewData(valueX++, 0),
-                        new GraphViewData(valueX++, 0),
-                        new GraphViewData(valueX++, 0),
                         new GraphViewData(valueX++, 0)
                 });
     }
@@ -32,5 +28,12 @@ public class GameStatus {
 
     public String getTitle() {
         return mTitle;
+    }
+
+    public void reset() {
+        mGraphViewSeries.resetData(new
+                GraphViewData[] {
+                        new GraphViewData(valueX++, 0)
+                });
     }
 }

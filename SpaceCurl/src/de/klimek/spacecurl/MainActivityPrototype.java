@@ -150,6 +150,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
             mStatus.add(mCurGameStatus);
         } else {
             mCurGameStatus = mStatus.get(index);
+            mCurGameStatus.reset();
         }
         if (mStatus != null) {
             mCards.clear();
