@@ -1,13 +1,17 @@
+
 package de.klimek.spacecurl.game.universal;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 
 /**
  * Player
  */
-class Player {
+public class Player extends Drawable {
     private float mAxisLength;
     float mPositionX;
     float mPositionY;
@@ -41,7 +45,8 @@ class Player {
         }
     }
 
-    void draw(Canvas canvas) {
+    @Override
+    public void draw(Canvas canvas) {
         mMinBorder = canvas.getWidth() <= canvas.getHeight() ? canvas.getWidth() : canvas
                 .getHeight();
         mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
@@ -57,5 +62,23 @@ class Player {
                 mOnScreenPositionX + mOnScreenAxisLength / 2,
                 mOnScreenPositionY,
                 mPaint);
+    }
+
+    @Override
+    public int getOpacity() {
+        // TODO Auto-generated method stub
+        return PixelFormat.OPAQUE;
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setColorFilter(ColorFilter cf) {
+        // TODO Auto-generated method stub
+
     }
 }

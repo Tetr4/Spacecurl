@@ -99,9 +99,13 @@ public class Database {
         Resources resources = context.getResources();
         mTrainingGames = (Training) mFreeplayGames.clone();
 
-        // 8
-        Training training0 = new Training("8");
+        // Viereckiger Grundrahmen
+        Training training0 = new Training("Viereck");
         UniversalSettings settingsUniversal = new UniversalSettings();
+        settingsUniversal.addTarget(new Target(0.25f, 0.25f));
+        settingsUniversal.addTarget(new Target(0.75f, 0.25f));
+        settingsUniversal.addTarget(new Target(0.75f, 0.75f));
+        settingsUniversal.addTarget(new Target(0.25f, 0.75f));
         settingsUniversal.setTitle(resources.getString(R.string.game_universal));
         training0.add(settingsUniversal);
 
