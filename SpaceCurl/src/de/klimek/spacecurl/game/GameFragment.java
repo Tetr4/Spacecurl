@@ -4,14 +4,15 @@ package de.klimek.spacecurl.game;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.view.Display;
+import android.view.Surface;
+import android.view.WindowManager;
 import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
 
@@ -28,7 +29,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private Database mDatabase = Database.getInstance();
     // Members for Sensor
     private SensorManager mSensorManager;
-    private float[] mRotationVector = new float[3];
+    private float[] mRotationVector = new float[5];
     private float[] mRotation = new float[3];
     private float mRotationspeed = 0.0f;
     private float[] mRotationMatrix = new float[16];
@@ -120,8 +121,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     public float[] getRotationMatrix() {
-        // return mResultRotationMatrix;
-        return mRotationMatrix;
+        return mResultRotationMatrix;
+        // return mRotationMatrix;
     }
 
     public float getRotationSpeed() {
@@ -141,9 +142,13 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
             mRollMultiplier *= -1;
             mPitchMultiplier *= -1;
         }
+        Display display = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        mLandscape = (display.getRotation() == Surface.ROTATION_90);
         super.onCreate(savedInstanceState);
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mLandscape = sharedPref.getBoolean("landscape", false);
+        // SharedPreferences sharedPref =
+        // PreferenceManager.getDefaultSharedPreferences(getActivity());
+        // mLandscape = sharedPref.getBoolean("landscape", false);
         if (isUsingSensor()) {
             // Setup Sensormanager
             mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -200,6 +205,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 mRotationVector[0] = event.values[0];
                 mRotationVector[1] = event.values[1];
                 mRotationVector[2] = event.values[2];
+                mRotationVector[3] = event.values[3];
+                mRotationVector[4] = event.values[4];
 
                 // get rotationMatrix
                 SensorManager.getRotationMatrixFromVector(mRotationMatrix, mRotationVector);
@@ -207,12 +214,14 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 // remap rotationMatrix depending on landscape or portrait mode
                 if (mLandscape) { // FIXME
                     SensorManager.remapCoordinateSystem(mRotationMatrix,
-                            SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X,
+                            SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
                             mResultRotationMatrix);
                 } else {
-                    // SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
-                    SensorManager.remapCoordinateSystem(mRotationMatrix,
-                            SensorManager.AXIS_X, SensorManager.AXIS_Z, mResultRotationMatrix);
+                    // SensorManager.remapCoordinateSystem(mRotationMatrix,
+                    // SensorManager.AXIS_X, SensorManager.AXIS_Z,
+                    // mResultRotationMatrix);
+                    System.arraycopy(mRotationMatrix, 0,
+                            mResultRotationMatrix, 0, mRotationMatrix.length);
                 }
 
                 /*
@@ -225,13 +234,9 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
 
                 // Scaling azimuth, pitch, roll from -1.0f to 1.0f
-
-                // Azimuth
                 mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
-                // Pitch
-                mOrientationScaled[1] = ((mOrientation[1] - mPhoneInclinationRadian) * mPitchMultiplier)
+                mOrientationScaled[1] = ((mOrientation[1] + mPhoneInclinationRadian) * mPitchMultiplier)
                         / ((float) Math.PI / 2.0f);
-                // Roll
                 mOrientationScaled[2] = ((mOrientation[2]) * mRollMultiplier)
                         / ((float) Math.PI / 2.0f);
 

@@ -23,7 +23,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.util.collection.Database;
 
 public class Tunnel extends GameFragment {
     private GameTunnelView mGame;
@@ -118,8 +117,6 @@ public class Tunnel extends GameFragment {
 
         // Sensor variables
         private float mPitch;
-        private float mInclinationRangeFactor = 2.0f;
-        private float mPhoneInclination;
 
         // Logic variables
         private float mDistance = 0;
@@ -129,7 +126,6 @@ public class Tunnel extends GameFragment {
         // Constructor
         public GameTunnelView(Context context) {
             super(context);
-            mPhoneInclination = Database.getInstance().getPhoneInclination();
         }
 
         public void pause() {

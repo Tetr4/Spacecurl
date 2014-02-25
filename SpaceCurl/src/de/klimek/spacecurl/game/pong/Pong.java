@@ -199,7 +199,7 @@ public class Pong extends GameFragment {
                 mPitch = getScaledOrientation()[1];
                 mRoll = getScaledOrientation()[2];
                 mPaddleLeft.mPosition = mPitch;
-                mPaddleTop.mPosition = mRoll;
+                mPaddleTop.mPosition = -mRoll;
                 mPaddleRight.mPosition = mPitch;
                 mPaddleBottom.mPosition = mRoll;
             }

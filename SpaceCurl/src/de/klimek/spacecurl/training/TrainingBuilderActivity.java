@@ -41,12 +41,6 @@ public class TrainingBuilderActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mDatabase.isOrientationLandscape()) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         setContentView(R.layout.activity_training_builder);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -61,6 +55,16 @@ public class TrainingBuilderActivity extends FragmentActivity {
             setupCards();
         }
         setupAddButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mDatabase.isOrientationLandscape()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     private void setupAddButton() {

@@ -37,17 +37,22 @@ public class TrainingSelectActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
-        if (mDatabase.isOrientationLandscape()) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
         setContentView(R.layout.activity_training_select);
         // getActionBar().setDisplayHomeAsUpEnabled(true);
         mTrainings = mDatabase.getTrainings();
         setupFreePlayItem();
         setupListView();
         setupAddButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mDatabase.isOrientationLandscape()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     private void setupFreePlayItem() {
@@ -69,7 +74,6 @@ public class TrainingSelectActivity extends FragmentActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     @Override

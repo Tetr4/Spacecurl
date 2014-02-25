@@ -87,6 +87,16 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         setupPauseView();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mDatabase.isOrientationLandscape()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
+
     /**
      * Initialises Settings
      * 
@@ -96,14 +106,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
      */
     private void setupSettings() {
         // Default setting values on first startup
-        // PreferenceManager.setDefaultValues(this, R.xml.prefersences, false);
+        // PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         // SharedPreferences sharedPref =
         // PreferenceManager.getDefaultSharedPreferences(this);
-        if (mDatabase.isOrientationLandscape()) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
     }
 
     private void setupPauseView() {
