@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
@@ -55,11 +56,15 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private List<Card> mCards = new ArrayList<Card>();
     private TrainingStatus mStatus;
     private GameStatus mCurGameStatus;
+    private int mStatusColor;
 
     private GameFragment mGameFragment;
 
     private FrameLayout mPauseFrame;
     private State mState = State.Running;
+
+    private float mFilteredStatus = 1.0f;
+    private float mFilterWeight = 0.3f;
 
     public static enum State {
         Paused, Pausing, Running
@@ -162,15 +167,21 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     }
 
     protected void onStatusChanged(float status) {
-        mCurGameStatus.addStatus(status);
-        int statusColor;
-        if (status <= 0.5f) {
-            statusColor = interpolateColor(Color.RED, Color.YELLOW, status * 2.0f);
+        // filter
+        mFilteredStatus += mFilterWeight * (status - mFilteredStatus);
+
+        // graph
+        mCurGameStatus.addStatus(mFilteredStatus);
+
+        // indicator
+        if (mFilteredStatus <= 0.5f) {
+            mStatusColor = interpolateColor(Color.RED, Color.YELLOW, mFilteredStatus *
+                    2.0f);
         } else {
-            statusColor = interpolateColor(Color.YELLOW, Color.GREEN, (status - 0.5f) * 2.0f);
+            mStatusColor = interpolateColor(Color.YELLOW, Color.GREEN, (mFilteredStatus -
+                    0.5f) * 2.0f);
         }
-        Log.d(TAG, Integer.toString(statusColor, 16));
-        mStatusIndicator.setBackgroundColor(statusColor);
+        mStatusIndicator.setBackgroundColor(mStatusColor);
     }
 
     private static int interpolateColor(int color1, int color2, float fraction) {
@@ -225,6 +236,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
         // previous GameFragment will be garbage collected
         mGameFragment = newGameFragment;
+        if (this instanceof GameCallBackListener) {
+            mGameFragment.registerGameCallBackListener((GameCallBackListener) this);
+        }
         mState = State.Running;
         resumeGame();
 
@@ -235,7 +249,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         onGameSwitched(mGameFragment);
     }
 
-    protected abstract void onGameSwitched(GameFragment gameFragment);
+    protected void onGameSwitched(GameFragment gameFragment) {
+        return;
+    };
 
     /**
      * Called by OS when an item in the ActionBar is selected

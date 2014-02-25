@@ -1,6 +1,8 @@
 
 package de.klimek.spacecurl.game;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -10,7 +12,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
 
@@ -45,6 +46,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private boolean mLandscape;
     private boolean mViewCreated = false;
     private State mState = State.Running;
+    private ArrayList<GameCallBackListener> mListeners = new ArrayList<GameCallBackListener>();
 
     public static enum FreeAxisCount {
         Zero, One, Two, Three
@@ -88,17 +90,19 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return getFreeAxisCount() != FreeAxisCount.Zero;
     }
 
-    protected void notifyFinished() {
-        FragmentActivity activity = getActivity();
-        if (activity instanceof GameCallBackListener) {
-            ((GameCallBackListener) activity).onGameFinished();
+    public void registerGameCallBackListener(GameCallBackListener listener) {
+        mListeners.add(listener);
+    }
+
+    public void notifyFinished() {
+        for (GameCallBackListener curListener : mListeners) {
+            curListener.onGameFinished();
         }
     }
 
-    protected void notifyStatusChanged(float status) {
-        FragmentActivity activity = getActivity();
-        if (activity instanceof GameCallBackListener) {
-            ((GameCallBackListener) activity).onStatusChanged(status);
+    public void notifyStatusChanged(float status) {
+        for (GameCallBackListener curListener : mListeners) {
+            curListener.onStatusChanged(status);
         }
     }
 
@@ -107,11 +111,11 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
      * 
      * @return azimuth, pitch and roll
      */
-    protected float[] getScaledOrientation() {
+    public float[] getScaledOrientation() {
         return mOrientationScaled;
     }
 
-    protected float[] getOrientation() {
+    public float[] getOrientation() {
         return mOrientation;
     }
 
@@ -120,12 +124,12 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return mRotationMatrix;
     }
 
-    protected float getRotationSpeed() {
+    public float getRotationSpeed() {
         return mRotationspeed;
 
     }
 
-    protected boolean hasOrientation() {
+    public boolean hasOrientation() {
         // TODO maybe set boolean in onAccuracyChanged?
         return !(getScaledOrientation()[1] == 0.0f);
     }

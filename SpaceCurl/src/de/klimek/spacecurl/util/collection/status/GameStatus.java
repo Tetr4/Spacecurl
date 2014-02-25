@@ -8,7 +8,7 @@ public class GameStatus {
     private String mTitle = "";
     private GraphViewSeries mGraphViewSeries;
     private int valueX = 0;
-    private static final int MAX_DATA_COUNT = 800;
+    private static final int MAX_DATA_COUNT = 200;
 
     public GameStatus(String title) {
         mTitle = title;
@@ -19,6 +19,7 @@ public class GameStatus {
     }
 
     public void addStatus(float status) {
+        // FIXME Triggers garbage collection too often -> stutter
         mGraphViewSeries.appendData(new GraphViewData(valueX++, status), true, MAX_DATA_COUNT);
     }
 

@@ -14,7 +14,6 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.collection.Database;
@@ -96,11 +95,6 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
         };
         mActionBar.setListNavigationCallbacks(spinnerAdapter,
                 onNavigationListener);
-    }
-
-    @Override
-    protected void onGameSwitched(GameFragment gameFragment) {
-        return; // TODO mark active status
     }
 
     /**
