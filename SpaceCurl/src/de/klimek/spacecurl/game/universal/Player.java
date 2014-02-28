@@ -35,13 +35,25 @@ public class Player extends Drawable {
                 < Math.pow(mTarget.mRadius, 2));
     }
 
-    float distanceTo(Target mTarget) {
-        if (intersects(mTarget)) {
+    public boolean intersects(Path path) {
+        return false; // FIXME
+    }
+
+    public float distanceTo(Target target) {
+        if (intersects(target)) {
             return 0.0f;
         } else {
-            return (float) (Math.pow((mPositionX - mTarget.mPositionX), 2)
-                    + Math.pow((mPositionY - mTarget.mPositionY), 2)
-                    - Math.pow(mTarget.mRadius, 2));
+            return (float) (Math.pow((mPositionX - target.mPositionX), 2)
+                    + Math.pow((mPositionY - target.mPositionY), 2)
+                    - Math.pow(target.mRadius, 2));
+        }
+    }
+
+    public float distanceTo(Path path) {
+        if (intersects(path)) {
+            return 0.0f;
+        } else {
+            return 2.0f; // FIXME
         }
     }
 

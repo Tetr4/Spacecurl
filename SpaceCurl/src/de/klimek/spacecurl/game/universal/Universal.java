@@ -16,10 +16,14 @@ import de.klimek.spacecurl.game.GameFragment;
 public class Universal extends GameFragment {
     private Effect[] mEffects;
     private FreeAxisCount mFreeAxisCount;
+    private Mode mMode;
+
+    public static enum Mode {
+        Targets, Paths
+    }
 
     private Random mRandom = new Random();
-
-    private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
+    private AsyncTask<Void, Void, Void> _logicThread;
 
     private UniversalSettings mSettings;
     private View mGameView;
@@ -27,35 +31,53 @@ public class Universal extends GameFragment {
     private Player mPlayer = new Player(0.1f);
     private CenteredCircles mCircles = new CenteredCircles(6);
     private ArrayList<Target> mTargets = new ArrayList<Target>();
+    private ArrayList<Path> mPaths = new ArrayList<Path>();
+
+    private int mCurPathIndex;
+    private Path mCurPath;
     // private ArrayList<Path> mPaths = new ArrayList<Path>();
-    private int mCurIndex;
+    private int mCurTargetIndex;
     private Target mCurTarget;
+
+    private float mInnerBorder;
+    private float mInnerBorderShrinkStep = 0.005f;
+    private float mOuterBorder;
+    private float mOuterBorderShrinkStep = 0.002f;
+    private float mOuterBorderWidth = 0.4f;
+    private boolean mBordersSet = false;
+    private boolean mFinished = false;
+    private float mStatus;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setupSettings();
         setupView();
-        resumeGame();
+        // resumeGame();
         return mGameView;
     }
 
     private void setupSettings() {
         mSettings = (UniversalSettings) getSettings();
         if (!mSettings.getTargets().isEmpty()) { // TARGET
+            mMode = Mode.Targets;
             mTargets = mSettings.getTargets();
-            mCurIndex = 0;
-            mCurTarget = mTargets.get(mCurIndex);
+            mCurTargetIndex = 0;
+            mCurTarget = mTargets.get(mCurTargetIndex);
         }
-        // else if (!mSettings.getPaths().isEmpty()) { // PATH
-        // mPaths = mSettings.getPaths();
-        // }
+        else if (!mSettings.getPaths().isEmpty()) { // PATH
+            mMode = Mode.Paths;
+            mPaths = mSettings.getPaths();
+            mCurPathIndex = 0;
+            mCurPath = mPaths.get(mCurPathIndex);
+        }
         // else if (false) { // AXIS
         // }
         else { // WARM UP
+            mMode = Mode.Targets;
             mTargets.add(new Target(mRandom.nextFloat(), mRandom.nextFloat(),
                     mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
-            mCurIndex = 0;
-            mCurTarget = mTargets.get(mCurIndex);
+            mCurTargetIndex = 0;
+            mCurTarget = mTargets.get(mCurTargetIndex);
         }
     }
 
@@ -70,6 +92,9 @@ public class Universal extends GameFragment {
                 if (mCurTarget != null) {
                     mCurTarget.draw(canvas);
                 }
+                if (mCurPath != null) {
+                    mCurPath.draw(canvas);
+                }
                 if (hasOrientation()) {
                     mPlayer.draw(canvas);
                 }
@@ -78,13 +103,15 @@ public class Universal extends GameFragment {
     }
 
     @Override
-    public void pauseGame() {
-        _logicThread.cancel(true);
+    public void doPauseGame() {
+        if (_logicThread != null) {
+            _logicThread.cancel(true);
+        }
     }
 
     @Override
-    public void resumeGame() {
-        if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
+    public void doResumeGame() {
+        if (_logicThread == null || !_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
             _logicThread = new LogicThread();
             _logicThread.execute();
         }
@@ -108,14 +135,6 @@ public class Universal extends GameFragment {
         private float _pitch;
         private float _roll;
         private float _distance;
-        private float _innerBorder;
-        private float _innerBorderShrinkStep = 0.005f;
-        private float _outerBorder;
-        private float _outerBorderShrinkStep = 0.002f;
-        private float _outerBorderWidth = 0.4f;
-        private boolean _bordersSet = false;
-        private boolean _finished = false;
-        private float _status;
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -147,53 +166,86 @@ public class Universal extends GameFragment {
         }
 
         private void checkFinished() {
-            if (mPlayer.intersects(mCurTarget)) {
-                mCurTarget.mRemainingHoldingTime -= _deltaTime;
-                if (mCurTarget.mRemainingHoldingTime < 0)
-                    _finished = true;
-            } else if (mCurTarget.mResetIfLeft) {
-                mCurTarget.mRemainingHoldingTime = mCurTarget.mHoldingTime;
+            switch (mMode) {
+                case Targets:
+                    if (mPlayer.intersects(mCurTarget)) {
+                        mCurTarget.mRemainingHoldingTime -= _deltaTime;
+                        if (mCurTarget.mRemainingHoldingTime < 0)
+                            mFinished = true;
+                    } else if (mCurTarget.mResetIfLeft) {
+                        mCurTarget.mRemainingHoldingTime = mCurTarget.mHoldingTime;
+                    }
+                    break;
+                case Paths:
+                    // FIXME
+                    break;
             }
+
         }
 
         private void updateStatus() {
-            _distance = mPlayer.distanceTo(mCurTarget);
-            if (!_bordersSet) {
-                _innerBorder = _distance * 1.05f;
-                _outerBorder = _innerBorder + _outerBorderWidth;
-                _bordersSet = true;
+            // Distance
+            switch (mMode) {
+                case Targets:
+                    _distance = mPlayer.distanceTo(mCurTarget);
+                    break;
+                case Paths:
+                    _distance = mPlayer.distanceTo(mCurPath);
+                    break;
+            }
+
+            // Borders
+            if (!mBordersSet) {
+                mInnerBorder = _distance * 1.05f;
+                mOuterBorder = mInnerBorder + mOuterBorderWidth;
+                mBordersSet = true;
             }
             else {
-                _innerBorder -= _innerBorderShrinkStep;
-                _outerBorder -= _outerBorderShrinkStep;
+                mInnerBorder -= mInnerBorderShrinkStep;
+                mOuterBorder -= mOuterBorderShrinkStep;
             }
-            _outerBorder = _innerBorder + _outerBorderWidth;
-            _status = 1 + -(_distance - _innerBorder) / (_outerBorder - _innerBorder);
+
+            // Status
+            mStatus = 1 + -(_distance - mInnerBorder) / (mOuterBorder - mInnerBorder);
             // Cutoff values between 0.0f and 1.0f
-            _status = Math.min(1.0f, Math.max(_status, 0.0f));
+            mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
 
         }
 
         @Override
         protected void onProgressUpdate(Void... values) {
-            if (_finished) {
-                if (mCurIndex >= (mTargets.size() - 1)) {
-                    notifyFinished();
-                    // mTargets.add(new Target(mRandom.nextFloat(),
-                    // mRandom.nextFloat(),
-                    // mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
-                    // ++mCurIndex;
-                    // mCurTarget = mTargets.get(mCurIndex);
-                    // _innerBorder = Float.MIN_VALUE;
-                    // _finished = false;
-                } else {
-                    ++mCurIndex;
-                    mCurTarget = mTargets.get(mCurIndex);
-                    _bordersSet = false;
-                    _finished = false;
+            if (mFinished) {
+                switch (mMode) {
+                    case Targets:
+                        if (mCurTargetIndex >= (mTargets.size() - 1)) {
+                            notifyFinished();
+                            // mTargets.add(new Target(mRandom.nextFloat(),
+                            // mRandom.nextFloat(),
+                            // mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
+                            // ++mCurIndex;
+                            // mCurTarget = mTargets.get(mCurIndex);
+                            // mInnerBorder = Float.MIN_VALUE;
+                            // mFinished = false;
+                        } else {
+                            ++mCurTargetIndex;
+                            mCurTarget = mTargets.get(mCurTargetIndex);
+                            mBordersSet = false;
+                            mFinished = false;
+                        }
+                        break;
+                    case Paths:
+                        if (mCurPathIndex >= (mPaths.size() - 1)) {
+                            notifyFinished();
+                        } else {
+                            ++mCurPathIndex;
+                            mCurPath = mPaths.get(mCurPathIndex);
+                            mBordersSet = false;
+                            mFinished = false;
+                        }
+                        break;
                 }
             }
-            notifyStatusChanged(_status);
+            notifyStatusChanged(mStatus);
             mGameView.invalidate();
         }
 

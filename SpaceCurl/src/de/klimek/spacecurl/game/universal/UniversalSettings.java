@@ -15,21 +15,25 @@ public class UniversalSettings extends GameSettings {
         return Universal.class;
     }
 
+    public void addTarget(float x, float y, float radius) {
+        mTargets.add(new Target(x, y, radius));
+    }
+
     public void addTarget(Target target) {
         mTargets.add(target);
     }
 
-    // public void addPath(Target[] targets) {
-    // mPaths.add(new Path(targets, 500));
-    // }
+    public void addPath(float x1, float y1, float x2, float y2, float width) {
+        mPaths.add(new Path(x1, y1, x2, y2, width, 200));
+    }
 
-    // public void addAxis() {
-    //
-    // }
+    public void addPath(Path path) {
+        mPaths.add(path);
+    }
 
-    // public ArrayList<Path> getPaths() {
-    // return mPaths;
-    // }
+    public ArrayList<Path> getPaths() {
+        return mPaths;
+    }
 
     public ArrayList<Target> getTargets() {
         return mTargets;

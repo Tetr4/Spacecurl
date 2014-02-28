@@ -12,15 +12,24 @@ import android.graphics.drawable.Drawable;
  * Path
  */
 public class Path extends Drawable {
+    private float mPositionX1;
+    private float mPositionY1;
+    private float mPositionX2;
+    private float mPositionY2;
+    private float mWidth;
+    private float mTrackLength;
+    private float mRemainingTrackLength;
     private Paint mPaint;
-    private int mTrackLength;
-    private int mRemainingTrackLength;
     private int mMinBorder;
-    private Target[] mTargets;
+
     private android.graphics.Path mPath = new android.graphics.Path();
 
-    public Path(Target[] targets, int trackLength) {
-        mTargets = targets;
+    public Path(float x1, float y1, float x2, float y2, float width, float trackLength) {
+        mPositionX1 = x1;
+        mPositionY1 = y1;
+        mPositionX2 = x2;
+        mPositionY2 = y2;
+        mWidth = width;
         mTrackLength = trackLength;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
@@ -34,12 +43,11 @@ public class Path extends Drawable {
     public void draw(Canvas canvas) {
         mMinBorder = canvas.getWidth() <= canvas.getHeight() ? canvas.getWidth() : canvas
                 .getHeight();
-        mPath.moveTo(mTargets[0].mPositionX * mMinBorder,
-                mTargets[0].mPositionY * mMinBorder);
-        for (int i = 1; i < mTargets.length; i++) {
-            mPath.lineTo(mTargets[0].mPositionX * mMinBorder,
-                    mTargets[0].mPositionY * mMinBorder);
-        }
+        mPaint.setStrokeWidth(mWidth * mMinBorder);
+        mPath.moveTo(mPositionX1 * mMinBorder,
+                mPositionY1 * mMinBorder);
+        mPath.lineTo(mPositionX2 * mMinBorder,
+                mPositionY2 * mMinBorder);
         canvas.drawPath(mPath, mPaint);
     }
 

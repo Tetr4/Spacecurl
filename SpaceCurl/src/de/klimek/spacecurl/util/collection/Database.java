@@ -10,10 +10,12 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.game.lights.LightsSettings;
 import de.klimek.spacecurl.game.maze.MazeSettings;
 import de.klimek.spacecurl.game.pong.PongSettings;
 import de.klimek.spacecurl.game.sensor.SensorSettings;
 import de.klimek.spacecurl.game.tunnel.TunnelSettings;
+import de.klimek.spacecurl.game.universal.Path;
 import de.klimek.spacecurl.game.universal.Target;
 import de.klimek.spacecurl.game.universal.UniversalSettings;
 import de.klimek.spacecurl.game.universal3D.Universal3DSettings;
@@ -73,7 +75,7 @@ public class Database {
         settingsMaze.setTitle(resources.getString(R.string.game_maze));
         mFreeplayGames.add(settingsMaze);
 
-        MazeSettings settingsLights = new MazeSettings();
+        LightsSettings settingsLights = new LightsSettings();
         settingsLights.setTitle(resources.getString(R.string.game_lights));
         mFreeplayGames.add(settingsLights);
 
@@ -108,6 +110,11 @@ public class Database {
         settingsUniversal.addTarget(new Target(0.25f, 0.75f));
         settingsUniversal.setTitle(resources.getString(R.string.game_universal));
         training0.add(settingsUniversal);
+
+        UniversalSettings settingsUniversal2 = new UniversalSettings();
+        settingsUniversal2.addPath(new Path(0.0f, 1.0f, 1.0f, 0.0f, 0.1f, 200));
+        settingsUniversal2.setTitle(resources.getString(R.string.game_universal));
+        training0.add(settingsUniversal2);
 
         PongSettings settingsPong = new PongSettings();
         settingsPong.setTitle(resources.getString(R.string.game_pong));
