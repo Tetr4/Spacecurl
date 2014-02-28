@@ -37,12 +37,12 @@ public class Maze extends GameFragment {
     }
 
     @Override
-    public void pauseGame() {
+    public void doPauseGame() {
         mGame.pause();
     }
 
     @Override
-    public void resumeGame() {
+    public void doResumeGame() {
         mGame.resume();
     }
 

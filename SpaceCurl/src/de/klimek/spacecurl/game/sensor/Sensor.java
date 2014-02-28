@@ -30,12 +30,12 @@ public class Sensor extends GameFragment {
     }
 
     @Override
-    public void pauseGame() {
+    public void doPauseGame() {
         _logicThread.cancel(true);
     }
 
     @Override
-    public void resumeGame() {
+    public void doResumeGame() {
         if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
             _logicThread = new LogicThread();
             _logicThread.execute();

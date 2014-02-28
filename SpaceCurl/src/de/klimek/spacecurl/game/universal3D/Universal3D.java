@@ -28,12 +28,12 @@ public class Universal3D extends GameFragment {
     }
 
     @Override
-    public void pauseGame() {
+    public void doPauseGame() {
         mGame.onPause();
     }
 
     @Override
-    public void resumeGame() {
+    public void doResumeGame() {
         mGame.onResume();
     }
 

@@ -13,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
-import de.klimek.spacecurl.MainActivityPrototype.State;
 import de.klimek.spacecurl.util.collection.Database;
 
 /**
@@ -46,7 +45,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     private boolean mLandscape;
     private boolean mViewCreated = false;
-    private State mState = State.Running;
+    private boolean mPaused = true;
     private ArrayList<GameCallBackListener> mListeners = new ArrayList<GameCallBackListener>();
 
     public static enum FreeAxisCount {
@@ -62,26 +61,23 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     }
 
-    public void setState(State running) {
-        mState = running;
+    public final void onPauseGame() {
+        mPaused = true;
         if (mViewCreated) {
-            switch (running) {
-                case Paused:
-                    pauseGame();
-                    break;
-                case Running:
-                    resumeGame();
-                    break;
-
-                default:
-                    break;
-            }
+            doPauseGame();
         }
     }
 
-    protected abstract void pauseGame();
+    public final void onResumeGame() {
+        mPaused = false;
+        if (mViewCreated) {
+            doResumeGame();
+        }
+    }
 
-    protected abstract void resumeGame();
+    protected abstract void doPauseGame();
+
+    protected abstract void doResumeGame();
 
     public abstract FreeAxisCount getFreeAxisCount();
 
@@ -159,18 +155,10 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         mViewCreated = true;
-        switch (mState) {
-            case Paused:
-                pauseGame();
-                break;
-            case Pausing:
-                pauseGame();
-                break;
-            case Running:
-                resumeGame();
-                break;
-            default:
-                break;
+        if (mPaused) {
+            doPauseGame();
+        } else {
+            doResumeGame();
         }
     }
 

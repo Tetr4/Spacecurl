@@ -8,6 +8,8 @@ import it.gmariotti.cardslib.library.view.CardListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -59,9 +62,11 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private int mStatusColor;
 
     private GameFragment mGameFragment;
+    private FrameLayout mGameFrame;
 
-    private FrameLayout mPauseFrame;
-    private State mState = State.Running;
+    private LinearLayout mPauseFrame;
+    private int mShortAnimationDuration;
+    private State mState = State.Paused;
 
     private float mFilteredStatus = 1.0f;
     private float mFilterWeight = 0.3f;
@@ -112,14 +117,18 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     }
 
     private void setupPauseView() {
-        mPauseFrame = (FrameLayout) findViewById(R.id.pause_layout);
-        FrameLayout gameFrame = (FrameLayout) findViewById(R.id.game_frame);
-        gameFrame.setOnClickListener(this);
+        mPauseFrame = (LinearLayout) findViewById(R.id.pause_layout);
+        mPauseFrame.setAlpha(0.0f);
+        mPauseFrame.setVisibility(View.GONE);
+        mShortAnimationDuration = getResources().getInteger(
+                android.R.integer.config_shortAnimTime);
+        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
+        mGameFrame.setOnClickListener(this);
     }
 
     protected void expandSlidingPane() {
         if (mSlidingUpPanel != null) {
-            pauseGame();
+            pause();
             mSlidingUpPanel.expandPane();
         }
     }
@@ -132,7 +141,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         return;
     }
 
-    protected void useStatusForTraining(int key) {
+    protected final void useStatusForTraining(int key) {
         mTraining = mDatabase.getTrainings().get(key);
         mStatus = new TrainingStatus(key);
         mDatabase.getStatuses().add(mStatus);
@@ -154,7 +163,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mCardListView.setAdapter(mCardArrayAdapter);
     }
 
-    protected void switchStatus(int index) {
+    protected final void switchStatus(int index) {
         if (index >= mStatus.size()) {
             mCurGameStatus = new GameStatus(mTraining.get(index).getTitle());
             mStatus.add(mCurGameStatus);
@@ -171,7 +180,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         }
     }
 
-    protected void onStatusChanged(float status) {
+    protected final void doStatusChanged(float status) {
         // filter
         mFilteredStatus += mFilterWeight * (status - mFilteredStatus);
 
@@ -218,10 +227,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
      * 
      * @param position position of the item in the spinner
      */
-    protected void switchToGame(GameSettings settings) {
-        if (mGameFragment != null) {
-            mGameFragment.setState(State.Paused);
-        }
+    protected final void switchToGame(GameSettings settings) {
+        mState = State.Paused;
+        pause();
         // GameFragment:
         GameFragment newGameFragment;
         try {
@@ -237,15 +245,19 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.game_frame, newGameFragment).commit();
+                .replace(R.id.game_frame, newGameFragment)
+                // .setCustomAnimations(android.R.anim.slide_in_left,
+                // android.R.anim.slide_out_right)
+                .commit();
 
         // previous GameFragment will be garbage collected
         mGameFragment = newGameFragment;
         if (this instanceof GameCallBackListener) {
             mGameFragment.registerGameCallBackListener((GameCallBackListener) this);
         }
-        mState = State.Running;
-        resumeGame();
+
+        // mState = State.Paused;
+        // pauseGame();
 
         // Actionbar title and icons
         // mTitle = mGameSettingsPair.getSettings().getString(
@@ -289,7 +301,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         super.onPause();
         if (mState == State.Running) {
             mState = State.Paused;
-            pauseGame();
+            pause();
         }
     }
 
@@ -297,7 +309,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     public void onUserInteraction() {
         if (mState == State.Running) {
             mState = State.Pausing;
-            pauseGame();
+            pause();
         } else if (mState == State.Pausing) {
             mState = State.Paused;
         }
@@ -310,7 +322,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     @Override
     public void onClick(View v) {
         if (mState == State.Paused) {
-            resumeGame();
+            resume();
             mState = State.Running;
         } else if (mState == State.Pausing) {
             // we have just paused in onUserInteraction, don't resume
@@ -318,23 +330,42 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         }
     }
 
-    private void pauseGame() {
+    private final void pause() {
+        // pause game
         Log.v(TAG, "Paused");
         if (mGameFragment != null) {
-            mGameFragment.setState(State.Paused);
+            mGameFragment.onPauseGame();
         }
+
         // Show pause symbol and grey out screen
         mPauseFrame.setVisibility(View.VISIBLE);
-        mPauseFrame.bringToFront();
+        // mPauseFrame.bringToFront();
+        mPauseFrame.animate()
+                .alpha(1f)
+                .setDuration(mShortAnimationDuration)
+                .setListener(null);
+
         // Show navigation bar
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
-    private void resumeGame() {
+    private final void resume() {
         Log.v(TAG, "Resumed");
-        mPauseFrame.setVisibility(View.INVISIBLE);
+
+        // hide pause view
+        mPauseFrame.animate()
+                .alpha(0f)
+                .setDuration(mShortAnimationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mPauseFrame.setVisibility(View.GONE);
+                    }
+                });
+
+        // resume game
         if (mGameFragment != null) {
-            mGameFragment.setState(State.Running);
+            mGameFragment.onResumeGame();
         }
         // Grey out navigation bar
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
