@@ -4,13 +4,17 @@ package de.klimek.spacecurl.game.universal;
 import java.util.ArrayList;
 import java.util.Random;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
 public class Universal extends GameFragment {
@@ -38,6 +42,8 @@ public class Universal extends GameFragment {
     // private ArrayList<Path> mPaths = new ArrayList<Path>();
     private int mCurTargetIndex;
     private Target mCurTarget;
+    private Target mNextTarget;
+    private Bitmap mTargetBitmap;
 
     private float mInnerBorder;
     private float mInnerBorderShrinkStep = 0.005f;
@@ -47,6 +53,7 @@ public class Universal extends GameFragment {
     private boolean mBordersSet = false;
     private boolean mFinished = false;
     private float mStatus;
+    private Drawable mTargetDrawable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,11 +65,19 @@ public class Universal extends GameFragment {
 
     private void setupSettings() {
         mSettings = (UniversalSettings) getSettings();
+        mTargetDrawable = getResources().getDrawable(R.drawable.target);
         if (!mSettings.getTargets().isEmpty()) { // TARGET
             mMode = Mode.Targets;
-            mTargets = mSettings.getTargets();
+
+            mTargets.addAll(mSettings.getTargets());
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
+            if (mCurTargetIndex + 1 <= mTargets.size()) {
+                mNextTarget = mTargets.get(mCurTargetIndex + 1);
+            }
+
+            mCurTarget.setDrawable(mTargetDrawable);
+            Log.d(TAG, Boolean.toString(mTargetBitmap == null));
         }
         else if (!mSettings.getPaths().isEmpty()) { // PATH
             mMode = Mode.Paths;
@@ -74,10 +89,14 @@ public class Universal extends GameFragment {
         // }
         else { // WARM UP
             mMode = Mode.Targets;
+
             mTargets.add(new Target(mRandom.nextFloat(), mRandom.nextFloat(),
                     mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
+
+            mTargetDrawable = (ShapeDrawable) getResources().getDrawable(R.drawable.target);
+            // mCurTarget.setDrawable(mTargetDrawable);
         }
     }
 
@@ -91,6 +110,9 @@ public class Universal extends GameFragment {
                 mCircles.draw(canvas);
                 if (mCurTarget != null) {
                     mCurTarget.draw(canvas);
+                    if (mNextTarget != null) {
+                        mNextTarget.draw(canvas, true);
+                    }
                 }
                 if (mCurPath != null) {
                     mCurPath.draw(canvas);
@@ -229,6 +251,13 @@ public class Universal extends GameFragment {
                         } else {
                             ++mCurTargetIndex;
                             mCurTarget = mTargets.get(mCurTargetIndex);
+                            mCurTarget.setDrawable(mTargetDrawable);
+                            ;
+                            if (mCurTargetIndex + 1 < mTargets.size()) {
+                                mNextTarget = mTargets.get(mCurTargetIndex + 1);
+                            } else {
+                                mNextTarget = null;
+                            }
                             mBordersSet = false;
                             mFinished = false;
                         }

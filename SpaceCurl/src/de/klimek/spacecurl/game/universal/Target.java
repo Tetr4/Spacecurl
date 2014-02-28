@@ -21,6 +21,7 @@ public class Target extends Drawable {
     long mRemainingHoldingTime;
     boolean mResetIfLeft;
     private RectF mRect = new RectF();
+    private Drawable mDrawable;
     private int mMinBorder;
     private int mOnScreenPositionX;
     private int mOnScreenPositionY;
@@ -32,6 +33,14 @@ public class Target extends Drawable {
 
     public Target(float positionX, float positionY, float radius) {
         this(positionX, positionY, radius, 0, false);
+    }
+
+    public Target(float positionX, float positionY, long holdingTime) {
+        this(positionX, positionY, 0.07f, holdingTime, true);
+    }
+
+    public Target(float positionX, float positionY, long holdingTime, boolean resetIfLeft) {
+        this(positionX, positionY, 0.07f, holdingTime, resetIfLeft);
     }
 
     public Target(float positionX, float positionY, float radius, long holdingTime,
@@ -47,8 +56,16 @@ public class Target extends Drawable {
         mPaint.setColor(Color.RED);
     }
 
+    public void setDrawable(Drawable drawable) {
+        mDrawable = drawable;
+    }
+
     @Override
     public void draw(Canvas canvas) {
+        draw(canvas, false);
+    }
+
+    public void draw(Canvas canvas, Boolean translucent) {
         mMinBorder = canvas.getWidth() <= canvas.getHeight() ? canvas.getWidth() : canvas
                 .getHeight();
         mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
@@ -58,13 +75,28 @@ public class Target extends Drawable {
                 mOnScreenPositionY - mOnScreenRadius,
                 mOnScreenPositionX + mOnScreenRadius,
                 mOnScreenPositionY + mOnScreenRadius);
-        canvas.drawOval(mRect, mPaint);
+        if (translucent) {
+            mPaint.setAlpha(96);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth((float) (mRadius * 0.1 * mMinBorder));
+            canvas.drawArc(mRect, 0, 360, false, mPaint);
+        } else {
+            mPaint.setAlpha(255);
+            mPaint.setStyle(Paint.Style.FILL);
+            if (mDrawable != null) {
+                mDrawable.setBounds((int) mRect.left, (int) mRect.top, (int) mRect.right,
+                        (int) mRect.bottom);
+                mDrawable.draw(canvas);
+            } else {
+                canvas.drawOval(mRect, mPaint);
+            }
+        }
     }
 
     @Override
     public int getOpacity() {
         // TODO Auto-generated method stub
-        return PixelFormat.OPAQUE;
+        return PixelFormat.TRANSPARENT;
     }
 
     @Override
