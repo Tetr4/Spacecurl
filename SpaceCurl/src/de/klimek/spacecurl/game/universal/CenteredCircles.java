@@ -29,7 +29,7 @@ public class CenteredCircles extends Drawable {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(4);
-        mPaint.setColor(Color.MAGENTA);
+        mPaint.setColor(Color.DKGRAY);
     }
 
     @Override
@@ -38,16 +38,22 @@ public class CenteredCircles extends Drawable {
                 .getHeight();
         mOnScreenPositionX = canvas.getWidth() / 2;
         mOnScreenPositionY = canvas.getHeight() / 2;
-        mRadiusIncrement = mMinBorder / (mCircleCount * 2);
-        for (int i = 1; i < mCircleCount; i++) {
-            mCurRadius = mRadiusIncrement * i;
-            mRect.set(mOnScreenPositionX - mCurRadius,
-                    mOnScreenPositionY - mCurRadius,
-                    mOnScreenPositionX + mCurRadius,
-                    mOnScreenPositionY + mCurRadius);
-            canvas.drawArc(mRect, 0, 360, false, mPaint);
-            mCurRadius += mRadiusIncrement;
-        }
+        canvas.drawLine(mOnScreenPositionX, mOnScreenPositionY + mMinBorder * 0.45f,
+                mOnScreenPositionX,
+                mOnScreenPositionY - mMinBorder * 0.45f, mPaint);
+        canvas.drawLine(mOnScreenPositionX + mMinBorder * 0.45f, mOnScreenPositionY,
+                mOnScreenPositionX - mMinBorder * 0.45f,
+                mOnScreenPositionY, mPaint);
+        // mRadiusIncrement = mMinBorder / (mCircleCount * 2);
+        // for (int i = 1; i < mCircleCount; i++) {
+        // mCurRadius = mRadiusIncrement * i;
+        // mRect.set(mOnScreenPositionX - mCurRadius,
+        // mOnScreenPositionY - mCurRadius,
+        // mOnScreenPositionX + mCurRadius,
+        // mOnScreenPositionY + mCurRadius);
+        // canvas.drawArc(mRect, 0, 360, false, mPaint);
+        // mCurRadius += mRadiusIncrement;
+        // }
 
     }
 
