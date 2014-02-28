@@ -32,7 +32,7 @@
     <!-- Edit Button -->
     <ImageButton
         android:id="@+id/training_edit_button"
-        style="?android:attr/buttonBarButtonStyle"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:contentDescription="@string/training_play_button"
