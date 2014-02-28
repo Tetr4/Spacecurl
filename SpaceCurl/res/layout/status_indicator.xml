@@ -2,4 +2,14 @@
     android:id="@+id/status_indicator"
     android:layout_width="match_parent"
     android:layout_height="@dimen/status_indicator_height"
-    android:background="@color/rating_color" />
+    android:background="@color/rating_color" >
+
+    <ImageButton
+        android:id="@+id/imageButton1"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_expand"
+        android:background="@drawable/add_button" />
+
+</FrameLayout>

@@ -36,5 +36,6 @@
     <string name="game_lights_message_stop">STOP!</string>
     
     <string name="pause_instructions">Instructions</string>
+    <string name="pause_score">Score</string>
 
 </resources>

@@ -3,39 +3,74 @@
     android:id="@+id/pause_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blackish_transparent"
-    android:visibility="visible"
     android:alpha="0"
-    android:orientation="vertical">
-    
-    <LinearLayout 
-        android:id="@+id/instruction_layout"
-        android:orientation="vertical"
-        android:layout_marginTop="30dp"
+    android:background="@color/blackish_transparent"
+    android:orientation="vertical"
+    android:visibility="visible" >
+
+    <!-- Score -->
+    <LinearLayout
+        android:id="@+id/score_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/instruction_background"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/pause_score"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="123"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    
+    <!-- Instructions -->
+    <LinearLayout
+        android:id="@+id/instruction_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="15dp"
         android:layout_weight="1"
-        android:background="@drawable/instruction_background">
+        android:background="@drawable/instruction_background"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/pause_instructions"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/pause_instructions"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            android:text="blablabla\nblablablubb\nbla\nblubb"
+            android:textSize="20sp" />
     </LinearLayout>
-    
-    
 
+    <!-- Resume Button -->
     <ImageView
         android:layout_width="96dip"
         android:layout_height="96dip"
         android:layout_gravity="center"
-        android:scaleType="fitCenter"
         android:contentDescription="Click to Resume"
+        android:scaleType="fitCenter"
         android:src="@drawable/ic_play" />
 
 </LinearLayout>
