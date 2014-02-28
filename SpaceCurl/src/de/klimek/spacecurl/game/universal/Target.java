@@ -39,6 +39,10 @@ public class Target extends Drawable {
         this(positionX, positionY, 0.07f, holdingTime, true);
     }
 
+    public Target(float positionX, float positionY, float radius, long holdingTime) {
+        this(positionX, positionY, radius, holdingTime, true);
+    }
+
     public Target(float positionX, float positionY, long holdingTime, boolean resetIfLeft) {
         this(positionX, positionY, 0.07f, holdingTime, resetIfLeft);
     }

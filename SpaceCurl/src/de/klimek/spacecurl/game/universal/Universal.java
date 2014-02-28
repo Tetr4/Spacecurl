@@ -72,7 +72,7 @@ public class Universal extends GameFragment {
             mTargets.addAll(mSettings.getTargets());
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
-            if (mCurTargetIndex + 1 <= mTargets.size()) {
+            if (mCurTargetIndex + 1 < mTargets.size()) {
                 mNextTarget = mTargets.get(mCurTargetIndex + 1);
             }
 
