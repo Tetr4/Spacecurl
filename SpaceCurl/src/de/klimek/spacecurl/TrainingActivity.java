@@ -89,7 +89,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     public void onStatusChanged(float status) {
-        super.onStatusChanged(status);
+        super.doStatusChanged(status);
     }
 
     @Override
