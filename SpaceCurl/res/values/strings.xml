@@ -34,5 +34,7 @@
     
     <string name="game_lights_message_go">GO!</string>
     <string name="game_lights_message_stop">STOP!</string>
+    
+    <string name="pause_instructions">Instructions</string>
 
 </resources>

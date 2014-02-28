@@ -6,9 +6,10 @@
     android:background="@color/blackish_transparent"
     android:visibility="visible"
     android:alpha="0"
-    android:orientation="vertical" >
+    android:orientation="vertical">
     
     <LinearLayout 
+        android:id="@+id/instruction_layout"
         android:orientation="vertical"
         android:layout_marginTop="30dp"
         android:layout_marginLeft="30dp"
@@ -16,16 +17,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/blackish">
+        android:background="@drawable/instruction_background">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Instructions"
+            android:text="@string/pause_instructions"
             android:textSize="30sp"
             android:textStyle="bold" />
-
     </LinearLayout>
     
     
