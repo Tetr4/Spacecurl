@@ -71,7 +71,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
             --mTrainingIndex;
             mGameSettings = mTraining.get(mTrainingIndex);
             switchStatus(mTrainingIndex);
-            switchToGame(mGameSettings);
+            switchToGame(mGameSettings, android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
         }
     }
 
@@ -81,7 +82,8 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
             ++mTrainingIndex;
             mGameSettings = mTraining.get(mTrainingIndex);
             switchStatus(mTrainingIndex);
-            switchToGame(mGameSettings);
+            switchToGame(mGameSettings, R.anim.slide_in_right,
+                    R.anim.slide_out_left);
         } else {
             expandSlidingPane();
         }

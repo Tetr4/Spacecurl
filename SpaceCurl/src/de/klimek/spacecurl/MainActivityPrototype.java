@@ -227,7 +227,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
      * 
      * @param position position of the item in the spinner
      */
-    protected final void switchToGame(GameSettings settings) {
+    protected final void switchToGame(GameSettings settings, int enterAnimation, int exitAnimation) {
         mState = State.Paused;
         pause();
         // GameFragment:
@@ -245,9 +245,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(enterAnimation, exitAnimation)
                 .replace(R.id.game_frame, newGameFragment)
-                // .setCustomAnimations(android.R.anim.slide_in_left,
-                // android.R.anim.slide_out_right)
+
                 .commit();
 
         // previous GameFragment will be garbage collected
@@ -264,6 +264,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // GameFragment.ARG_TITLE);
 
         onGameSwitched(mGameFragment);
+    }
+
+    protected final void switchToGame(GameSettings settings) {
+        switchToGame(settings, android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     protected void onGameSwitched(GameFragment gameFragment) {
