@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import de.klimek.spacecurl.util.ColorGradient;
 
 /**
  * Target
@@ -16,12 +17,24 @@ public class Target extends Drawable {
     float mPositionX;
     float mPositionY;
     float mRadius;
-    private Paint mPaint;
+    private Paint mTargetPaint;
+    private RectF mTargetRect = new RectF();
+    private Paint mTranslucentPaint;
+    private RectF mTranslucentTargetRect = new RectF();
+    private static final float TRANSLUCENT_RADIUS = 0.03f;
+    private Drawable mDrawable;
+
     long mHoldingTime;
     long mRemainingHoldingTime;
     boolean mResetIfLeft;
-    private RectF mRect = new RectF();
-    private Drawable mDrawable;
+    private RectF mCompletionRect = new RectF();
+    private static final float COMPLETION_RADIUS_RATIO = 1.1f;
+    private float mCompletionFraction;
+    private ColorGradient mCompletionGradient = new ColorGradient(Color.RED, Color.YELLOW,
+            Color.GREEN);
+    private int mCompletionColor;
+    private Paint mCompletionPaint;
+
     private int mMinBorder;
     private int mOnScreenPositionX;
     private int mOnScreenPositionY;
@@ -55,9 +68,16 @@ public class Target extends Drawable {
         mHoldingTime = holdingTime;
         mRemainingHoldingTime = mHoldingTime;
         mResetIfLeft = resetIfLeft;
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(Color.RED);
+        mTargetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTargetPaint.setStyle(Paint.Style.FILL);
+        mTargetPaint.setColor(Color.RED);
+        mCompletionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mCompletionPaint.setStyle(Paint.Style.STROKE);
+        mCompletionPaint.setStrokeWidth(12);
+        mTranslucentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTranslucentPaint.setColor(Color.GRAY);
+        mTranslucentPaint.setStyle(Paint.Style.FILL);
+        mTranslucentPaint.setAlpha(200);
     }
 
     public void setDrawable(Drawable drawable) {
@@ -75,25 +95,55 @@ public class Target extends Drawable {
         mOnScreenPositionX = (int) (mPositionX * mMinBorder - (mMinBorder - canvas.getWidth()) / 2);
         mOnScreenPositionY = (int) (mPositionY * mMinBorder - (mMinBorder - canvas.getHeight()) / 2);
         mOnScreenRadius = (int) (mRadius * mMinBorder);
-        mRect.set(mOnScreenPositionX - mOnScreenRadius,
-                mOnScreenPositionY - mOnScreenRadius,
-                mOnScreenPositionX + mOnScreenRadius,
-                mOnScreenPositionY + mOnScreenRadius);
-        if (translucent) {
-            mPaint.setAlpha(96);
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeWidth((float) (mRadius * 0.1 * mMinBorder));
-            canvas.drawArc(mRect, 0, 360, false, mPaint);
-        } else {
-            mPaint.setAlpha(255);
-            mPaint.setStyle(Paint.Style.FILL);
+
+        if (translucent) { // next Target
+            mTranslucentTargetRect.set(mOnScreenPositionX - TRANSLUCENT_RADIUS * mMinBorder,
+                    mOnScreenPositionY - TRANSLUCENT_RADIUS * mMinBorder,
+                    mOnScreenPositionX + TRANSLUCENT_RADIUS * mMinBorder,
+                    mOnScreenPositionY + TRANSLUCENT_RADIUS * mMinBorder);
+            canvas.drawArc(mTranslucentTargetRect, 0, 360, false, mTranslucentPaint);
+        } else { // current Target
+            // Progress circle for holding time
+            if (mHoldingTime > 0) {
+                mCompletionRect.set(mOnScreenPositionX - mOnScreenRadius * COMPLETION_RADIUS_RATIO,
+                        mOnScreenPositionY - mOnScreenRadius * COMPLETION_RADIUS_RATIO,
+                        mOnScreenPositionX + mOnScreenRadius * COMPLETION_RADIUS_RATIO,
+                        mOnScreenPositionY + mOnScreenRadius * COMPLETION_RADIUS_RATIO);
+                // Grey ring
+                if (mRemainingHoldingTime != mHoldingTime) {
+                    mCompletionPaint.setColor(Color.GRAY);
+                    mCompletionPaint.setAlpha(200);
+                    canvas.drawArc(mCompletionRect, 0,
+                            360, false,
+                            mCompletionPaint);
+                }
+                // Gradient
+                mCompletionFraction = ((float) (mHoldingTime - mRemainingHoldingTime) / mHoldingTime);
+                mCompletionColor = mCompletionGradient.getColorForFraction(mCompletionFraction);
+                mCompletionPaint.setAlpha(255);
+                mCompletionPaint.setColor(mCompletionColor);
+                canvas.drawArc(mCompletionRect, 0,
+                        mCompletionFraction * 360, false,
+                        mCompletionPaint);
+            }
+
+            mTargetRect.set(mOnScreenPositionX - mOnScreenRadius,
+                    mOnScreenPositionY - mOnScreenRadius,
+                    mOnScreenPositionX + mOnScreenRadius,
+                    mOnScreenPositionY + mOnScreenRadius);
+
+            // drawable or just a circle
             if (mDrawable != null) {
-                mDrawable.setBounds((int) mRect.left, (int) mRect.top, (int) mRect.right,
-                        (int) mRect.bottom);
+                mDrawable.setBounds((int) mTargetRect.left, (int) mTargetRect.top,
+                        (int) mTargetRect.right,
+                        (int) mTargetRect.bottom);
                 mDrawable.draw(canvas);
             } else {
-                canvas.drawOval(mRect, mPaint);
+                mTargetPaint.setAlpha(255);
+                mTargetPaint.setStyle(Paint.Style.FILL);
+                canvas.drawOval(mTargetRect, mTargetPaint);
             }
+
         }
     }
 
@@ -114,4 +164,5 @@ public class Target extends Drawable {
         // TODO Auto-generated method stub
 
     }
+
 }
