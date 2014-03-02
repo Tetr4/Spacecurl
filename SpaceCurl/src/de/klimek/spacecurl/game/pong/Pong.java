@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.util.collection.Database;
 
 public class Pong extends GameFragment {
     private FrameLayout mPongLayout;
@@ -99,10 +98,6 @@ public class Pong extends GameFragment {
 
         private float mPitch;
         private float mRoll;
-        private float mInclinationRangeFactor = 2.0f;
-        // TODO Calibrate
-        // Phone is not attached straight for better visibilty of the screen
-        private float mPhoneInclination;
 
         private int mBallContacts;
         private boolean mHaveSize = false;;
@@ -115,7 +110,6 @@ public class Pong extends GameFragment {
             mPaddleTop = new Paddle(PaddleSide.Top);
             mPaddleRight = new Paddle(PaddleSide.Right);
             mPaddleBottom = new Paddle(PaddleSide.Bottom);
-            mPhoneInclination = Database.getInstance().getPhoneInclination();
         }
 
         // @Override
