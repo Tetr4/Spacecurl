@@ -165,6 +165,9 @@ public class TrainingBuilderActivity extends FragmentActivity {
         }
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.game_list);
+        View footerItem = getLayoutInflater()
+                .inflate(R.layout.list_item_training_footer, mCardListView, false);
+        mCardListView.addFooterView(footerItem);
         mCardListView.setAdapter(mCardArrayAdapter);
     }
 
