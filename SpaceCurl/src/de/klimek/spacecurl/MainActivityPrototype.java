@@ -28,6 +28,7 @@ import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
+import de.klimek.spacecurl.util.ColorGradient;
 import de.klimek.spacecurl.util.StatusCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.status.GameStatus;
@@ -70,6 +71,8 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
     private float mFilteredStatus = 1.0f;
     private float mFilterWeight = 0.3f;
+
+    private ColorGradient mGradient = new ColorGradient(Color.RED, Color.YELLOW, Color.GREEN);
 
     public static enum State {
         Paused, Pausing, Running
@@ -188,36 +191,8 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mCurGameStatus.addStatus(mFilteredStatus);
 
         // indicator
-        if (mFilteredStatus <= 0.5f) {
-            mStatusColor = interpolateColor(Color.RED, Color.YELLOW, mFilteredStatus *
-                    2.0f);
-        } else {
-            mStatusColor = interpolateColor(Color.YELLOW, Color.GREEN, (mFilteredStatus -
-                    0.5f) * 2.0f);
-        }
+        mStatusColor = mGradient.getColorForFraction(mFilteredStatus);
         mStatusIndicator.setBackgroundColor(mStatusColor);
-    }
-
-    private static int interpolateColor(int color1, int color2, float fraction) {
-        fraction = Math.min(fraction, 1.0f);
-        fraction = Math.max(fraction, 0.0f);
-
-        int deltaAlpha = Color.alpha(color2) - Color.alpha(color1);
-        int deltaRed = Color.red(color2) - Color.red(color1);
-        int deltaGreen = Color.green(color2) - Color.green(color1);
-        int deltaBlue = Color.blue(color2) - Color.blue(color1);
-
-        int resultAlpha = (int) (Color.alpha(color1) + (deltaAlpha * fraction));
-        int resultRed = (int) (Color.red(color1) + (deltaRed * fraction));
-        int resultGreen = (int) (Color.green(color1) + (deltaGreen * fraction));
-        int resultBlue = (int) (Color.blue(color1) + (deltaBlue * fraction));
-
-        resultAlpha = Math.max(Math.min(resultAlpha, 255), 0);
-        resultRed = Math.max(Math.min(resultRed, 255), 0);
-        resultGreen = Math.max(Math.min(resultGreen, 255), 0);
-        resultBlue = Math.max(Math.min(resultBlue, 255), 0);
-
-        return Color.argb(resultAlpha, resultRed, resultGreen, resultBlue);
     }
 
     /**
@@ -231,23 +206,12 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mState = State.Paused;
         pause();
         // GameFragment:
-        GameFragment newGameFragment;
-        try {
-            // instantiate Fragment from Class
-            newGameFragment = (GameFragment) settings.getGameClass().newInstance();
-            newGameFragment.setSettings(settings);
-        }
-        // no multicatch in dalvik (~ java 1.6)
-        catch (Exception e) {
-            // App not operable
-            throw new RuntimeException(e.getMessage());
-        }
+        GameFragment newGameFragment = settings.getFragment();
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(enterAnimation, exitAnimation)
                 .replace(R.id.game_frame, newGameFragment)
-
                 .commit();
 
         // previous GameFragment will be garbage collected
