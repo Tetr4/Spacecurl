@@ -37,5 +37,7 @@
     
     <string name="pause_instructions">Instructions</string>
     <string name="pause_score">Score</string>
+    
+    <string name="click_back_again">Please click BACK again to exit</string>
 
 </resources>

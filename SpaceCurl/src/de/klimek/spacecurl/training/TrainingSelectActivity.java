@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import de.klimek.spacecurl.FreePlayActivity;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
@@ -28,6 +30,7 @@ import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
+    private boolean mDoubleBackToExitPressedOnce;
     private Database mDatabase;
     private ListView mListView;
     private TrainingArrayAdapter mArrayAdapter;
@@ -82,6 +85,26 @@ public class TrainingSelectActivity extends FragmentActivity {
         if (mArrayAdapter != null) {
             mArrayAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDoubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+        mDoubleBackToExitPressedOnce = true;
+        Toast.makeText(this, getResources().getString(R.string.click_back_again),
+                Toast.LENGTH_SHORT)
+                .show();
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                mDoubleBackToExitPressedOnce = false;
+
+            }
+        }, 2000);
     }
 
     private void setupAddButton() {
