@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SpaceCurl</string>
+    <string name="title_activity_training">Training</string>
+    <string name="title_activity_training_builder">Training erstellen</string>
+    <string name="title_activity_training_select">Training wählen</string>    
+    
+    <string name="action_previous_game">Vorheriges</string>
+    <string name="action_next_game">Nächstes</string>
+    <string name="action_freeplay">Freies Trainieren</string>
+    
+    <string name="action_play">Beginnen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_rename">Umbenennen</string>
+    
+    <string name="action_new_training">Neues Training</string>
+    <string name="action_show_status">Status anzeigen</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_help">Hilfe</string>
+    <string name="action_about">Über</string>
+    <string name="game_pong">Pong</string>
+    <string name="game_lights">Stop n Go</string>
+    <string name="game_maze">Labyrinth</string>
+    <string name="game_universal">Universal</string>
+    <string  name="game_universal3d">Universal 3D</string>
+    
+
+    <string name="training_name_hint">Name des Trainings</string>
+    <string name="training_addbutton">Übung hinzufügen</string>
+    <string name="training_play_button">Training beginnen</string>
+    
+    <string name="game_lights_message_go">LOS!</string>
+    <string name="game_lights_message_stop">STOP!</string>
+    
+    <string name="pause_instructions">Anleitung</string>
+    <string name="pause_score">Punkte</string>
+    
+    <string name="click_back_again">Nochmaliges Tippen beendet die App.</string>
+
+</resources>

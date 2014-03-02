@@ -82,7 +82,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
                 android.R.style.Theme_Holo_Dialog);
 
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(contextWithThemeHolo);
-        alertBuilder.setTitle("List");
+        alertBuilder.setTitle(getResources().getString(R.string.training_addbutton));
 
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 contextWithThemeHolo,
@@ -109,7 +109,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
                 android.R.style.Theme_Holo_Dialog);
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(contextWithThemeHolo);
         // TODO resource ID
-        alertBuilder.setTitle("Enter an name for the training");
+        alertBuilder.setTitle(getResources().getString(R.string.training_name_hint));
         final EditText input = new EditText(contextWithThemeHolo);
         // TODO default input
         alertBuilder.setView(input);
