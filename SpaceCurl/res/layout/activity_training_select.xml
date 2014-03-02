@@ -11,8 +11,8 @@
         android:layout_height="match_parent"
         android:paddingLeft="8dip"
         android:paddingRight="8dip"
-        android:scrollbarStyle="outsideInset"
-        android:animateLayoutChanges="true"   />
+        android:scrollbarStyle="outsideInset" />
+    <!--         android:animateLayoutChanges="true"   -->
     
     <!-- Freeplay Selection -->
     <FrameLayout
