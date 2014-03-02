@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="game_frame_background">@android:color/holo_blue_light</color>
     <color name="status_frame_background">#88FFFFFF</color>
     <color name="navigation_drawer_background">#111</color>
     <color name="navigation_drawer_divider">@android:color/darker_gray</color>

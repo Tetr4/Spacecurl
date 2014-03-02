@@ -16,7 +16,7 @@
             android:id="@+id/game_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/game_frame_background"
+            android:background="@drawable/game_background"
             android:keepScreenOn="true" />
 
         <!-- Pause -->
