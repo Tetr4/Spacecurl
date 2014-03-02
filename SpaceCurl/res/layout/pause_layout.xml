@@ -17,20 +17,27 @@
         android:layout_marginRight="30dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/instruction_background"
-        android:orientation="vertical" >
+        android:orientation="vertical" 
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:text="@string/pause_score"
             android:textSize="30sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/score_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:text="123"
             android:textSize="20sp" />
     </LinearLayout>
@@ -46,21 +53,27 @@
         android:layout_marginTop="15dp"
         android:layout_weight="1"
         android:background="@drawable/instruction_background"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:text="@string/pause_instructions"
             android:textSize="30sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/instructions_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="blablabla\nblablablubb\nbla\nblubb"
+            android:gravity="center"
             android:textSize="20sp" />
     </LinearLayout>
 

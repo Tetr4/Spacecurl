@@ -101,20 +101,24 @@ public class Database {
         Resources resources = context.getResources();
         mTrainingGames = (Training) mFreeplayGames.clone();
 
-        Training koordinationstraining = new Training("Koordinationstraining");
-
-        // Balance:
+        /*
+         * BALANCE
+         */
+        Training balanceTraining = new Training("Balance");
         // Lotrecht
         UniversalSettings settingsLotrecht = new UniversalSettings();
         settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
         settingsLotrecht.setTitle("Lotrecht");
-        koordinationstraining.add(settingsLotrecht);
+        settingsLotrecht
+                .setInstructions("Begib dich in die lotrechte Position (stehe kerzengerade)");
+        balanceTraining.add(settingsLotrecht);
 
         // Lotrecht 2 Achsen, Augenbinde
         UniversalSettings settingsLotrecht2 = new UniversalSettings();
         settingsLotrecht2.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
         settingsLotrecht2.setTitle("Lotrecht 2 Achsen");
-        koordinationstraining.add(settingsLotrecht2);
+        settingsLotrecht2.setInstructions("Begib dich in die lotrechte Position");
+        balanceTraining.add(settingsLotrecht2);
 
         // Sagittal
         UniversalSettings settingsSagittal = new UniversalSettings();
@@ -123,14 +127,18 @@ public class Database {
             settingsSagittal.addTarget(new Target(0.5f, 0.25f, 0.1f));
         }
         settingsSagittal.setTitle("Sagittal");
-        koordinationstraining.add(settingsSagittal);
+        settingsSagittal
+                .setInstructions("Bewege dich um die Sagittalachse (nach vorne und hinten)");
+        balanceTraining.add(settingsSagittal);
 
         // Bauch- und Rueckenlage
         UniversalSettings settingsBauchRueck = new UniversalSettings();
         settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
         settingsBauchRueck.addTarget(new Target(0.5f, 0.2f, 0.07f, 6000));
         settingsBauchRueck.setTitle("Bauch- und Rückenlage");
-        koordinationstraining.add(settingsBauchRueck);
+        settingsBauchRueck
+                .setInstructions("Begib dich in die Bauchlage und dann in die Rückenlage");
+        balanceTraining.add(settingsBauchRueck);
 
         // Abschluss
         UniversalSettings settingsAchsen = new UniversalSettings();
@@ -150,7 +158,8 @@ public class Database {
             settingsAchsen.addTarget(new Target(0.75f, 0.75f, 0.1f));
         }
         settingsAchsen.setTitle("Achsen");
-        koordinationstraining.add(settingsAchsen);
+        settingsAchsen.setInstructions("Bewege dich um die dargestellten Achsen");
+        balanceTraining.add(settingsAchsen);
 
         // Viereckiger Grundrahmen
         UniversalSettings settingsViereck = new UniversalSettings();
@@ -161,7 +170,8 @@ public class Database {
             settingsViereck.addTarget(new Target(0.25f, 0.75f, 0.1f));
         }
         settingsViereck.setTitle("Viereck");
-        koordinationstraining.add(settingsViereck);
+        settingsViereck.setInstructions("Bewege dich um den viereckigen Grundrahmen");
+        balanceTraining.add(settingsViereck);
 
         // Achterkreis
         UniversalSettings settingsAcht = new UniversalSettings();
@@ -176,9 +186,21 @@ public class Database {
             settingsAcht.addTarget(new Target(0.75f, 0.7f, 0.1f));
         }
         settingsAcht.setTitle("Acht");
-        koordinationstraining.add(settingsAcht);
+        settingsAcht.setInstructions("Bewege dich in einer 8");
+        balanceTraining.add(settingsAcht);
 
-        mTrainings.add(koordinationstraining);
+        mTrainings.add(balanceTraining);
+
+        // /*
+        // * GROBKOORDINATION
+        // */
+        // Training grobKoordinationsTraining = new
+        // Training("Grobkoordination");
+        // // Lotrecht
+        // UniversalSettings settingsLotrecht = new UniversalSettings();
+        // settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
+        // settingsLotrecht.setTitle("Lotrecht");
+        // grobKoordinationsTraining.add(settingsLotrecht);
 
         // Viereckiger Grundrahmen
         Training training0 = new Training("Viereck");

@@ -20,9 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
@@ -52,6 +55,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private Database mDatabase;
 
     private FrameLayout mStatusIndicator;
+    private ImageButton mSlidingToggleButton;
     private SlidingUpPanelLayout mSlidingUpPanel;
     private CardListView mCardListView;
     private CardArrayAdapter mCardArrayAdapter;
@@ -66,6 +70,11 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private FrameLayout mGameFrame;
 
     private LinearLayout mPauseFrame;
+    private LinearLayout mScoreLayout;
+    private TextView mScoreTextView;
+    private TextView mInstructionsTextView;
+    private String mScore;
+    private String mInstructions = "";
     private int mShortAnimationDuration;
     private State mState = State.Paused;
 
@@ -123,6 +132,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mPauseFrame = (LinearLayout) findViewById(R.id.pause_layout);
         mPauseFrame.setAlpha(0.0f);
         mPauseFrame.setVisibility(View.GONE);
+        mScoreTextView = (TextView) findViewById(R.id.score_textview);
+        mScoreLayout = (LinearLayout) findViewById(R.id.score_layout);
+        mInstructionsTextView = (TextView) findViewById(R.id.instructions_textview);
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
         mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
@@ -156,9 +168,32 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         int padding = 0;
         mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
         mSlidingUpPanel.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
+        mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                if (slideOffset < 0.5f) {
+                    mSlidingToggleButton.setImageResource(R.drawable.ic_collapse);
+                } else {
+                    mSlidingToggleButton.setImageResource(R.drawable.ic_expand);
+                }
+            }
+
+            @Override
+            public void onPanelExpanded(View panel) {
+            }
+
+            @Override
+            public void onPanelCollapsed(View panel) {
+            }
+
+            @Override
+            public void onPanelAnchored(View panel) {
+            }
+        });
 
         // setup indicator
         mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
+        mSlidingToggleButton = (ImageButton) findViewById(R.id.panel_button);
 
         // setup cardlist
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
@@ -226,6 +261,9 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // Actionbar title and icons
         // mTitle = mGameSettingsPair.getSettings().getString(
         // GameFragment.ARG_TITLE);
+
+        mInstructions = settings.getInstructions();
+        mInstructionsTextView.setText(mInstructions);
 
         onGameSwitched(mGameFragment);
     }
