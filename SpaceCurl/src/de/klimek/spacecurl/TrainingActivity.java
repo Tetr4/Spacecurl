@@ -91,11 +91,12 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
 
     @Override
     public void onStatusChanged(float status) {
-        super.doStatusChanged(status);
+        doStatusChanged(status);
     }
 
     @Override
-    public void onGameFinished() {
+    public void onGameFinished(String highScore) {
+        doPostHighScore(highScore);
         nextGame();
     }
 

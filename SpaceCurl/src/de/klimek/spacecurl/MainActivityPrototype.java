@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
@@ -56,6 +58,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
     private FrameLayout mStatusIndicator;
     private ImageButton mSlidingToggleButton;
+    private boolean mButtonImageIsExpand = true;
     private SlidingUpPanelLayout mSlidingUpPanel;
     private CardListView mCardListView;
     private CardArrayAdapter mCardArrayAdapter;
@@ -70,10 +73,8 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private FrameLayout mGameFrame;
 
     private LinearLayout mPauseFrame;
-    private LinearLayout mScoreLayout;
-    private TextView mScoreTextView;
     private TextView mInstructionsTextView;
-    private String mScore;
+    private String mHighScore;
     private String mInstructions = "";
     private int mShortAnimationDuration;
     private State mState = State.Paused;
@@ -132,8 +133,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mPauseFrame = (LinearLayout) findViewById(R.id.pause_layout);
         mPauseFrame.setAlpha(0.0f);
         mPauseFrame.setVisibility(View.GONE);
-        mScoreTextView = (TextView) findViewById(R.id.score_textview);
-        mScoreLayout = (LinearLayout) findViewById(R.id.score_layout);
         mInstructionsTextView = (TextView) findViewById(R.id.instructions_textview);
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
@@ -171,10 +170,13 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset < 0.5f) {
+                if (slideOffset < 0.5f && mButtonImageIsExpand) {
                     mSlidingToggleButton.setImageResource(R.drawable.ic_collapse);
-                } else {
+                    mButtonImageIsExpand = false;
+                }
+                if (slideOffset >= 0.5f && !mButtonImageIsExpand) {
                     mSlidingToggleButton.setImageResource(R.drawable.ic_expand);
+                    mButtonImageIsExpand = true;
                 }
             }
 
@@ -228,6 +230,14 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // indicator
         mStatusColor = mGradient.getColorForFraction(mFilteredStatus);
         mStatusIndicator.setBackgroundColor(mStatusColor);
+    }
+
+    protected final void doPostHighScore(String highScore) { // TODO Notifcation
+        mHighScore = highScore;
+        Toast toast = Toast.makeText(getApplicationContext(), mHighScore,
+                Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     /**

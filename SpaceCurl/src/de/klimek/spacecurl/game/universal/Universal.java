@@ -240,7 +240,7 @@ public class Universal extends GameFragment {
                 switch (mMode) {
                     case Targets:
                         if (mCurTargetIndex >= (mTargets.size() - 1)) {
-                            notifyFinished();
+                            notifyFinished("HIGHSCORE: 153"); // TODO REAL SCORE
                             // mTargets.add(new Target(mRandom.nextFloat(),
                             // mRandom.nextFloat(),
                             // mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
@@ -264,7 +264,7 @@ public class Universal extends GameFragment {
                         break;
                     case Paths:
                         if (mCurPathIndex >= (mPaths.size() - 1)) {
-                            notifyFinished();
+                            notifyFinished("HIGHSCORE: 153"); // TODO REAL SCORE
                         } else {
                             ++mCurPathIndex;
                             mCurPath = mPaths.get(mCurPathIndex);

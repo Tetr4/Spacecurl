@@ -91,9 +91,9 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         mListeners.add(listener);
     }
 
-    public void notifyFinished() {
+    public void notifyFinished(String highScore) {
         for (GameCallBackListener curListener : mListeners) {
-            curListener.onGameFinished();
+            curListener.onGameFinished(highScore);
         }
     }
 
