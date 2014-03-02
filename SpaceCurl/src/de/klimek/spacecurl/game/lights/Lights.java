@@ -103,7 +103,6 @@ public class Lights extends GameFragment {
         mLayoutResult.setVisibility(View.INVISIBLE);
         mLayoutStopAndGo.setBackgroundColor(mColorGo);
         mTextViewMessage.setText(mMessageGo);
-        // TODO grafikoutput for mRemainingTime
         mTextViewRemainingTime.setText(timeToString(mRemainingStageTime, false));
         mTextViewTotalTime.setText(timeToString(mTotalTime, true));
         mTextViewBonus.setText(mBonus ? "BONUS!" : "");
@@ -115,7 +114,6 @@ public class Lights extends GameFragment {
         mLayoutResult.setVisibility(View.INVISIBLE);
         mLayoutStopAndGo.setBackgroundColor(mColorStop);
         mTextViewMessage.setText(mMessageStop);
-        // TODO grafikoutput for mRemainingTime
         mTextViewRemainingTime.setText(timeToString(mRemainingStageTime, false));
         mTextViewTotalTime.setText(timeToString(mTotalTime, true));
         mTextViewBonus.setText("");
@@ -225,6 +223,7 @@ public class Lights extends GameFragment {
                     stop();
                     break;
                 case Result:
+                    notifyFinished("Gesamtzeit: " + timeToString(mTotalTime, true));
                     result();
                     break;
             }
