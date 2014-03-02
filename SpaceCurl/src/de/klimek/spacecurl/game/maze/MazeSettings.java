@@ -7,8 +7,10 @@ import de.klimek.spacecurl.game.GameSettings;
 public class MazeSettings extends GameSettings {
 
     @Override
-    public Class<? extends GameFragment> getGameClass() {
-        return Maze.class;
+    public GameFragment getFragment() {
+        Maze fragment = new Maze();
+        fragment.setSettings(this);
+        return fragment;
     }
 
 }

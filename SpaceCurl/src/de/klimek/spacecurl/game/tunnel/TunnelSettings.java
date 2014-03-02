@@ -6,12 +6,14 @@ import de.klimek.spacecurl.game.GameSettings;
 
 public class TunnelSettings extends GameSettings {
 
-    @Override
-    public Class<? extends GameFragment> getGameClass() {
-        return Tunnel.class;
+    public void setTunnelHeight(float height) {
     }
 
-    public void setTunnelHeight(float height) {
+    @Override
+    public GameFragment getFragment() {
+        Tunnel fragment = new Tunnel();
+        fragment.setSettings(this);
+        return fragment;
     }
 
 }

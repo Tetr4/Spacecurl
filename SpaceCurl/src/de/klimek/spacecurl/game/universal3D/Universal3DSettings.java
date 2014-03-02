@@ -6,11 +6,6 @@ import de.klimek.spacecurl.game.GameSettings;
 
 public class Universal3DSettings extends GameSettings {
 
-    @Override
-    public Class<? extends GameFragment> getGameClass() {
-        return Universal3D.class;
-    }
-
     // public void setMode()
     public void setTargetX() {
 
@@ -18,6 +13,13 @@ public class Universal3DSettings extends GameSettings {
 
     public void setTargetY() {
 
+    }
+
+    @Override
+    public GameFragment getFragment() {
+        Universal3D fragment = new Universal3D();
+        fragment.setSettings(this);
+        return fragment;
     }
 
 }

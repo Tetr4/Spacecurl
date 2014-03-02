@@ -3,12 +3,9 @@ package de.klimek.spacecurl.game;
 
 public abstract class GameSettings {
     private String mTitle;
+    private String mInstructions = "";
 
-    // public GameSettings(String title) {
-    // mTitle = title;
-    // }
-
-    public abstract Class<? extends GameFragment> getGameClass();
+    public abstract GameFragment getFragment();
 
     public void setTitle(String title) {
         mTitle = title;
@@ -17,4 +14,12 @@ public abstract class GameSettings {
     public String getTitle() {
         return mTitle;
     };
+
+    public void setInstructions(String instructions) {
+        mInstructions = instructions;
+    }
+
+    public String getInstructions() {
+        return mInstructions;
+    }
 }

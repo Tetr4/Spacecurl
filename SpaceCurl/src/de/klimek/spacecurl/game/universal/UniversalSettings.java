@@ -10,11 +10,6 @@ public class UniversalSettings extends GameSettings {
     private ArrayList<Target> mTargets = new ArrayList<Target>();
     private ArrayList<Path> mPaths = new ArrayList<Path>();
 
-    @Override
-    public Class<? extends GameFragment> getGameClass() {
-        return Universal.class;
-    }
-
     public void addTarget(float x, float y, float radius) {
         mTargets.add(new Target(x, y, radius));
     }
@@ -37,5 +32,12 @@ public class UniversalSettings extends GameSettings {
 
     public ArrayList<Target> getTargets() {
         return mTargets;
+    }
+
+    @Override
+    public GameFragment getFragment() {
+        Universal fragment = new Universal();
+        fragment.setSettings(this);
+        return fragment;
     }
 }
