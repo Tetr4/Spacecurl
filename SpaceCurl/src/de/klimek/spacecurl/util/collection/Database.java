@@ -64,6 +64,7 @@ public class Database {
         mFreeplayGames.add(settingsTunnel);
 
         PongSettings settingsPong = new PongSettings(resources.getString(R.string.game_pong), 1);
+        settingsPong.setShowLives(false);
         mFreeplayGames.add(settingsPong);
 
         // MazeSettings settingsMaze = new

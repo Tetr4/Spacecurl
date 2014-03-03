@@ -5,11 +5,12 @@ import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 
 public class PongSettings extends GameSettings {
-    private int mLifes;
+    private int mLives;
+    private boolean mShowLives = true;
 
-    public PongSettings(String title, int lifes) {
+    public PongSettings(String title, int lives) {
         super(title);
-        mLifes = lifes;
+        mLives = lives;
     }
 
     @Override
@@ -22,12 +23,20 @@ public class PongSettings extends GameSettings {
     public void setPaddleWidth(float width) {
     }
 
-    public int getLifes() {
-        return mLifes;
+    public int getLives() {
+        return mLives;
     }
 
-    public void setLifes(int lifes) {
-        mLifes = lifes;
+    public void setLives(int lives) {
+        mLives = lives;
+    }
+
+    public boolean showLives() {
+        return mShowLives;
+    }
+
+    public void setShowLives(boolean showLives) {
+        mShowLives = showLives;
     }
 
 }

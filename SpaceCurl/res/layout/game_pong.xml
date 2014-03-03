@@ -1,11 +1,13 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@drawable/game_background"  >
+
+    
     <FrameLayout
         android:id="@+id/game_pong_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/game_background">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/game_pong_score"
@@ -20,10 +22,12 @@
             android:textStyle="bold" />
     </FrameLayout>
 
-    <include
- 	  android:layout_width="match_parent"
- 	  android:layout_height="match_parent"
- 	  layout="@layout/game_result"
- 	      android:visibility="invisible"  />
 
-</RelativeLayout>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/game_result"
+        android:visibility="invisible" />
+
+</FrameLayout>

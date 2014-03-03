@@ -29,6 +29,9 @@ public class Pong extends GameFragment {
     private TextView mResultScore;
     private TextView mResultContinueTime;
 
+    private GamePongView mGame;
+    private PongSettings mSettings;
+
     private static enum State {
         Normal, Smiling, Frowning,
     }
@@ -37,11 +40,12 @@ public class Pong extends GameFragment {
         Left, Top, Right, Bottom
     }
 
-    private GamePongView mGame;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        int lifes = ((PongSettings) getSettings()).getLifes();
+        mSettings = (PongSettings) getSettings();
+        int lives = mSettings.getLives();
+        boolean showlives = mSettings.showLives();
+
         View rootView = inflater.inflate(R.layout.game_pong, container, false);
         mPongLayout = (FrameLayout) rootView.findViewById(R.id.game_pong_layout);
         mPongScore = (TextView) mPongLayout.findViewById(R.id.game_pong_score);
@@ -51,7 +55,7 @@ public class Pong extends GameFragment {
                 rootView.findViewById(R.id.game_result_score);
         mResultContinueTime = (TextView)
                 rootView.findViewById(R.id.game_result_continue_time);
-        mGame = new GamePongView(getActivity(), lifes);
+        mGame = new GamePongView(getActivity(), lives, showlives);
         mPongLayout.addView(mGame);
         return rootView;
     }
@@ -89,6 +93,7 @@ public class Pong extends GameFragment {
         private int mViewWidthMax;
         private int mViewHeightMin = 0;
         private int mViewHeightMax;
+        private boolean mHaveSize = false;
 
         private Ball mBall;
         private Paddle mPaddleTop;
@@ -99,17 +104,18 @@ public class Pong extends GameFragment {
         private float mPitch;
         private float mRoll;
 
+        private int mTotalLives;
+        private Lives mLives;
+        private boolean mShowLives;
         private int mBallContacts;
-        private boolean mHaveSize = false;
         private boolean mFinished = false;
-        private int mLifes;
-        private int mCurLifes = mLifes;
 
         // Constructor
-        public GamePongView(Context context, int lifes) {
+        public GamePongView(Context context, int lives, boolean showlives) {
             super(context);
-            mLifes = lifes;
-            mCurLifes = mLifes;
+            mTotalLives = lives;
+            mLives = new Lives(mTotalLives);
+            mShowLives = showlives;
             mBall = new Ball();
             mPaddleLeft = new Paddle(PaddleSide.Left);
             mPaddleTop = new Paddle(PaddleSide.Top);
@@ -145,6 +151,9 @@ public class Pong extends GameFragment {
         // Called back to draw the view. Also called by invalidate().
         @Override
         protected void onDraw(Canvas canvas) {
+            if (mShowLives) {
+                mLives.draw(canvas);
+            }
             if (hasOrientation()) {
                 mPaddleTop.draw(canvas);
                 mPaddleBottom.draw(canvas);
@@ -216,7 +225,7 @@ public class Pong extends GameFragment {
                 if (mBall.mState == State.Frowning) {
                     if (mBall.mRemainingFaceTime > 0) {
                         mBall.mRemainingFaceTime -= deltaTime;
-                    } else if (mCurLifes <= 0) {
+                    } else if (mLives.getLives() <= 0) {
                         mFinished = true;
                     } else {
                         mBallContacts = 0;
@@ -253,8 +262,8 @@ public class Pong extends GameFragment {
                 } else if (mBall.collidesWithWall()) {
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Frowning;
-                    if (mCurLifes > 0) {
-                        --mCurLifes;
+                    if (mLives.getLives() > 0) {
+                        mLives.setLives(mLives.getLives() - 1);
                     }
                 } else {
                     mBall.mRemainingFaceTime -= deltaTime;
@@ -270,9 +279,10 @@ public class Pong extends GameFragment {
                 if (mFinished) {
                     boolean handled = notifyFinished(Integer.toString(mBallContacts));
                     if (!handled) {
-                        mCurLifes = mLifes;
+                        mLives.setLives(mTotalLives);
                     }
                 }
+
                 invalidate();
             }
 
@@ -395,6 +405,45 @@ public class Pong extends GameFragment {
                         2) ^ 2 +
                         (distanceY - paddle.mOnScreenHeight / 2) ^ 2;
                 return (cornerDistance_square <= (mRadius ^ 2));
+            }
+        }
+
+        /**
+         * Lives
+         */
+        private class Lives {
+            private static final int RADIUS = 32;
+            private static final int PADDING_TOP = 8;
+            private static final int PADDING_SIDE = 8;
+            private int mLives;
+            private Bitmap mSmileyBitmap;
+
+            public Lives(int lives) {
+                mLives = lives;
+                // mSource.set(0,
+                // 0,
+                // RADIUS * 2,
+                // RADIUS * 2);
+                Bitmap smiley = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.smiley_normal);
+                mSmileyBitmap = Bitmap.createScaledBitmap(smiley, RADIUS * 2,
+                        RADIUS * 2,
+                        true);
+            }
+
+            public void setLives(int lives) {
+                mLives = lives;
+            }
+
+            public int getLives() {
+                return mLives;
+            }
+
+            protected void draw(Canvas canvas) {
+                for (int i = 0; i < mLives; i++) {
+                    canvas.drawBitmap(mSmileyBitmap, i * RADIUS * 2 + PADDING_SIDE, PADDING_TOP,
+                            null);
+                }
             }
         }
 
