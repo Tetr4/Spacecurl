@@ -14,12 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLUtils;
 
-/**
- * Render a sphere.
- * 
- * @author Jim Cornmell
- * @since July 2013
- */
 public class Sphere {
     /** 180 in radians. */
     public static final double ONE_EIGHTY_DEGREES = Math.PI;

@@ -7,12 +7,6 @@ import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-/**
- * Render a sphere.
- * 
- * @author Jim Cornmell
- * @since July 2013
- */
 public class Target {
     private static double DEG = Math.PI / 180;
     private static final float DISTANCE_TO_CENTER = 0.5f;

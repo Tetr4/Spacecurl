@@ -1,6 +1,8 @@
 
 package de.klimek.spacecurl.game.universal3D;
 
+import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -18,12 +20,16 @@ public class Universal3D extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_universal;
     // private StatusBundle mStatusBundle;
     private GLSurfaceView mGame;
+    private Universal3DSettings mSettings;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mSettings = (Universal3DSettings) getSettings();
         // mGame = new GameUniversal3DView(getActivity());
         mGame = new GLSurfaceView(getActivity());
-        mGame.setRenderer(new GameUniversal3DRenderer(this, getResources()));
+        GameUniversal3DRenderer renderer = new GameUniversal3DRenderer(this, getResources(),
+                mSettings.getDrawableResId(), mSettings.getTargets());
+        mGame.setRenderer(renderer);
         return mGame;
     }
 
@@ -53,7 +59,7 @@ public class Universal3D extends GameFragment {
 
     private static class GameUniversal3DRenderer implements GLSurfaceView.Renderer {
         private static final int FPS = 25;
-        private static final float FOV = 70.0f;
+        private static final float FOV = 75.0f;
         private Sphere mSphere;
         private Target mTarget;
         private long mStartTime;
@@ -61,20 +67,24 @@ public class Universal3D extends GameFragment {
         private long mSleepTime;
         private GameFragment mFragment;
         private Resources mResources;
+        private int mDrawableResId;
 
-        public GameUniversal3DRenderer(GameFragment fragment, Resources res) {
+        public GameUniversal3DRenderer(GameFragment fragment, Resources res, int drawableResId,
+                ArrayList<Target> targets) {
+            if (!targets.isEmpty()) {
+                mTarget = targets.get(0);
+            }
             mResources = res;
+            mDrawableResId = drawableResId;
             mFragment = fragment;
             mSphere = new Sphere(3);
-            mTarget = new Target(0, 1);
-
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             // initialize all the things required for openGL configurations
             // gl.glEnable(GL10.GL_POINT_SMOOTH);
             // gl.glPointSize(20.0f);
-            mSphere.loadGLTexture(gl, mResources, R.drawable.earth);
+            mSphere.loadGLTexture(gl, mResources, mDrawableResId);
             gl.glEnable(GL10.GL_TEXTURE_2D);
             gl.glShadeModel(GL10.GL_SMOOTH);
             gl.glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
@@ -111,7 +121,9 @@ public class Universal3D extends GameFragment {
             // gl.glTranslatef(0.0f, 0.0f, -5.0f);
             gl.glMultMatrixf(mFragment.getRotationMatrix(), 0);
             gl.glRotatef(90.0f, 1, 0, 0);
-            mTarget.draw(gl);
+            if (mTarget != null) {
+                mTarget.draw(gl);
+            }
             mSphere.draw(gl);
             // Log.d("RENDER", "DRAW");
 
