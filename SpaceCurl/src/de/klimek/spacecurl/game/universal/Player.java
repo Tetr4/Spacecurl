@@ -40,14 +40,10 @@ public class Player extends Drawable {
     }
 
     public float distanceTo(Target target) {
-        if (intersects(target)) {
-            return 0.0f;
-        } else {
-            return (float) Math.sqrt(
-                    Math.pow((mPositionX - target.mPositionX), 2)
-                            + Math.pow((mPositionY - target.mPositionY), 2)
-                    ) - target.mRadius;
-        }
+        return (float) Math.sqrt(
+                Math.pow((mPositionX - target.mPositionX), 2)
+                        + Math.pow((mPositionY - target.mPositionY), 2)
+                );
     }
 
     public float distanceTo(Path path) {
