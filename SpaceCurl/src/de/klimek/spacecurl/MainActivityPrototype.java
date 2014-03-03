@@ -72,7 +72,8 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private GameFragment mGameFragment;
     private FrameLayout mGameFrame;
 
-    private LinearLayout mPauseFrame;
+    private FrameLayout mPauseFrame;
+    private LinearLayout mInstructionLayout;
     private TextView mInstructionsTextView;
     private String mHighScore;
     private String mInstructions = "";
@@ -130,9 +131,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     }
 
     private void setupPauseView() {
-        mPauseFrame = (LinearLayout) findViewById(R.id.pause_layout);
+        mPauseFrame = (FrameLayout) findViewById(R.id.pause_layout);
         mPauseFrame.setAlpha(0.0f);
         mPauseFrame.setVisibility(View.GONE);
+        mInstructionLayout = (LinearLayout) findViewById(R.id.instruction_layout);
         mInstructionsTextView = (TextView) findViewById(R.id.instructions_textview);
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
@@ -207,16 +209,11 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         if (index >= mStatus.size()) {
             mCurGameStatus = new GameStatus(mTraining.get(index).getTitle());
             mStatus.add(mCurGameStatus);
+            mCards.add(new StatusCard(this, mCurGameStatus));
+            mCardArrayAdapter.notifyDataSetChanged();
         } else {
             mCurGameStatus = mStatus.get(index);
             mCurGameStatus.reset();
-        }
-        if (mStatus != null) {
-            mCards.clear();
-            for (GameStatus gameStatus : mStatus) {
-                mCards.add(new StatusCard(this, gameStatus));
-            }
-            mCardArrayAdapter.notifyDataSetChanged();
         }
     }
 
@@ -236,7 +233,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mHighScore = highScore;
         Toast toast = Toast.makeText(getApplicationContext(), mHighScore,
                 Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
         toast.show();
     }
 
@@ -273,8 +270,12 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // GameFragment.ARG_TITLE);
 
         mInstructions = settings.getInstructions();
-        mInstructionsTextView.setText(mInstructions);
-
+        if (mInstructions == null || mInstructions.equals("")) {
+            mInstructionLayout.setVisibility(View.GONE);
+        } else {
+            mInstructionLayout.setVisibility(View.VISIBLE);
+            mInstructionsTextView.setText(mInstructions);
+        }
         onGameSwitched(mGameFragment);
     }
 

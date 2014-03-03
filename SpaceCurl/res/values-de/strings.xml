@@ -37,5 +37,7 @@
     <string name="pause_score">Punkte</string>
     
     <string name="click_back_again">Nochmaliges Tippen beendet die App.</string>
+    <string name="touch_screen_to_resume">Berühre den Bildschirm um zu pausieren/fortzufahren</string>
+    
 
 </resources>

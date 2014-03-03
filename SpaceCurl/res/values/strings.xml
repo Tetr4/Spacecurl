@@ -37,5 +37,7 @@
     <string name="pause_score">Score</string>
     
     <string name="click_back_again">Please click BACK again to exit</string>
+    
+    <string name="touch_screen_to_resume">Touch screen to pause/resume</string>
 
 </resources>
