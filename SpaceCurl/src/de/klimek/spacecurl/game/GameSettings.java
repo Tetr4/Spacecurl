@@ -7,6 +7,10 @@ public abstract class GameSettings {
 
     public abstract GameFragment getFragment();
 
+    public GameSettings(String title) {
+        mTitle = title;
+    }
+
     public void setTitle(String title) {
         mTitle = title;
     };

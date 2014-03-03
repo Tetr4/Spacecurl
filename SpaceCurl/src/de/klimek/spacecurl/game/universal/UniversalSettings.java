@@ -7,6 +7,10 @@ import de.klimek.spacecurl.game.GameFragment;
 import de.klimek.spacecurl.game.GameSettings;
 
 public class UniversalSettings extends GameSettings {
+    public UniversalSettings(String title) {
+        super(title);
+    }
+
     private ArrayList<Target> mTargets = new ArrayList<Target>();
     private ArrayList<Path> mPaths = new ArrayList<Path>();
 

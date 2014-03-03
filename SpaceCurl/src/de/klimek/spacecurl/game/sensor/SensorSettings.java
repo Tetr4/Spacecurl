@@ -6,6 +6,10 @@ import de.klimek.spacecurl.game.GameSettings;
 
 public class SensorSettings extends GameSettings {
 
+    public SensorSettings(String title) {
+        super(title);
+    }
+
     @Override
     public GameFragment getFragment() {
         Sensor fragment = new Sensor();
