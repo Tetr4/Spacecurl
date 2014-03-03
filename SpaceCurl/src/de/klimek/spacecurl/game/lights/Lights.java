@@ -223,8 +223,11 @@ public class Lights extends GameFragment {
                     stop();
                     break;
                 case Result:
-                    notifyFinished("Gesamtzeit: " + timeToString(mTotalTime, true));
-                    result();
+                    boolean handled = notifyFinished("Gesamtzeit: "
+                            + timeToString(mTotalTime, true));
+                    if (!handled) {
+                        result();
+                    }
                     break;
             }
         }
