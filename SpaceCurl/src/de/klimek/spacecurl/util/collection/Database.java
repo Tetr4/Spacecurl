@@ -11,11 +11,8 @@ import android.preference.PreferenceManager;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.game.lights.LightsSettings;
-import de.klimek.spacecurl.game.maze.MazeSettings;
 import de.klimek.spacecurl.game.pong.PongSettings;
-import de.klimek.spacecurl.game.sensor.SensorSettings;
 import de.klimek.spacecurl.game.tunnel.TunnelSettings;
-import de.klimek.spacecurl.game.universal.Path;
 import de.klimek.spacecurl.game.universal.Target;
 import de.klimek.spacecurl.game.universal.UniversalSettings;
 import de.klimek.spacecurl.game.universal3D.Universal3DSettings;
@@ -63,33 +60,30 @@ public class Database {
     private void fillFreeplayGames(Context context) {
         Resources resources = context.getResources();
         // Add games to Spinner
-        TunnelSettings settingsTunnel = new TunnelSettings();
-        settingsTunnel.setTitle("Tunnel");
+        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel");
         mFreeplayGames.add(settingsTunnel);
 
-        PongSettings settingsPong = new PongSettings();
-        settingsPong.setTitle(resources.getString(R.string.game_pong));
+        PongSettings settingsPong = new PongSettings(resources.getString(R.string.game_pong), 1);
         mFreeplayGames.add(settingsPong);
 
-        MazeSettings settingsMaze = new MazeSettings();
-        settingsMaze.setTitle(resources.getString(R.string.game_maze));
-        mFreeplayGames.add(settingsMaze);
+        // MazeSettings settingsMaze = new
+        // MazeSettings(resources.getString(R.string.game_maze));
+        // mFreeplayGames.add(settingsMaze);
 
-        LightsSettings settingsLights = new LightsSettings();
-        settingsLights.setTitle(resources.getString(R.string.game_lights));
+        LightsSettings settingsLights = new LightsSettings(
+                resources.getString(R.string.game_lights));
         mFreeplayGames.add(settingsLights);
 
-        UniversalSettings settingsUniversal = new UniversalSettings();
-        settingsUniversal.setTitle(resources.getString(R.string.game_universal));
-        mFreeplayGames.add(settingsUniversal);
+        // UniversalSettings settingsUniversal = new UniversalSettings(
+        // resources.getString(R.string.game_universal));
+        // mFreeplayGames.add(settingsUniversal);
 
-        Universal3DSettings settingsUniversal3D = new Universal3DSettings();
-        settingsUniversal3D.setTitle(resources.getString(R.string.game_universal3d));
+        Universal3DSettings settingsUniversal3D = new Universal3DSettings("Virtual Reality",
+                R.drawable.photoshpere_island2);
         mFreeplayGames.add(settingsUniversal3D);
 
-        SensorSettings settingsSensor = new SensorSettings();
-        settingsSensor.setTitle("Sensor Test");
-        mFreeplayGames.add(settingsSensor);
+        // SensorSettings settingsSensor = new SensorSettings("Sensor Test");
+        // mFreeplayGames.add(settingsSensor);
 
         TrainingStatus freeplayStatus = new TrainingStatus(FREEPLAY_STATUS_KEY);
         for (GameSettings game : mFreeplayGames) {
@@ -101,47 +95,130 @@ public class Database {
         Resources resources = context.getResources();
         mTrainingGames = (Training) mFreeplayGames.clone();
 
-        /*
-         * BALANCE
-         */
-        Training balanceTraining = new Training("Balance");
-        // Lotrecht
-        UniversalSettings settingsLotrecht = new UniversalSettings();
-        settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
-        settingsLotrecht.setTitle("Lotrecht");
-        settingsLotrecht
-                .setInstructions("Begib dich in die lotrechte Position (stehe kerzengerade)");
-        balanceTraining.add(settingsLotrecht);
+        // /*
+        // * BALANCE
+        // */
+        // Training balanceTraining = new Training("Balance");
+        // // Lotrecht
+        // UniversalSettings settingsLotrecht = new
+        // UniversalSettings("Lotrecht");
+        // settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
+        // settingsLotrecht
+        // .setInstructions("Begib dich in die lotrechte Position (stehe kerzengerade)");
+        // balanceTraining.add(settingsLotrecht);
+        //
+        // // Lotrecht 2 Achsen, Augenbinde
+        // UniversalSettings settingsLotrecht2 = new
+        // UniversalSettings("Lotrecht 2 Achsen");
+        // settingsLotrecht2.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
+        // settingsLotrecht2.setInstructions("Begib dich in die lotrechte Position");
+        // balanceTraining.add(settingsLotrecht2);
+        //
+        // // Sagittal
+        // UniversalSettings settingsSagittal = new
+        // UniversalSettings("Sagittal");
+        // for (int i = 0; i < 5; i++) {
+        // settingsSagittal.addTarget(new Target(0.5f, 0.75f, 0.1f));
+        // settingsSagittal.addTarget(new Target(0.5f, 0.25f, 0.1f));
+        // }
+        // settingsSagittal
+        // .setInstructions("Bewege dich um die Sagittalachse (nach vorne und hinten)");
+        // balanceTraining.add(settingsSagittal);
+        //
+        // // Bauch- und Rueckenlage
+        // UniversalSettings settingsBauchRueck = new
+        // UniversalSettings("Bauch- und Rückenlage");
+        // settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
+        // settingsBauchRueck.addTarget(new Target(0.5f, 0.2f, 0.07f, 6000));
+        // settingsBauchRueck
+        // .setInstructions("Begib dich in die Bauchlage und dann in die Rückenlage");
+        // balanceTraining.add(settingsBauchRueck);
+        //
+        // // Abschluss
+        // UniversalSettings settingsAchsen = new UniversalSettings("Achsen");
+        // settingsAchsen.addTarget(new Target(0.5f, 0.5f, 0.1f));
+        // for (int i = 0; i < 3; i++) { // transversal
+        // settingsAchsen.addTarget(new Target(0.25f, 0.5f, 0.1f));
+        // settingsAchsen.addTarget(new Target(0.75f, 0.5f, 0.1f));
+        // }
+        // settingsAchsen.addTarget(new Target(0.5f, 0.5f, 0.1f));
+        // for (int i = 0; i < 3; i++) { // sagittal
+        // settingsAchsen.addTarget(new Target(0.5f, 0.75f, 0.1f));
+        // settingsAchsen.addTarget(new Target(0.5f, 0.25f, 0.1f));
+        // }
+        // settingsAchsen.addTarget(new Target(0.5f, 0.5f, 0.1f));
+        // for (int i = 0; i < 3; i++) { // diagonal
+        // settingsAchsen.addTarget(new Target(0.25f, 0.25f, 0.1f));
+        // settingsAchsen.addTarget(new Target(0.75f, 0.75f, 0.1f));
+        // }
+        // settingsAchsen.setInstructions("Bewege dich um die dargestellten Achsen");
+        // balanceTraining.add(settingsAchsen);
+        //
+        // // Viereckiger Grundrahmen
+        // UniversalSettings settingsViereck = new UniversalSettings("Viereck");
+        // for (int i = 0; i < 4; i++) {
+        // settingsViereck.addTarget(new Target(0.25f, 0.25f, 0.1f));
+        // settingsViereck.addTarget(new Target(0.75f, 0.25f, 0.1f));
+        // settingsViereck.addTarget(new Target(0.75f, 0.75f, 0.1f));
+        // settingsViereck.addTarget(new Target(0.25f, 0.75f, 0.1f));
+        // }
+        // settingsViereck.setInstructions("Bewege dich um den viereckigen Grundrahmen");
+        // balanceTraining.add(settingsViereck);
+        //
+        // // Achterkreis
+        // UniversalSettings settingsAcht = new UniversalSettings("Acht");
+        // for (int i = 0; i < 4; i++) {
+        // settingsAcht.addTarget(new Target(0.5f, 0.5f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.25f, 0.3f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.5f, 0.2f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.75f, 0.3f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.5f, 0.5f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.25f, 0.7f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.5f, 0.8f, 0.1f));
+        // settingsAcht.addTarget(new Target(0.75f, 0.7f, 0.1f));
+        // }
+        // settingsAcht.setInstructions("Bewege dich in einer 8");
+        // balanceTraining.add(settingsAcht);
+        //
+        // mTrainings.add(balanceTraining);
 
-        // Lotrecht 2 Achsen, Augenbinde
-        UniversalSettings settingsLotrecht2 = new UniversalSettings();
-        settingsLotrecht2.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
-        settingsLotrecht2.setTitle("Lotrecht 2 Achsen");
-        settingsLotrecht2.setInstructions("Begib dich in die lotrechte Position");
-        balanceTraining.add(settingsLotrecht2);
+        /*
+         * BALANCE MIT GAMES
+         */
+        Training balanceTraining2 = new Training("Balance");
+        // Lotrecht
+        UniversalSettings settingsLotrecht = new UniversalSettings("Lotrecht");
+        settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
+        settingsLotrecht
+                .setInstructions("Halte deine Position lotrecht (stehe kerzengerade)");
+        balanceTraining2.add(settingsLotrecht);
 
         // Sagittal
-        UniversalSettings settingsSagittal = new UniversalSettings();
+        UniversalSettings settingsSagittal = new UniversalSettings("Sagittal");
         for (int i = 0; i < 5; i++) {
             settingsSagittal.addTarget(new Target(0.5f, 0.75f, 0.1f));
             settingsSagittal.addTarget(new Target(0.5f, 0.25f, 0.1f));
         }
-        settingsSagittal.setTitle("Sagittal");
         settingsSagittal
-                .setInstructions("Bewege dich um die Sagittalachse (nach vorne und hinten)");
-        balanceTraining.add(settingsSagittal);
+                .setInstructions("Bewege dich nach vorne und hinten");
+        balanceTraining2.add(settingsSagittal);
 
         // Bauch- und Rueckenlage
-        UniversalSettings settingsBauchRueck = new UniversalSettings();
+        UniversalSettings settingsBauchRueck = new UniversalSettings("Bauch- und Rückenlage");
         settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
         settingsBauchRueck.addTarget(new Target(0.5f, 0.2f, 0.07f, 6000));
-        settingsBauchRueck.setTitle("Bauch- und Rückenlage");
         settingsBauchRueck
-                .setInstructions("Begib dich in die Bauchlage und dann in die Rückenlage");
-        balanceTraining.add(settingsBauchRueck);
+                .setInstructions("Halte deine Position in der Bauchlage und dann in der Rückenlage");
+        balanceTraining2.add(settingsBauchRueck);
+
+        // Tunnel
+        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel");
+        settingsTunnel
+                .setInstructions("Verlagere dein Gewicht, damit die Rakete nicht an den Rand stößt, und versuche eine möglichst weite Strecke zu fliegen");
+        balanceTraining2.add(settingsTunnel);
 
         // Abschluss
-        UniversalSettings settingsAchsen = new UniversalSettings();
+        UniversalSettings settingsAchsen = new UniversalSettings("Achsen");
         settingsAchsen.addTarget(new Target(0.5f, 0.5f, 0.1f));
         for (int i = 0; i < 3; i++) { // transversal
             settingsAchsen.addTarget(new Target(0.25f, 0.5f, 0.1f));
@@ -157,102 +234,103 @@ public class Database {
             settingsAchsen.addTarget(new Target(0.25f, 0.25f, 0.1f));
             settingsAchsen.addTarget(new Target(0.75f, 0.75f, 0.1f));
         }
-        settingsAchsen.setTitle("Achsen");
         settingsAchsen.setInstructions("Bewege dich um die dargestellten Achsen");
-        balanceTraining.add(settingsAchsen);
+        balanceTraining2.add(settingsAchsen);
 
         // Viereckiger Grundrahmen
-        UniversalSettings settingsViereck = new UniversalSettings();
+        UniversalSettings settingsViereck = new UniversalSettings("Viereck");
         for (int i = 0; i < 4; i++) {
             settingsViereck.addTarget(new Target(0.25f, 0.25f, 0.1f));
             settingsViereck.addTarget(new Target(0.75f, 0.25f, 0.1f));
             settingsViereck.addTarget(new Target(0.75f, 0.75f, 0.1f));
             settingsViereck.addTarget(new Target(0.25f, 0.75f, 0.1f));
         }
-        settingsViereck.setTitle("Viereck");
-        settingsViereck.setInstructions("Bewege dich um den viereckigen Grundrahmen");
-        balanceTraining.add(settingsViereck);
+        settingsViereck.setInstructions("Bewege dich im Viereck");
+        balanceTraining2.add(settingsViereck);
 
-        // Achterkreis
-        UniversalSettings settingsAcht = new UniversalSettings();
-        for (int i = 0; i < 4; i++) {
-            settingsAcht.addTarget(new Target(0.5f, 0.5f, 0.1f));
-            settingsAcht.addTarget(new Target(0.25f, 0.3f, 0.1f));
-            settingsAcht.addTarget(new Target(0.5f, 0.2f, 0.1f));
-            settingsAcht.addTarget(new Target(0.75f, 0.3f, 0.1f));
-            settingsAcht.addTarget(new Target(0.5f, 0.5f, 0.1f));
-            settingsAcht.addTarget(new Target(0.25f, 0.7f, 0.1f));
-            settingsAcht.addTarget(new Target(0.5f, 0.8f, 0.1f));
-            settingsAcht.addTarget(new Target(0.75f, 0.7f, 0.1f));
-        }
-        settingsAcht.setTitle("Acht");
-        settingsAcht.setInstructions("Bewege dich in einer 8");
-        balanceTraining.add(settingsAcht);
+        // Pong
+        PongSettings settingsPong = new PongSettings("Pong", 3);
+        settingsPong.setInstructions("Versuche den Ball möglichst oft zu blocken.");
+        balanceTraining2.add(settingsPong);
 
-        mTrainings.add(balanceTraining);
+        // Abbremsen
+        LightsSettings settingsBremsen = new LightsSettings("Abbremsen");
+        settingsBremsen
+                .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffen fest");
+        balanceTraining2.add(settingsBremsen);
+
+        mTrainings.add(balanceTraining2);
 
         // /*
         // * GROBKOORDINATION
         // */
         // Training grobKoordinationsTraining = new
         // Training("Grobkoordination");
-        // // Lotrecht
-        // UniversalSettings settingsLotrecht = new UniversalSettings();
-        // settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
-        // settingsLotrecht.setTitle("Lotrecht");
-        // grobKoordinationsTraining.add(settingsLotrecht);
+        // // Bremsen Handgriffe
+        // LightsSettings settingsBremsen = new LightsSettings("Abbremsen");
+        // settingsBremsen
+        // .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffe fest");
+        // grobKoordinationsTraining.add(settingsBremsen);
+        //
+        // // Bremsen Handgriffe
+        // LightsSettings settingsBremsen2 = new LightsSettings("Abbremsen");
+        // settingsBremsen2
+        // .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nDiemsal ohne Handgriffe");
+        // grobKoordinationsTraining.add(settingsBremsen2);
+        //
+        // // Rolle
+        // UniversalSettings settingsRolle = new UniversalSettings("Rolle");
+        // settingsRolle.addTarget(new Target(0.5f, 0.05f, 0.15f));
+        // settingsRolle.addTarget(new Target(0.5f, 0.95f, 0.15f));
+        // settingsRolle.setInstructions("Mache eine Vorwärts- oder Rückwärtsrolle");
+        // grobKoordinationsTraining.add(settingsRolle);
+        //
+        // mTrainings.add(grobKoordinationsTraining);
+        //
+        // // Viereckiger Grundrahmen
+        // Training training0 = new Training("Viereck");
+        // UniversalSettings settingsUniversal = new
+        // UniversalSettings("Viereck");
+        // settingsUniversal.addTarget(new Target(0.25f, 0.25f, 0.1f));
+        // settingsUniversal.addTarget(new Target(0.75f, 0.25f, 0.15f));
+        // settingsUniversal.addTarget(new Target(0.75f, 0.75f, 0.2f));
+        // settingsUniversal.addTarget(new Target(0.25f, 0.75f));
+        // settingsUniversal.setTitle(resources.getString(R.string.game_universal));
+        // training0.add(settingsUniversal);
 
-        // Viereckiger Grundrahmen
-        Training training0 = new Training("Viereck");
-        UniversalSettings settingsUniversal = new UniversalSettings();
-        settingsUniversal.addTarget(new Target(0.25f, 0.25f, 0.1f));
-        settingsUniversal.addTarget(new Target(0.75f, 0.25f, 0.15f));
-        settingsUniversal.addTarget(new Target(0.75f, 0.75f, 0.2f));
-        settingsUniversal.addTarget(new Target(0.25f, 0.75f));
-        settingsUniversal.setTitle(resources.getString(R.string.game_universal));
-        training0.add(settingsUniversal);
+        // UniversalSettings settingsUniversal2 = new UniversalSettings();
+        // settingsUniversal2.addPath(new Path(0.0f, 1.0f, 1.0f, 0.0f, 0.1f,
+        // 200));
+        // settingsUniversal2.setTitle(resources.getString(R.string.game_universal));
+        // training0.add(settingsUniversal2);
 
-        UniversalSettings settingsUniversal2 = new UniversalSettings();
-        settingsUniversal2.addPath(new Path(0.0f, 1.0f, 1.0f, 0.0f, 0.1f, 200));
-        settingsUniversal2.setTitle(resources.getString(R.string.game_universal));
-        training0.add(settingsUniversal2);
-
-        PongSettings settingsPong = new PongSettings();
-        settingsPong.setTitle(resources.getString(R.string.game_pong));
-        training0.add(settingsPong);
-
-        mTrainings.add(training0);
-
-        // Test training
-        Training training1 = new Training("Test Training");
-        training1.add(new PongSettings());
-        training1.add(new MazeSettings());
-        training1.add(new Universal3DSettings());
-        training1.add(new UniversalSettings());
-        mTrainings.add(training1);
-
-        Training training2 = new Training("Noch ein Training");
-        training2.add(new TunnelSettings());
-        training2.add(new TunnelSettings());
-        training2.add(new UniversalSettings());
-        training2.add(new UniversalSettings());
-        training2.add(new UniversalSettings());
-        training2.add(new TunnelSettings());
-        mTrainings.add(training2);
+        // mTrainings.add(training0);
 
         Random random = new Random();
-        for (int i = 0; i < 10; i++) { // TODO inner loop
-            boolean resetIfLeft = true;
-            float targetPositionX = random.nextFloat();
-            float targetPositionY = random.nextFloat();
-            float targetRadius = random.nextFloat() / 10.0f + 0.02f;
-            long holdingTime = 0;
+        for (int i = 1; i <= 10; i++) {
+            Training trainingLoop = new Training("Zufalls Training" + Integer.toString(i));
 
-            Training trainingLoop = new Training("Training" + i);
-            UniversalSettings settings = new UniversalSettings();
-            settings.addTarget(new Target(targetPositionX, targetPositionY, targetRadius,
-                    holdingTime, resetIfLeft));
-            trainingLoop.add(new UniversalSettings());
+            for (int j = 1; j <= 10; j++) {
+                UniversalSettings settingsRandom = new UniversalSettings("Zufallsübung"
+                        + Integer.toString(j));
+
+                int nrOfTargets = random.nextInt(3) + 1;
+                for (int k = 1; k <= nrOfTargets; k++) {
+                    boolean resetIfLeft = random.nextBoolean();
+                    float targetPositionX = random.nextFloat();
+                    float targetPositionY = random.nextFloat();
+                    float targetRadius = random.nextFloat() / 10.0f + 0.02f;
+                    long holdingTime = 0;
+                    if (random.nextBoolean()) {
+                        holdingTime = (long) (random.nextFloat() * 4500f) + 500;
+                    }
+
+                    settingsRandom.addTarget(new Target(targetPositionX, targetPositionY,
+                            targetRadius,
+                            holdingTime, resetIfLeft));
+                }
+                trainingLoop.add(settingsRandom);
+            }
             mTrainings.add(trainingLoop);
         }
 
