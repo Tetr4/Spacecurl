@@ -4,7 +4,6 @@ package de.klimek.spacecurl.game.universal;
 import java.util.ArrayList;
 import java.util.Random;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -42,7 +41,6 @@ public class Universal extends GameFragment {
     private int mCurTargetIndex;
     private Target mCurTarget;
     private Target mNextTarget;
-    private Bitmap mTargetBitmap;
 
     private float mInnerBorder;
     private float mInnerBorderShrinkStep = 0.005f;
@@ -51,8 +49,11 @@ public class Universal extends GameFragment {
     private float mOuterBorderWidth = 0.4f;
     private boolean mBordersSet = false;
     private boolean mFinished = false;
-    private float mStatus;
+    private float mStatus = 1.0f;
     private Drawable mTargetDrawable;
+
+    private float mHighscore = 1.0f;
+    private float mHighscoreFactor = 1.0f;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -246,7 +247,8 @@ public class Universal extends GameFragment {
                 switch (mMode) {
                     case Targets:
                         if (mCurTargetIndex >= (mTargets.size() - 1)) {
-                            notifyFinished("HIGHSCORE: 153"); // TODO REAL SCORE
+                            notifyFinished(String
+                                    .format("Fehlerfreiheit: %.0f %%", mHighscore * 100));
                             // mTargets.add(new Target(mRandom.nextFloat(),
                             // mRandom.nextFloat(),
                             // mRandom.nextFloat() / 10.0f + 0.02f, 0L, false));
@@ -270,7 +272,8 @@ public class Universal extends GameFragment {
                         break;
                     case Paths:
                         if (mCurPathIndex >= (mPaths.size() - 1)) {
-                            notifyFinished("HIGHSCORE: 153"); // TODO REAL SCORE
+                            notifyFinished(String
+                                    .format("Fehlerfreiheit: %.0f %", mHighscore * 100));
                         } else {
                             ++mCurPathIndex;
                             mCurPath = mPaths.get(mCurPathIndex);
@@ -281,6 +284,11 @@ public class Universal extends GameFragment {
                 }
             }
             notifyStatusChanged(mStatus);
+            // running average (e.g. after 5 Status calculations:
+            // mHighscore * 4/5 + mStatus * 1/5)
+            mHighscore = (mHighscore * (mHighscoreFactor - 1) / mHighscoreFactor) + mStatus
+                    * (1 / mHighscoreFactor);
+            mHighscoreFactor++;
             mGameView.invalidate();
         }
 
