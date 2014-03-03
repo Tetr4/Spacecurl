@@ -5,7 +5,7 @@
         android:id="@+id/game_pong_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/game_pong_color">
+        android:background="@drawable/game_background">
 
         <TextView
             android:id="@+id/game_pong_score"

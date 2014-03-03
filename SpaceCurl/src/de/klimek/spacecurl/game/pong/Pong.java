@@ -41,7 +41,7 @@ public class Pong extends GameFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // ViewSwitcher
+        int lifes = ((PongSettings) getSettings()).getLifes();
         View rootView = inflater.inflate(R.layout.game_pong, container, false);
         mPongLayout = (FrameLayout) rootView.findViewById(R.id.game_pong_layout);
         mPongScore = (TextView) mPongLayout.findViewById(R.id.game_pong_score);
@@ -51,7 +51,7 @@ public class Pong extends GameFragment {
                 rootView.findViewById(R.id.game_result_score);
         mResultContinueTime = (TextView)
                 rootView.findViewById(R.id.game_result_continue_time);
-        mGame = new GamePongView(getActivity());
+        mGame = new GamePongView(getActivity(), lifes);
         mPongLayout.addView(mGame);
         return rootView;
     }
@@ -100,11 +100,16 @@ public class Pong extends GameFragment {
         private float mRoll;
 
         private int mBallContacts;
-        private boolean mHaveSize = false;;
+        private boolean mHaveSize = false;
+        private boolean mFinished = false;
+        private int mLifes;
+        private int mCurLifes = mLifes;
 
         // Constructor
-        public GamePongView(Context context) {
+        public GamePongView(Context context, int lifes) {
             super(context);
+            mLifes = lifes;
+            mCurLifes = mLifes;
             mBall = new Ball();
             mPaddleLeft = new Paddle(PaddleSide.Left);
             mPaddleTop = new Paddle(PaddleSide.Top);
@@ -211,7 +216,10 @@ public class Pong extends GameFragment {
                 if (mBall.mState == State.Frowning) {
                     if (mBall.mRemainingFaceTime > 0) {
                         mBall.mRemainingFaceTime -= deltaTime;
+                    } else if (mCurLifes <= 0) {
+                        mFinished = true;
                     } else {
+                        mBallContacts = 0;
                         mBall.mState = State.Normal;
                         mBall.mPositionX = mViewWidthMax / 2;
                         mBall.mPositionY = mViewHeightMax / 2;
@@ -243,9 +251,11 @@ public class Pong extends GameFragment {
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Smiling;
                 } else if (mBall.collidesWithWall()) {
-                    mBallContacts = 0;
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Frowning;
+                    if (mCurLifes > 0) {
+                        --mCurLifes;
+                    }
                 } else {
                     mBall.mRemainingFaceTime -= deltaTime;
                     if (mBall.mRemainingFaceTime <= 0) {
@@ -257,6 +267,12 @@ public class Pong extends GameFragment {
             @Override
             protected void onProgressUpdate(Void... values) {
                 mPongScore.setText(Integer.toString(mBallContacts));
+                if (mFinished) {
+                    boolean handled = notifyFinished(Integer.toString(mBallContacts));
+                    if (!handled) {
+                        mCurLifes = mLifes;
+                    }
+                }
                 invalidate();
             }
 
