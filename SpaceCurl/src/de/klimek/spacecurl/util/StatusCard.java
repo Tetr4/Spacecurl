@@ -20,7 +20,8 @@ public class StatusCard extends Card {
 
     public StatusCard(Context context, GameStatus status) {
         super(context, R.layout.card_status);
-        setStatus(status);
+        mStatus = status;
+        setTitle(mStatus.getTitle());
     }
 
     @Override
@@ -44,7 +45,7 @@ public class StatusCard extends Card {
     }
 
     public void setStatus(GameStatus status) {
-        this.mStatus = status;
+        mStatus = status;
     }
 
 }
