@@ -39,21 +39,23 @@ public class Universal extends GameFragment {
     private Path mCurPath;
     // private ArrayList<Path> mPaths = new ArrayList<Path>();
     private int mCurTargetIndex;
+    private Drawable mTargetDrawable;
     private Target mCurTarget;
     private Target mNextTarget;
 
     private float mInnerBorder;
-    private float mInnerBorderShrinkStep = 0.005f;
+    private float mInnerBorderShrinkStep = 0.007f;
     private float mOuterBorder;
     private float mOuterBorderShrinkStep = 0.005f;
-    private float mOuterBorderWidth = 0.4f;
+    private float mOuterBorderWidth;
     private boolean mBordersSet = false;
     private boolean mFinished = false;
-    private float mStatus = 1.0f;
-    private Drawable mTargetDrawable;
 
+    private float mStatus = 1.0f;
     private float mHighscore = 1.0f;
     private float mHighscoreFactor = 1.0f;
+    private float mFilteredStatus = 1.0f;
+    private float mFilterWeight = 0.05f;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -217,8 +219,9 @@ public class Universal extends GameFragment {
 
             // Borders
             if (!mBordersSet) {
-                mInnerBorder = _distance * 1.05f;
-                mOuterBorder = mInnerBorder + mOuterBorderWidth;
+                mInnerBorder = _distance > mCurTarget.mRadius
+                        ? _distance * 1.05f : mCurTarget.mRadius;
+                mOuterBorder = mInnerBorder * 2.0f;
                 mBordersSet = true;
             }
             else {
@@ -227,10 +230,10 @@ public class Universal extends GameFragment {
                 } else {
                     mInnerBorder = mCurTarget.mRadius;
                 }
-                if ((mOuterBorder - mOuterBorderShrinkStep) > mCurTarget.mRadius * 3.0f) {
+                if ((mOuterBorder - mOuterBorderShrinkStep) > mCurTarget.mRadius * 2.0f) {
                     mOuterBorder -= mOuterBorderShrinkStep;
                 } else {
-                    mOuterBorder = mCurTarget.mRadius * 3.0f;
+                    mOuterBorder = mCurTarget.mRadius * 2.0f;
                 }
             }
 
@@ -238,7 +241,8 @@ public class Universal extends GameFragment {
             mStatus = 1.0f + -(_distance - mInnerBorder) / (mOuterBorder - mInnerBorder);
             // Cutoff values between 0.0f and 1.0f
             mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
-            Log.d(TAG, Float.toString(mStatus));
+            // filter
+            mFilteredStatus += mFilterWeight * (mStatus - mFilteredStatus);
         }
 
         @Override
@@ -283,10 +287,10 @@ public class Universal extends GameFragment {
                         break;
                 }
             }
-            notifyStatusChanged(mStatus);
+            notifyStatusChanged(mFilteredStatus);
             // running average (e.g. after 5 Status calculations:
             // mHighscore * 4/5 + mStatus * 1/5)
-            mHighscore = (mHighscore * (mHighscoreFactor - 1) / mHighscoreFactor) + mStatus
+            mHighscore = (mHighscore * (mHighscoreFactor - 1) / mHighscoreFactor) + mFilteredStatus
                     * (1 / mHighscoreFactor);
             mHighscoreFactor++;
             mGameView.invalidate();

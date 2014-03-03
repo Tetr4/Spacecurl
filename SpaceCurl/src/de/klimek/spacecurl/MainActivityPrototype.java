@@ -80,9 +80,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private int mShortAnimationDuration;
     private State mState = State.Paused;
 
-    private float mFilteredStatus = 1.0f;
-    private float mFilterWeight = 0.05f;
-
     private ColorGradient mGradient = new ColorGradient(Color.RED, Color.YELLOW, Color.GREEN);
 
     public static enum State {
@@ -218,14 +215,11 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     }
 
     protected final void doStatusChanged(float status) {
-        // filter
-        mFilteredStatus += mFilterWeight * (status - mFilteredStatus);
-
         // graph
-        mCurGameStatus.addStatus(mFilteredStatus);
+        mCurGameStatus.addStatus(status);
 
         // indicator
-        mStatusColor = mGradient.getColorForFraction(mFilteredStatus);
+        mStatusColor = mGradient.getColorForFraction(status);
         mStatusIndicator.setBackgroundColor(mStatusColor);
     }
 
