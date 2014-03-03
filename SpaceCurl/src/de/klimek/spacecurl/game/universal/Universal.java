@@ -7,7 +7,6 @@ import java.util.Random;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,7 +47,7 @@ public class Universal extends GameFragment {
     private float mInnerBorder;
     private float mInnerBorderShrinkStep = 0.005f;
     private float mOuterBorder;
-    private float mOuterBorderShrinkStep = 0.002f;
+    private float mOuterBorderShrinkStep = 0.005f;
     private float mOuterBorderWidth = 0.4f;
     private boolean mBordersSet = false;
     private boolean mFinished = false;
@@ -77,7 +76,6 @@ public class Universal extends GameFragment {
             }
 
             mCurTarget.setDrawable(mTargetDrawable);
-            Log.d(TAG, Boolean.toString(mTargetBitmap == null));
         }
         else if (!mSettings.getPaths().isEmpty()) { // PATH
             mMode = Mode.Paths;
@@ -95,7 +93,7 @@ public class Universal extends GameFragment {
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
 
-            mTargetDrawable = (ShapeDrawable) getResources().getDrawable(R.drawable.target);
+            mTargetDrawable = getResources().getDrawable(R.drawable.target);
             // mCurTarget.setDrawable(mTargetDrawable);
         }
     }
@@ -223,15 +221,23 @@ public class Universal extends GameFragment {
                 mBordersSet = true;
             }
             else {
-                mInnerBorder -= mInnerBorderShrinkStep;
-                mOuterBorder -= mOuterBorderShrinkStep;
+                if ((mInnerBorder - mInnerBorderShrinkStep) > mCurTarget.mRadius) {
+                    mInnerBorder -= mInnerBorderShrinkStep;
+                } else {
+                    mInnerBorder = mCurTarget.mRadius;
+                }
+                if ((mOuterBorder - mOuterBorderShrinkStep) > mCurTarget.mRadius * 3.0f) {
+                    mOuterBorder -= mOuterBorderShrinkStep;
+                } else {
+                    mOuterBorder = mCurTarget.mRadius * 3.0f;
+                }
             }
 
             // Status
-            mStatus = 1 + -(_distance - mInnerBorder) / (mOuterBorder - mInnerBorder);
+            mStatus = 1.0f + -(_distance - mInnerBorder) / (mOuterBorder - mInnerBorder);
             // Cutoff values between 0.0f and 1.0f
             mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
-
+            Log.d(TAG, Float.toString(mStatus));
         }
 
         @Override

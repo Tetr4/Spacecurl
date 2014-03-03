@@ -43,9 +43,10 @@ public class Player extends Drawable {
         if (intersects(target)) {
             return 0.0f;
         } else {
-            return (float) (Math.pow((mPositionX - target.mPositionX), 2)
-                    + Math.pow((mPositionY - target.mPositionY), 2)
-                    - Math.pow(target.mRadius, 2));
+            return (float) Math.sqrt(
+                    Math.pow((mPositionX - target.mPositionX), 2)
+                            + Math.pow((mPositionY - target.mPositionY), 2)
+                    ) - target.mRadius;
         }
     }
 
