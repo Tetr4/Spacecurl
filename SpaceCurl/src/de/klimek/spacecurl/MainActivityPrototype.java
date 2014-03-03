@@ -81,7 +81,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
     private State mState = State.Paused;
 
     private float mFilteredStatus = 1.0f;
-    private float mFilterWeight = 0.3f;
+    private float mFilterWeight = 0.05f;
 
     private ColorGradient mGradient = new ColorGradient(Color.RED, Color.YELLOW, Color.GREEN);
 
