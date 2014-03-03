@@ -60,7 +60,8 @@ public class Database {
     private void fillFreeplayGames(Context context) {
         Resources resources = context.getResources();
         // Add games to Spinner
-        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel");
+        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel", 1);
+        settingsTunnel.setShowLives(false);
         mFreeplayGames.add(settingsTunnel);
 
         PongSettings settingsPong = new PongSettings(resources.getString(R.string.game_pong), 1);
@@ -213,7 +214,7 @@ public class Database {
         balanceTraining2.add(settingsBauchRueck);
 
         // Tunnel
-        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel");
+        TunnelSettings settingsTunnel = new TunnelSettings("Tunnel", 3);
         settingsTunnel
                 .setInstructions("Verlagere dein Gewicht, damit die Rakete nicht an den Rand stößt, und versuche eine möglichst weite Strecke zu fliegen");
         balanceTraining2.add(settingsTunnel);

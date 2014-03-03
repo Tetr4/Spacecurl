@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -31,14 +30,16 @@ public class Tunnel extends GameFragment {
     private TextView mResultScore;
     private TextView mResultContinueTime;
     private TextView mTunnelScore;
+    private TunnelSettings mSettings;
 
     private static enum Stage {
-        SizeNotSet, Running, GameOver, Result
+        SizeNotSet, Running, GameOver, Result, Restart
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.game_tunnel, container, false);
+        mSettings = (TunnelSettings) getSettings();
         mTunnelLayout = (FrameLayout) rootView.findViewById(R.id.game_tunnel_layout);
         mResultLayout = (LinearLayout) rootView.findViewById(R.id.game_result_layout);
         mTunnelScore = (TextView)
@@ -47,7 +48,7 @@ public class Tunnel extends GameFragment {
                 rootView.findViewById(R.id.game_result_score);
         mResultContinueTime = (TextView)
                 rootView.findViewById(R.id.game_result_continue_time);
-        mGame = new GameTunnelView(getActivity());
+        mGame = new GameTunnelView(getActivity(), mSettings.getLives(), mSettings.showLives());
         mTunnelLayout.addView(mGame);
         return rootView;
     }
@@ -101,8 +102,11 @@ public class Tunnel extends GameFragment {
         private int mMinTunnelHeight = 190;
         private int mPadding = 12;
         private Player mPlayer = new Player(96, 59);;
+        private int mTotalLives;
+        private Lives mLives;
 
         // Drawing variables
+        private boolean mShowLives;
         private int mViewWidthMax;
         private int mViewHeightMax;
         private Bitmap mBitmap;
@@ -123,12 +127,24 @@ public class Tunnel extends GameFragment {
 
         // Logic variables
         private float mDistance = 0;
+        private float mHighscore = 0;
         private int mRemainingTimeUntilContinue = 6000;
         private Stage mStage = Stage.SizeNotSet;
 
+        AnimatedSprite mExplosion;
+        Bitmap mExplosionBitmap;
+        private boolean mExplode = false;
+
         // Constructor
-        public GameTunnelView(Context context) {
+        public GameTunnelView(Context context, int lives, boolean showlives) {
             super(context);
+            mTotalLives = lives;
+            mShowLives = showlives;
+            mLives = new Lives(mTotalLives, (int) (mPlayer.mWidth * 0.75f),
+                    (int) (mPlayer.mHeight * 0.75f));
+            mExplosionBitmap = BitmapFactory.decodeStream(getResources().openRawResource(
+                    R.drawable.explosion));
+
         }
 
         public void pause() {
@@ -176,8 +192,15 @@ public class Tunnel extends GameFragment {
         protected void onDraw(Canvas canvas) {
             canvas.drawBitmap(mBitmap, -mViewPortOffset, 0, null);
             canvas.drawBitmap(mBitmap, -mViewPortOffset + mBitmapWidth, 0, null);
-            if (hasOrientation())
+            if (hasOrientation()) {
                 mPlayer.draw(canvas);
+            }
+            if (mShowLives) {
+                mLives.draw(canvas);
+            }
+            if (mExplode) {
+                mExplosion.draw(canvas);
+            }
         }
 
         // Called back when the view is first created or its size changes.
@@ -235,17 +258,24 @@ public class Tunnel extends GameFragment {
                             updatePlayer();
                             checkCollisions();
                             mDistance += 0.1;
+                            mHighscore = mDistance > mHighscore ? mDistance : mHighscore;
                             break;
 
                         case GameOver:
-                            // Do nothing
+                            if (mExplode) {
+                                updateExplosion();
+                            }
+                            break;
+
+                        case Restart:
+                            reset();
+                            mStage = Stage.Running;
                             break;
 
                         case Result:
                             mRemainingTimeUntilContinue -= _deltaTime;
                             if (mRemainingTimeUntilContinue < 1000) {
-                                reset();
-                                mStage = Stage.Running;
+                                mStage = Stage.Restart;
                             }
                             break;
                     }
@@ -261,6 +291,15 @@ public class Tunnel extends GameFragment {
                     }
                 }
                 return null;
+            }
+
+            private void updateExplosion() {
+                long now = System.currentTimeMillis();
+                mExplosion.Update(now);
+                if (mExplosion.dispose) {
+                    mExplode = false;
+                    mExplosion = null;
+                }
             }
 
             private void updatePlayer() {
@@ -288,6 +327,15 @@ public class Tunnel extends GameFragment {
                     if (wall.top > mPlayer.mPositionY - mPlayer.mHeight / 3
                             || wall.bottom < mPlayer.mPositionY + mPlayer.mHeight / 3) {
                         mStage = Stage.GameOver;
+                        if (mLives.getLives() > 0) {
+                            mLives.setLives(mLives.getLives() - 1);
+                        }
+                        // Begin explosion
+                        mExplosion = new AnimatedSprite();
+                        mExplosion.Initialize(mExplosionBitmap, 120, 160, FPS, 20, false);
+                        mExplosion.setXPos(mPlayer.mPositionX);
+                        mExplosion.setYPos(mPlayer.mPositionY);
+                        mExplode = true;
                         return;
                     }
                 }
@@ -315,29 +363,39 @@ public class Tunnel extends GameFragment {
             protected void onProgressUpdate(Void... values) {
                 switch (mStage) {
                     case GameOver:
-                        boolean handled = notifyFinished(String.format(
-                                "Geschaffte Strecke: %.0f m", mDistance));
-                        if (!handled) {
-                            mResultLayout.startAnimation(AnimationUtils.loadAnimation(
-                                    getActivity(),
-                                    R.anim.result_anim));
-                            mResultLayout.setVisibility(View.VISIBLE);
-                            mStage = Stage.Result;
+                        if (mLives.getLives() <= 0 && !mExplode) {
+                            boolean handled = notifyFinished(String.format(
+                                    "Längste geschaffte Strecke: %.0f m", mHighscore));
+                            if (!handled) {
+                                // mResultLayout.startAnimation(AnimationUtils.loadAnimation(
+                                // getActivity(),
+                                // R.anim.result_anim));
+                                // mResultLayout.setVisibility(View.VISIBLE);
+                                mLives.setLives(mTotalLives);
+                                mStage = Stage.Restart;
+                            }
+                        } else if (!mExplode) {
+                            mStage = Stage.Restart;
                         }
                         break;
+
                     case Result:
                         mResultContinueTime
                                 .setText(timeToString(mRemainingTimeUntilContinue, false));
                         mResultScore.setText(String.format("%.1f m", mDistance));
                         break;
+
                     case Running:
                         mResultLayout.setVisibility(View.INVISIBLE);
                         mTunnelScore.setText(String.format("%.0f m", mDistance));
                         break;
+
                     case SizeNotSet:
                         break;
-                    default:
+
+                    case Restart:
                         break;
+
                 }
 
                 invalidate();
@@ -347,6 +405,44 @@ public class Tunnel extends GameFragment {
             protected void onCancelled(Void result) {
                 Log.v(TAG, "Thread: Cancelled");
                 super.onCancelled(result);
+            }
+        }
+
+        /**
+         * Lives
+         */
+        private class Lives {
+            private static final int PADDING_TOP = 8;
+            private static final int PADDING_SIDE = 8;
+            private int mLives;
+            private int mWidth;
+            private int mHeight;
+            private Bitmap mRocketBitmap;
+
+            public Lives(int lives, int width, int height) {
+                mLives = lives;
+                mWidth = width;
+                mHeight = height;
+                Bitmap smiley = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.rocket);
+                mRocketBitmap = Bitmap.createScaledBitmap(smiley, mWidth,
+                        mHeight,
+                        true);
+            }
+
+            public void setLives(int lives) {
+                mLives = lives;
+            }
+
+            public int getLives() {
+                return mLives;
+            }
+
+            protected void draw(Canvas canvas) {
+                for (int i = 0; i < mLives; i++) {
+                    canvas.drawBitmap(mRocketBitmap, mWidth * i + PADDING_SIDE, PADDING_TOP,
+                            null);
+                }
             }
         }
 
