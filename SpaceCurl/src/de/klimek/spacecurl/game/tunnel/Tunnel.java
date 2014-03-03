@@ -30,6 +30,7 @@ public class Tunnel extends GameFragment {
     private LinearLayout mResultLayout;
     private TextView mResultScore;
     private TextView mResultContinueTime;
+    private TextView mTunnelScore;
 
     private static enum Stage {
         SizeNotSet, Running, GameOver, Result
@@ -40,6 +41,8 @@ public class Tunnel extends GameFragment {
         View rootView = inflater.inflate(R.layout.game_tunnel, container, false);
         mTunnelLayout = (FrameLayout) rootView.findViewById(R.id.game_tunnel_layout);
         mResultLayout = (LinearLayout) rootView.findViewById(R.id.game_result_layout);
+        mTunnelScore = (TextView)
+                rootView.findViewById(R.id.game_tunnel_score);
         mResultScore = (TextView)
                 rootView.findViewById(R.id.game_result_score);
         mResultContinueTime = (TextView)
@@ -120,7 +123,7 @@ public class Tunnel extends GameFragment {
 
         // Logic variables
         private float mDistance = 0;
-        private int mRemainingTimeUntilContinue = 8000;
+        private int mRemainingTimeUntilContinue = 6000;
         private Stage mStage = Stage.SizeNotSet;
 
         // Constructor
@@ -282,8 +285,8 @@ public class Tunnel extends GameFragment {
                 for (int i = mPlayer.mPositionX - mPlayer.mWidth / 2; i <= mPlayer.mPositionX
                         + mPlayer.mWidth / 2; i++) {
                     Wall wall = mTunnel.get(i);
-                    if (wall.top > mPlayer.mPositionY - mPlayer.mHeight / 2
-                            || wall.bottom < mPlayer.mPositionY + mPlayer.mHeight / 2) {
+                    if (wall.top > mPlayer.mPositionY - mPlayer.mHeight / 3
+                            || wall.bottom < mPlayer.mPositionY + mPlayer.mHeight / 3) {
                         mStage = Stage.GameOver;
                         return;
                     }
@@ -312,10 +315,15 @@ public class Tunnel extends GameFragment {
             protected void onProgressUpdate(Void... values) {
                 switch (mStage) {
                     case GameOver:
-                        mResultLayout.startAnimation(AnimationUtils.loadAnimation(getActivity(),
-                                R.anim.result_anim));
-                        mResultLayout.setVisibility(View.VISIBLE);
-                        mStage = Stage.Result;
+                        boolean handled = notifyFinished(String.format(
+                                "Geschaffte Strecke: %.0f m", mDistance));
+                        if (!handled) {
+                            mResultLayout.startAnimation(AnimationUtils.loadAnimation(
+                                    getActivity(),
+                                    R.anim.result_anim));
+                            mResultLayout.setVisibility(View.VISIBLE);
+                            mStage = Stage.Result;
+                        }
                         break;
                     case Result:
                         mResultContinueTime
@@ -324,6 +332,7 @@ public class Tunnel extends GameFragment {
                         break;
                     case Running:
                         mResultLayout.setVisibility(View.INVISIBLE);
+                        mTunnelScore.setText(String.format("%.0f m", mDistance));
                         break;
                     case SizeNotSet:
                         break;

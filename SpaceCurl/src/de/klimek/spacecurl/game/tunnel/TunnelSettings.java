@@ -6,6 +6,10 @@ import de.klimek.spacecurl.game.GameSettings;
 
 public class TunnelSettings extends GameSettings {
 
+    public TunnelSettings(String title) {
+        super(title);
+    }
+
     public void setTunnelHeight(float height) {
     }
 
