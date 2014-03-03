@@ -109,6 +109,7 @@ public class Pong extends GameFragment {
         private boolean mShowLives;
         private int mBallContacts;
         private boolean mFinished = false;
+        private int mHighscore = 0;
 
         // Constructor
         public GamePongView(Context context, int lives, boolean showlives) {
@@ -242,21 +243,25 @@ public class Pong extends GameFragment {
                 else if (mBall.collidesWithPaddle(mPaddleTop)) {
                     mBall.mSpeedY = Math.abs(mBall.mSpeedY);
                     ++mBallContacts;
+                    mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Smiling;
                 } else if (mBall.collidesWithPaddle(mPaddleBottom)) {
                     mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
                     ++mBallContacts;
+                    mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Smiling;
                 } else if (mBall.collidesWithPaddle(mPaddleLeft)) {
                     mBall.mSpeedX = Math.abs(mBall.mSpeedX);
                     ++mBallContacts;
+                    mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Smiling;
                 } else if (mBall.collidesWithPaddle(mPaddleRight)) {
                     mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
                     ++mBallContacts;
+                    mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
                     mBall.mRemainingFaceTime = 500;
                     mBall.mState = State.Smiling;
                 } else if (mBall.collidesWithWall()) {
@@ -277,9 +282,10 @@ public class Pong extends GameFragment {
             protected void onProgressUpdate(Void... values) {
                 mPongScore.setText(Integer.toString(mBallContacts));
                 if (mFinished) {
-                    boolean handled = notifyFinished(Integer.toString(mBallContacts));
+                    boolean handled = notifyFinished(String.format("Beste Score: %d", mHighscore));
                     if (!handled) {
                         mLives.setLives(mTotalLives);
+                        mHighscore = 0;
                     }
                 }
 
