@@ -25,6 +25,10 @@ public class Lights extends GameFragment {
     private volatile long mTotalTime = 0;
     private volatile boolean mBonus = false;
 
+    private float mStatus = 1.0f;
+    private float mFilteredStatus = mStatus;
+    private float mFilterWeight = 0.05f;
+
     private Stage mStage = Stage.Go;
 
     private static enum Stage {
@@ -137,7 +141,6 @@ public class Lights extends GameFragment {
     }
 
     private class LogicThread extends AsyncTask<Void, Void, Void> {
-
         @Override
         protected Void doInBackground(Void... params) {
             long _lastTime = System.currentTimeMillis();
@@ -145,7 +148,8 @@ public class Lights extends GameFragment {
             long _deltaTime;
             long _timeEnd;
             long _timeSleep;
-            float rotation;
+            float _rotation;
+            float _rotationSpeed;
             while (!isCancelled()) {
                 _startTime = System.currentTimeMillis();
                 _deltaTime = _startTime - _lastTime;
@@ -154,7 +158,8 @@ public class Lights extends GameFragment {
                 // Stage time remaining
                 if (mRemainingStageTime > 1000) {
                     // TODO set mBonus
-                    rotation = getRotationSpeed() * _deltaTime;
+                    _rotationSpeed = getRotationSpeed();
+                    _rotation = _rotationSpeed * _deltaTime;
                     switch (mStage) {
                         case Go:
                             // prevent potential overflow
@@ -163,22 +168,38 @@ public class Lights extends GameFragment {
                                 mRemainingStageTime = 7000;
                             }
                             mTotalTime += _deltaTime;
-                            mDistance += rotation;
+
+                            mDistance += _rotation;
+                            if (mDistance >= mGoalDistance) { // reached goal
+                                mStage = Stage.Result;
+                                mRemainingStageTime = 7000;
+                            }
+
+                            // update status
+                            mStatus = _rotationSpeed / 2.0f;
+                            // Cutoff values between 0.0f and 1.0f
+                            mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
+                            // filter
+                            mFilteredStatus += mFilterWeight * (mStatus -
+                                    mFilteredStatus);
                             break;
 
                         case Stop:
-                            mDistance -= rotation * 2;
+                            mDistance -= _rotation * 2;
                             if (mDistance < 0)
                                 mDistance = 0;
+                            // update status
+                            Log.d(TAG, Float.toString(_rotationSpeed));
+                            mStatus = 1.0f - (_rotationSpeed);
+                            // Cutoff values between 0.0f and 1.0f
+                            mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
+                            // filter
+                            mFilteredStatus += mFilterWeight * (mStatus -
+                                    mFilteredStatus);
                             break;
 
                         case Result:
                             break;
-                    }
-                    // reached goal
-                    if (mStage != Stage.Result && mDistance >= mGoalDistance) {
-                        mStage = Stage.Result;
-                        mRemainingStageTime = 10000;
                     }
 
                 } else { // Stage time ran out
@@ -218,9 +239,11 @@ public class Lights extends GameFragment {
             switch (mStage) {
                 case Go:
                     go();
+                    notifyStatusChanged(mFilteredStatus);
                     break;
                 case Stop:
                     stop();
+                    notifyStatusChanged(mFilteredStatus);
                     break;
                 case Result:
                     boolean handled = notifyFinished("Gesamtzeit: "
