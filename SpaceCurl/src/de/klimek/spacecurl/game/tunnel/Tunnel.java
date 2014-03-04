@@ -44,6 +44,9 @@ public class Tunnel extends GameFragment {
     private int mBufferColumns = 10;
     private int mViewPortOffset = 0;
     private Canvas mBufferCanvas;
+    private AnimatedSprite mExplosion;
+    private Bitmap mExplosionBitmap;
+    private View mLivesView;
 
     // Game difficulty parameters
     private int mCurveWidth = 300;
@@ -52,6 +55,8 @@ public class Tunnel extends GameFragment {
     private int mPadding = 12;
     private Player mPlayer;
     private int mTotalLives;
+    private Lives mLives;
+    private float mStatusStepSize = 0.001f;
 
     // Tunnel variables
     private LinkedList<Wall> mTunnel = new LinkedList<Wall>();
@@ -65,17 +70,14 @@ public class Tunnel extends GameFragment {
 
     // Logic variables
     private float mDistance = 0;
-    private float mHighscore = 0;
     private int mRemainingTimeUntilContinue = 6000;
     private Stage mStage = Stage.SizeNotSet;
-
-    AnimatedSprite mExplosion;
-    Bitmap mExplosionBitmap;
     private boolean mExplode = false;
-
-    private Lives mLives;
     private boolean mShowLives;
-    private View mLivesView;
+
+    // status variables
+    private float mStatus = 1.0f;
+    private float mHighscore = 0;
 
     private static enum Stage {
         SizeNotSet, Running, GameOver, Result, Restart
@@ -331,16 +333,30 @@ public class Tunnel extends GameFragment {
         }
 
         private void checkCollisions() {
+            // check for every x coordinate along hitbox
             for (int i = mPlayer.getPositionX() - mPlayer.getWidth() / 2; i <= mPlayer
                     .getPositionX()
                     + mPlayer.getWidth() / 2; i++) {
+                // check collision with top or bottom wall at cur. x coordinate
                 Wall wall = mTunnel.get(i);
                 if (wall.getTop() > mPlayer.getPositionY() - mPlayer.getHeight() / 3
                         || wall.getBottom() < mPlayer.getPositionY() + mPlayer.getHeight() / 3) {
                     mStage = Stage.GameOver;
+                    // lost life
                     if (mLives.getLives() > 0) {
                         mLives.setLives(mLives.getLives() - 1);
                     }
+                    // update status
+                    if (mDistance <= 20f) { // bad
+                        mStatus -= 0.5f;
+                    } else if (mDistance < 70f) { // okay
+                        // 30 -> .4
+                        // 40 -> .3
+                        // 50 -> .2
+                        // 60 -> .1
+                        mStatus -= 0.5 - ((mDistance - 20) / 10f);
+                    }
+
                     // Begin explosion
                     mExplosion = new AnimatedSprite();
                     mExplosion.Initialize(mExplosionBitmap, 120, 160, FPS, 20, false);
@@ -350,6 +366,9 @@ public class Tunnel extends GameFragment {
                     return;
                 }
             }
+            // no collision
+            mStatus += mStatusStepSize;
+            mStatus = Math.min(mStatus, 1.0f);
         }
 
         private void reset() {
@@ -409,6 +428,7 @@ public class Tunnel extends GameFragment {
 
             }
 
+            // notifyStatusChanged(mStatus); // FIXME laggy. more threads?
             mGame.invalidate();
             mLivesView.invalidate();
         }
