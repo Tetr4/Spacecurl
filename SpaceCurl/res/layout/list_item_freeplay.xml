@@ -3,12 +3,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/freeplay_layout"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/training_item_height"
+    android:layout_height="@dimen/freeplay_item_height"
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
     android:descendantFocusability="blocksDescendants"
     android:layout_marginLeft="16dp" 
-    android:layout_marginRight="16dp" >
+    android:layout_marginRight="16dp"
+ >
  
     <!-- Name -->
     <TextView
@@ -27,7 +28,8 @@
 	    android:layout_height="match_parent"
 	    android:layout_marginTop="5dip"
 	    android:layout_marginBottom="5dip"
-	    android:background="?android:attr/dividerVertical" />
+	    android:background="?android:attr/dividerVertical"
+/>
 
     <!-- Edit Button -->
     <ImageButton

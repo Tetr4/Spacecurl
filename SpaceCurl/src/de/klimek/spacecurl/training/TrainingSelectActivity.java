@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +42,6 @@ public class TrainingSelectActivity extends FragmentActivity {
         setContentView(R.layout.activity_training_select);
         // getActionBar().setDisplayHomeAsUpEnabled(true);
         mTrainings = mDatabase.getTrainings();
-        setupFreePlayItem();
         setupListView();
         setupAddButton();
     }
@@ -58,26 +56,8 @@ public class TrainingSelectActivity extends FragmentActivity {
         }
     }
 
-    private void setupFreePlayItem() {
-        LinearLayout freePlayLayout = (LinearLayout) findViewById(R.id.freeplay_layout);
-        freePlayLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // start Freeplay
-                Intent intent = new Intent(TrainingSelectActivity.this, FreePlayActivity.class);
-                startActivity(intent);
-            }
-        });
-        ImageButton btn = (ImageButton) findViewById(R.id.freeplay_edit_button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // edit Freeplay
-                Intent intent = new Intent(TrainingSelectActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
+    // Intent intent = new Intent(TrainingSelectActivity.this,
+    // SettingsActivity.class);
 
     @Override
     protected void onRestart() {
@@ -122,10 +102,29 @@ public class TrainingSelectActivity extends FragmentActivity {
         // add footer (so nothing is behind add_button_bar when scrolled down)
         View footerItem = getLayoutInflater()
                 .inflate(R.layout.list_item_training_footer, mListView, false);
-        View headerItem = getLayoutInflater()
-                .inflate(R.layout.list_item_training_header, mListView, false);
         mListView.addFooterView(footerItem, null, false);
-        mListView.addHeaderView(headerItem, null, false);
+
+        View freePlayItem = getLayoutInflater()
+                .inflate(R.layout.list_item_freeplay, mListView, false);
+        freePlayItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // start Freeplay
+                Intent intent = new Intent(TrainingSelectActivity.this, FreePlayActivity.class);
+                startActivity(intent);
+            }
+        });
+        View editbutton = freePlayItem.findViewById(R.id.freeplay_edit_button);
+        editbutton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TrainingSelectActivity.this,
+                        SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+        mListView.addHeaderView(freePlayItem, null, false);
 
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new OnItemClickListener() {
@@ -174,18 +173,14 @@ public class TrainingSelectActivity extends FragmentActivity {
             // get training
             final Training training = trainings.get(position);
 
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.list_item_training, parent, false);
+            }
             // create view from training
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View listItemView = inflater.inflate(R.layout.list_item_training, parent, false);
-            // listItemView.setOnClickListener(new OnClickListener() {
-            // @Override
-            // public void onClick(View v) {
-            // editTraining(training);
-            // }
-            // });
-            TextView trainingName = (TextView) listItemView.findViewById(R.id.training_name);
-            ImageButton editButton = (ImageButton) listItemView
+            TextView trainingName = (TextView) convertView.findViewById(R.id.training_name);
+            ImageButton editButton = (ImageButton) convertView
                     .findViewById(R.id.training_edit_button);
             editButton.setOnClickListener(new OnClickListener() {
                 @Override
@@ -194,8 +189,7 @@ public class TrainingSelectActivity extends FragmentActivity {
                 }
             });
             trainingName.setText(training.getTitle());
-            return listItemView;
+            return convertView;
         }
-
     }
 }
