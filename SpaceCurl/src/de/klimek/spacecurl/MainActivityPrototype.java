@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameFragment;
@@ -159,42 +158,36 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mStatus = new TrainingStatus(key);
         mDatabase.getStatuses().add(mStatus);
 
-        // setup panel
-        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
-        int statusIndicatorHeight = (int) (getResources()
-                .getDimension(R.dimen.status_indicator_height));
-        int padding = 0;
-        mSlidingUpPanel.setPanelHeight(statusIndicatorHeight + padding);
-        mSlidingUpPanel.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
-        mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
+        // setup indicator
+        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
+        mSlidingToggleButton = (ImageButton) findViewById(R.id.panel_button);
+        OnClickListener expandsListener = new OnClickListener() {
+
             @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset < 0.5f && mButtonImageIsExpand) {
+            public void onClick(View v) {
+                if (mButtonImageIsExpand) {
+                    expandSlidingPane();
                     mSlidingToggleButton.setImageResource(R.drawable.ic_collapse);
                     mButtonImageIsExpand = false;
-                }
-                if (slideOffset >= 0.5f && !mButtonImageIsExpand) {
+                } else {
+                    if (mSlidingUpPanel != null) {
+                        mSlidingUpPanel.collapsePane();
+                    }
                     mSlidingToggleButton.setImageResource(R.drawable.ic_expand);
                     mButtonImageIsExpand = true;
                 }
             }
+        };
+        mSlidingToggleButton.setOnClickListener(expandsListener);
+        mStatusIndicator.setOnClickListener(expandsListener);
 
-            @Override
-            public void onPanelExpanded(View panel) {
-            }
-
-            @Override
-            public void onPanelCollapsed(View panel) {
-            }
-
-            @Override
-            public void onPanelAnchored(View panel) {
-            }
-        });
-
-        // setup indicator
-        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
-        mSlidingToggleButton = (ImageButton) findViewById(R.id.panel_button);
+        // setup panel
+        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
+        mSlidingUpPanel.setSlidingEnabled(false);
+        int statusIndicatorHeight = (int) (getResources()
+                .getDimension(R.dimen.status_indicator_height));
+        mSlidingUpPanel.setPanelHeight(statusIndicatorHeight);
+        mSlidingUpPanel.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
 
         // setup cardlist
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
@@ -214,17 +207,33 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         }
     }
 
-    protected final void doStatusChanged(float status) {
+    protected final void doStatusChanged(final float status) {
         // graph
         mCurGameStatus.addStatus(status);
-
         // indicator
         mStatusColor = mGradient.getColorForFraction(status);
         mStatusIndicator.setBackgroundColor(mStatusColor);
+        // new Handler().post(new Runnable() {
+        // @Override
+        // public void run() {
+        // // graph
+        // mCurGameStatus.addStatus(status);
+        // // indicator
+        // mStatusColor = mGradient.getColorForFraction(status);
+        // mStatusIndicator.setBackgroundColor(mStatusColor);
+        // }
+        // });
     }
 
     protected final void doPostHighScore(String highScore) { // TODO Notifcation
         mHighScore = highScore;
+        // Toast toast2 = new Toast(this);
+        // toast2.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
+        // toast2.setDuration(Toast.LENGTH_LONG);
+        // TextView tv = new TextView(this);
+        // tv.setText(highScore);
+        // toast2.setView(tv);
+        // toast2.show();
         Toast toast = Toast.makeText(getApplicationContext(), mHighScore,
                 Toast.LENGTH_LONG);
         toast.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
