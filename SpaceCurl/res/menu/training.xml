@@ -1,19 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     
-    <item
-        android:id="@+id/action_previous_game"
-        android:orderInCategory="1"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_previous"
-        android:title="@string/action_previous_game"/>
-    
-    <item
+     <item
         android:id="@+id/action_next_game"
-        android:orderInCategory="2"
-        android:showAsAction="always"
+        android:orderInCategory="1"
+        android:showAsAction="never"
         android:icon="@drawable/ic_next"
         android:title="@string/action_next_game"/>
     
+    <item
+        android:id="@+id/action_previous_game"
+        android:orderInCategory="2"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_previous"
+        android:title="@string/action_previous_game"/>
                
     <item
         android:id="@+id/action_new_training"
