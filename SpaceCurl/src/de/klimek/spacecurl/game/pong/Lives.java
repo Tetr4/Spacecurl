@@ -40,7 +40,7 @@ public class Lives {
 
     protected void draw(Canvas canvas) {
         for (int i = 0; i < mLiveCount; i++) {
-            canvas.drawBitmap(mSmileyBitmap, i * RADIUS * 2 + PADDING_SIDE, PADDING_TOP,
+            canvas.drawBitmap(mSmileyBitmap, i * RADIUS * 2 + PADDING_SIDE * (i + 1), PADDING_TOP,
                     null);
         }
     }
