@@ -16,7 +16,7 @@
             android:layout_gravity="center"
             android:shadowColor="#FF000000"
             android:shadowRadius="10.0"
-            android:text="Score"
+            android:text="0"
             android:textColor="@color/text_game_color"
             android:textSize="50sp"
             android:textStyle="bold" />

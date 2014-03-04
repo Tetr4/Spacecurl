@@ -110,6 +110,8 @@ public class Pong extends GameFragment {
         private int mBallContacts;
         private boolean mFinished = false;
         private int mHighscore = 0;
+        private boolean mGameOver;
+        public float mStatus;
 
         // Constructor
         public GamePongView(Context context, int lives, boolean showlives) {
@@ -269,6 +271,7 @@ public class Pong extends GameFragment {
                     mBall.mState = State.Frowning;
                     if (mLives.getLives() > 0) {
                         mLives.setLives(mLives.getLives() - 1);
+                        mGameOver = true;
                     }
                 } else {
                     mBall.mRemainingFaceTime -= deltaTime;
@@ -281,10 +284,22 @@ public class Pong extends GameFragment {
             @Override
             protected void onProgressUpdate(Void... values) {
                 mPongScore.setText(Integer.toString(mBallContacts));
+                if (mGameOver) {
+                    if (mBallContacts <= 0) { // bad
+                        mStatus = 0.0f;
+                    } else if (mBallContacts >= 5) { // good
+                        mStatus = 1.0f;
+                    } else {
+                        mStatus = (mBallContacts / 10.0f) * 2.0f; // okay
+                    }
+                    notifyStatusChanged(mStatus);
+                    mGameOver = false;
+                }
                 if (mFinished) {
                     boolean handled = notifyFinished(String.format("Beste Score: %d", mHighscore));
                     if (!handled) {
                         mLives.setLives(mTotalLives);
+                        mFinished = false;
                         mHighscore = 0;
                     }
                 }
