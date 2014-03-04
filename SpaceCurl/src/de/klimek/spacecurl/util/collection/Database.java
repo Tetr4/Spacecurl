@@ -95,8 +95,11 @@ public class Database {
 
     private void fillTrainings(Context context) {
         Resources resources = context.getResources();
-        mTrainingGames = (Training) mFreeplayGames.clone();
-
+        mTrainingGames = new Training("TrainingGames");
+        mTrainingGames.add(new UniversalSettings("Universal"));
+        mTrainingGames.add(new LightsSettings(resources.getString(R.string.game_lights)));
+        mTrainingGames.add(new PongSettings(resources.getString(R.string.game_pong), 1));
+        mTrainingGames.add(new TunnelSettings("Tunnel", 1));
         // /*
         // * BALANCE
         // */
