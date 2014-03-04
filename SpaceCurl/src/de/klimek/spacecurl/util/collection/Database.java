@@ -206,9 +206,9 @@ public class Database {
         balanceTraining2.add(settingsSagittal);
 
         // Bauch- und Rueckenlage
-        UniversalSettings settingsBauchRueck = new UniversalSettings("Bauch- und Rückenlage");
-        settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
-        settingsBauchRueck.addTarget(new Target(0.5f, 0.2f, 0.07f, 6000));
+        UniversalSettings settingsBauchRueck = new UniversalSettings("Bauchlage");
+        settingsBauchRueck.addTarget(new Target(0.5f, 1.0f, 0.07f, 6000));
+        settingsBauchRueck.addTarget(new Target(0.5f, 0.0f, 0.07f, 6000));
         settingsBauchRueck
                 .setInstructions("Halte deine Position in der Bauchlage und dann in der Rückenlage");
         balanceTraining2.add(settingsBauchRueck);
@@ -242,10 +242,10 @@ public class Database {
         // Viereckiger Grundrahmen
         UniversalSettings settingsViereck = new UniversalSettings("Viereck");
         for (int i = 0; i < 4; i++) {
-            settingsViereck.addTarget(new Target(0.25f, 0.25f, 0.1f));
-            settingsViereck.addTarget(new Target(0.75f, 0.25f, 0.1f));
-            settingsViereck.addTarget(new Target(0.75f, 0.75f, 0.1f));
-            settingsViereck.addTarget(new Target(0.25f, 0.75f, 0.1f));
+            settingsViereck.addTarget(new Target(0.3f, 0.3f, 0.1f));
+            settingsViereck.addTarget(new Target(0.7f, 0.3f, 0.1f));
+            settingsViereck.addTarget(new Target(0.7f, 0.7f, 0.1f));
+            settingsViereck.addTarget(new Target(0.3f, 0.7f, 0.1f));
         }
         settingsViereck.setInstructions("Bewege dich im Viereck");
         balanceTraining2.add(settingsViereck);
@@ -313,7 +313,7 @@ public class Database {
             Training trainingLoop = new Training("Zufallstraining " + Integer.toString(i));
 
             for (int j = 1; j <= 10; j++) {
-                UniversalSettings settingsRandom = new UniversalSettings("Zufallsübung"
+                UniversalSettings settingsRandom = new UniversalSettings("Zufallsübung "
                         + Integer.toString(j));
 
                 int nrOfTargets = random.nextInt(3) + 2;
