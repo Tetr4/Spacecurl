@@ -120,8 +120,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     }
 
     public float[] getRotationMatrix() {
-        return mResultRotationMatrix;
-        // return mRotationMatrix;
+        return mRotationMatrix;
     }
 
     public float getRotationSpeed() {
@@ -208,12 +207,14 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                             SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X,
                             mResultRotationMatrix);
                 } else {
-                    // SensorManager.remapCoordinateSystem(mRotationMatrix,
-                    // SensorManager.AXIS_X, SensorManager.AXIS_Z,
-                    // mResultRotationMatrix);
-                    System.arraycopy(mRotationMatrix, 0,
-                            mResultRotationMatrix, 0, mRotationMatrix.length);
+                    SensorManager.remapCoordinateSystem(mRotationMatrix,
+                            SensorManager.AXIS_X, SensorManager.AXIS_Z,
+                            mResultRotationMatrix);
+                    // System.arraycopy(mRotationMatrix, 0,
+                    // mResultRotationMatrix, 0, mRotationMatrix.length);
                 }
+
+                // TODO inclination
 
                 /*
                  * get matrix for azimuth, pitch, roll: All values are 0 when
@@ -223,14 +224,15 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                  * phone rightward to a maximum of PI when horizontal.
                  */
                 SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
+                // Add inclination of the phone in its holder
+                mOrientation[1] = mOrientation[1] - mPhoneInclinationRadian;
 
                 // Scaling azimuth, pitch, roll from -1.0f to 1.0f
                 mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
-                mOrientationScaled[1] = ((mOrientation[1] + mPhoneInclinationRadian) * mPitchMultiplier)
+                mOrientationScaled[1] = ((mOrientation[1]) * mPitchMultiplier)
                         / ((float) Math.PI / 2.0f);
                 mOrientationScaled[2] = ((mOrientation[2]) * mRollMultiplier)
                         / ((float) Math.PI / 2.0f);
-
                 // cutoff
                 mOrientationScaled[1] = Math.min(1.0f, Math.max(mOrientationScaled[1], -1.0f));
                 mOrientationScaled[2] = Math.min(1.0f, Math.max(mOrientationScaled[2], -1.0f));

@@ -47,7 +47,6 @@ public class Universal extends GameFragment {
     private float mInnerBorderShrinkStep = 0.007f;
     private float mOuterBorder;
     private float mOuterBorderShrinkStep = 0.005f;
-    private float mOuterBorderWidth;
     private boolean mBordersSet = false;
     private boolean mFinished = false;
 
@@ -182,8 +181,10 @@ public class Universal extends GameFragment {
         }
 
         private void updatePlayer() {
-            _pitch = getScaledOrientation()[1];
-            _roll = getScaledOrientation()[2];
+            // _pitch = getScaledOrientation()[1];
+            // _roll = getScaledOrientation()[2];
+            _pitch = getOrientation()[1];
+            _roll = getOrientation()[2];
             mPlayer.mPositionX = (_roll + 1.0f) / 2.0f;
             mPlayer.mPositionY = (_pitch + 1.0f) / 2.0f;
         }
