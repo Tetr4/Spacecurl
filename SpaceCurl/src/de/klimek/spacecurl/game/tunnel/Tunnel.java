@@ -9,8 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,12 +23,14 @@ import de.klimek.spacecurl.game.GameFragment;
 
 public class Tunnel extends GameFragment {
     private GameTunnelView mGame;
+    private LinearLayout mTunnelBar;
     private FrameLayout mTunnelLayout;
     private LinearLayout mResultLayout;
     private TextView mResultScore;
     private TextView mResultContinueTime;
     private TextView mTunnelScore;
     private TunnelSettings mSettings;
+    private Lives mLives;
 
     private static enum Stage {
         SizeNotSet, Running, GameOver, Result, Restart
@@ -40,6 +40,13 @@ public class Tunnel extends GameFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.game_tunnel, container, false);
         mSettings = (TunnelSettings) getSettings();
+        mTunnelBar = (LinearLayout) rootView.findViewById(R.id.tunnel_bar);
+        mTunnelBar.addView(new View(getActivity()) {
+            @Override
+            protected void onDraw(Canvas canvas) {
+                mLives.draw(canvas);
+            }
+        });
         mTunnelLayout = (FrameLayout) rootView.findViewById(R.id.game_tunnel_layout);
         mResultLayout = (LinearLayout) rootView.findViewById(R.id.game_result_layout);
         mTunnelScore = (TextView)
@@ -101,9 +108,8 @@ public class Tunnel extends GameFragment {
         private int mSpeed = 3;
         private int mMinTunnelHeight = 190;
         private int mPadding = 12;
-        private Player mPlayer = new Player(96, 59);;
+        private Player mPlayer = new Player(96, 59, getResources());
         private int mTotalLives;
-        private Lives mLives;
 
         // Drawing variables
         private boolean mShowLives;
@@ -140,8 +146,8 @@ public class Tunnel extends GameFragment {
             super(context);
             mTotalLives = lives;
             mShowLives = showlives;
-            mLives = new Lives(mTotalLives, (int) (mPlayer.mWidth * 0.75f),
-                    (int) (mPlayer.mHeight * 0.75f));
+            mLives = new Lives(mTotalLives, (int) (mPlayer.getWidth() * 0.75f),
+                    (int) (mPlayer.getHeight() * 0.75f), getResources());
             mExplosionBitmap = BitmapFactory.decodeStream(getResources().openRawResource(
                     R.drawable.explosion));
 
@@ -304,9 +310,10 @@ public class Tunnel extends GameFragment {
 
             private void updatePlayer() {
                 mPitch = getScaledOrientation()[1];
-                mPlayer.mPositionX = mPadding + mPlayer.mWidth / 2;
-                mPlayer.mPositionY = (int) ((mPitch + 1.0f) / 2.0f
-                        * (mViewHeightMax - (mPlayer.mWidth + mPadding * 2)) + mPlayer.mWidth / 2 + mPadding);
+                mPlayer.setPositionX(mPadding + mPlayer.getWidth() / 2);
+                mPlayer.setPositionY((int) ((mPitch + 1.0f) / 2.0f
+                        * (mViewHeightMax - (mPlayer.getWidth() + mPadding * 2))
+                        + mPlayer.getWidth() / 2 + mPadding));
             }
 
             private void updateTunnel() {
@@ -321,11 +328,12 @@ public class Tunnel extends GameFragment {
             }
 
             private void checkCollisions() {
-                for (int i = mPlayer.mPositionX - mPlayer.mWidth / 2; i <= mPlayer.mPositionX
-                        + mPlayer.mWidth / 2; i++) {
+                for (int i = mPlayer.getPositionX() - mPlayer.getWidth() / 2; i <= mPlayer
+                        .getPositionX()
+                        + mPlayer.getWidth() / 2; i++) {
                     Wall wall = mTunnel.get(i);
-                    if (wall.top > mPlayer.mPositionY - mPlayer.mHeight / 3
-                            || wall.bottom < mPlayer.mPositionY + mPlayer.mHeight / 3) {
+                    if (wall.getTop() > mPlayer.getPositionY() - mPlayer.getHeight() / 3
+                            || wall.getBottom() < mPlayer.getPositionY() + mPlayer.getHeight() / 3) {
                         mStage = Stage.GameOver;
                         if (mLives.getLives() > 0) {
                             mLives.setLives(mLives.getLives() - 1);
@@ -333,8 +341,8 @@ public class Tunnel extends GameFragment {
                         // Begin explosion
                         mExplosion = new AnimatedSprite();
                         mExplosion.Initialize(mExplosionBitmap, 120, 160, FPS, 20, false);
-                        mExplosion.setXPos(mPlayer.mPositionX);
-                        mExplosion.setYPos(mPlayer.mPositionY);
+                        mExplosion.setXPos(mPlayer.getPositionX());
+                        mExplosion.setYPos(mPlayer.getPositionY());
                         mExplode = true;
                         return;
                     }
@@ -408,110 +416,5 @@ public class Tunnel extends GameFragment {
             }
         }
 
-        /**
-         * Lives
-         */
-        private class Lives {
-            private static final int PADDING_TOP = 8;
-            private static final int PADDING_SIDE = 8;
-            private int mLives;
-            private int mWidth;
-            private int mHeight;
-            private Bitmap mRocketBitmap;
-
-            public Lives(int lives, int width, int height) {
-                mLives = lives;
-                mWidth = width;
-                mHeight = height;
-                Bitmap smiley = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.rocket);
-                mRocketBitmap = Bitmap.createScaledBitmap(smiley, mWidth,
-                        mHeight,
-                        true);
-            }
-
-            public void setLives(int lives) {
-                mLives = lives;
-            }
-
-            public int getLives() {
-                return mLives;
-            }
-
-            protected void draw(Canvas canvas) {
-                for (int i = 0; i < mLives; i++) {
-                    canvas.drawBitmap(mRocketBitmap, mWidth * i + PADDING_SIDE, PADDING_TOP,
-                            null);
-                }
-            }
-        }
-
-        /**
-         * Wall
-         */
-        private class Wall {
-            private final int top;
-            private final int bottom;
-
-            private Wall(int top, int bottom) {
-                this.top = top;
-                this.bottom = bottom;
-            }
-
-            protected void draw(Canvas canvas, int positionX) {
-                Paint paintTunnel = new Paint();
-                paintTunnel.setColor(Color.WHITE);
-                Paint paintWall = new Paint();
-                paintWall.setColor(Color.BLACK);
-                canvas.drawLine(positionX,
-                        0,
-                        positionX,
-                        mViewHeightMax,
-                        paintWall);
-                canvas.drawLine(positionX,
-                        top,
-                        positionX,
-                        bottom,
-                        paintTunnel);
-            }
-        }
-
-        /**
-         * Player
-         */
-        private class Player {
-            private int mWidth;
-            private int mHeight;
-            private int mPositionX;
-            private int mPositionY;
-            private Paint mPaint = new Paint();
-            private Bitmap mRocket = BitmapFactory.decodeResource(getResources(),
-                    R.drawable.rocket);
-            private Bitmap mRocketScaled;
-            private Rect mSource = new Rect();
-            private Rect mDest = new Rect();
-
-            public Player(int width, int height) {
-                // mPaint.setColor(Color.RED);
-                mPaint.setAlpha(100);
-                mWidth = width;
-                mHeight = height;
-                mPositionX = mPadding + mWidth / 2;
-                mPositionY = mViewHeightMax / 2;
-                mSource.set(0,
-                        0,
-                        mWidth,
-                        mHeight);
-                mRocketScaled = Bitmap.createScaledBitmap(mRocket, mWidth, mHeight, true);
-            }
-
-            protected void draw(Canvas canvas) {
-                mDest.set(mPositionX - mWidth / 2,
-                        mPositionY - mHeight / 2,
-                        mPositionX + mWidth / 2,
-                        mPositionY + mHeight / 2);
-                canvas.drawBitmap(mRocketScaled, mSource, mDest, null);
-            }
-        }
     }
 }
