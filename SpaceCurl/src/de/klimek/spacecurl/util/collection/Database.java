@@ -187,7 +187,7 @@ public class Database {
         /*
          * BALANCE MIT GAMES
          */
-        Training balanceTraining2 = new Training("Balance");
+        Training balanceTraining2 = new Training("Balancetraining");
         // Lotrecht
         UniversalSettings settingsLotrecht = new UniversalSettings("Lotrecht");
         settingsLotrecht.addTarget(new Target(0.5f, 0.5f, 0.05f, 6000));
@@ -310,18 +310,18 @@ public class Database {
 
         Random random = new Random();
         for (int i = 1; i <= 10; i++) {
-            Training trainingLoop = new Training("Zufalls Training" + Integer.toString(i));
+            Training trainingLoop = new Training("Zufallstraining " + Integer.toString(i));
 
             for (int j = 1; j <= 10; j++) {
                 UniversalSettings settingsRandom = new UniversalSettings("Zufallsübung"
                         + Integer.toString(j));
 
-                int nrOfTargets = random.nextInt(3) + 1;
+                int nrOfTargets = random.nextInt(3) + 2;
                 for (int k = 1; k <= nrOfTargets; k++) {
                     boolean resetIfLeft = random.nextBoolean();
                     float targetPositionX = random.nextFloat();
                     float targetPositionY = random.nextFloat();
-                    float targetRadius = random.nextFloat() / 10.0f + 0.02f;
+                    float targetRadius = random.nextFloat() / 15.0f + 0.04f;
                     long holdingTime = 0;
                     if (random.nextBoolean()) {
                         holdingTime = (long) (random.nextFloat() * 4500f) + 500;
