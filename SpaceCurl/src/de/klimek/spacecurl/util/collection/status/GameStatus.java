@@ -7,20 +7,21 @@ import com.jjoe64.graphview.GraphViewSeries;
 public class GameStatus {
     private String mTitle = "";
     private GraphViewSeries mGraphViewSeries;
-    private int valueX = 0;
+    private int mValueX = 0;
     private static final int MAX_DATA_COUNT = 200;
 
     public GameStatus(String title) {
         mTitle = title;
         mGraphViewSeries = new GraphViewSeries(new
                 GraphViewData[] {
-                        new GraphViewData(valueX++, 0)
+                        new GraphViewData(mValueX++, 1.0f)
                 });
     }
 
     public void addStatus(float status) {
         // FIXME Triggers garbage collection too often -> stutter
-        mGraphViewSeries.appendData(new GraphViewData(valueX++, status), true, MAX_DATA_COUNT);
+        // TODO Compress graph data?
+        mGraphViewSeries.appendData(new GraphViewData(mValueX++, status), true, MAX_DATA_COUNT);
     }
 
     public GraphViewSeries getGraphViewSeries() {
@@ -34,7 +35,7 @@ public class GameStatus {
     public void reset() {
         mGraphViewSeries.resetData(new
                 GraphViewData[] {
-                        new GraphViewData(valueX++, 0)
+                        new GraphViewData(mValueX++, 0)
                 });
     }
 }

@@ -31,6 +31,7 @@ public class StatusCard extends Card {
         mGraphView.setManualYAxisBounds(1.0f, 0.0f);
         mGraphView.setViewPort(0.0f, 200.0f);
         mGraphView.setScrollable(true);
+        mGraphView.setDisableTouch(true);
         mGraphView.getGraphViewStyle().setNumHorizontalLabels(1);
         LinearLayout graphLayout = (LinearLayout) parent.findViewById(
                 R.id.card_status_graph);
