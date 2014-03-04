@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -19,14 +18,13 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.util.GameCard;
 import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
@@ -165,10 +163,11 @@ public class TrainingBuilderActivity extends FragmentActivity {
         }
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.game_list);
+        mCardListView.setAdapter(mCardArrayAdapter);
         View footerItem = getLayoutInflater()
                 .inflate(R.layout.list_item_training_footer, mCardListView, false);
         mCardListView.addFooterView(footerItem);
-        mCardListView.setAdapter(mCardArrayAdapter);
+        mCardArrayAdapter.notifyDataSetChanged();
     }
 
     public void addGame(GameSettings settings) {
@@ -186,34 +185,6 @@ public class TrainingBuilderActivity extends FragmentActivity {
     private GameCard createGameCard(GameSettings settings) {
         GameCard card = new GameCard(this, settings);
         return card;
-    }
-
-    private static class GameCard extends Card {
-        private TextView mGameTitleTextView;
-        private String mGameTitle;
-        private GameSettings mGameSettings;
-
-        public GameCard(Context context, GameSettings gameSettings) {
-            super(context, R.layout.card_game);
-            setGameSettings(gameSettings);
-            mGameTitle = gameSettings.getTitle();
-        }
-
-        @Override
-        public void setupInnerViewElements(ViewGroup parent, View view) {
-            mGameTitleTextView = (TextView) parent.findViewById(
-                    R.id.card_game_name);
-            mGameTitleTextView.setText(mGameTitle);
-        }
-
-        public GameSettings getGameSettings() {
-            return mGameSettings;
-        }
-
-        public void setGameSettings(GameSettings gameSettings) {
-            mGameSettings = gameSettings;
-        }
-
     }
 
 }

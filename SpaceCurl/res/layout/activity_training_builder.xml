@@ -8,7 +8,11 @@
         android:id="@+id/game_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:animateLayoutChanges="true" />
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip"
+        android:scrollbarStyle="outsideInset"
+        android:animateLayoutChanges="true"
+        android:smoothScrollbar="true" />
 
     <!-- Add Bar -->
     <FrameLayout
