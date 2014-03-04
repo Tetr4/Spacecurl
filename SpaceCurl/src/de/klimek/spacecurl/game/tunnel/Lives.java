@@ -11,7 +11,6 @@ import de.klimek.spacecurl.R;
  * Lives
  */
 public class Lives {
-    private static final int PADDING_TOP = 8;
     private static final int PADDING_SIDE = 8;
     private int mLives;
     private int mWidth;
@@ -39,7 +38,8 @@ public class Lives {
 
     protected void draw(Canvas canvas) {
         for (int i = 0; i < mLives; i++) {
-            canvas.drawBitmap(mRocketBitmap, mWidth * i + PADDING_SIDE, PADDING_TOP,
+            canvas.drawBitmap(mRocketBitmap, mWidth * i + PADDING_SIDE * (i + 1),
+                    canvas.getHeight() / 2f - mHeight / 2f,
                     null);
         }
     }

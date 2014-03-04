@@ -11,9 +11,11 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,7 +28,7 @@ public class Tunnel extends GameFragment {
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
     private View mGame;
-    private LinearLayout mTunnelBar;
+    private FrameLayout mTunnelBar;
     private FrameLayout mTunnelLayout;
     private LinearLayout mResultLayout;
     private TextView mResultScore;
@@ -73,6 +75,7 @@ public class Tunnel extends GameFragment {
 
     private Lives mLives;
     private boolean mShowLives;
+    private View mLivesView;
 
     private static enum Stage {
         SizeNotSet, Running, GameOver, Result, Restart
@@ -102,17 +105,6 @@ public class Tunnel extends GameFragment {
                 rootView.findViewById(R.id.game_result_score);
         mResultContinueTime = (TextView)
                 rootView.findViewById(R.id.game_result_continue_time);
-
-        // Top bar with score and lives
-        mTunnelBar = (LinearLayout) rootView.findViewById(R.id.tunnel_bar);
-        mTunnelBar.addView(new View(getActivity()) {
-            @Override
-            protected void onDraw(Canvas canvas) {
-                if (mShowLives) {
-                    mLives.draw(canvas);
-                }
-            }
-        });
 
         // main layout
         mTunnelLayout = (FrameLayout) rootView.findViewById(R.id.game_tunnel_layout);
@@ -162,6 +154,21 @@ public class Tunnel extends GameFragment {
             }
         };
         mTunnelLayout.addView(mGame);
+
+        // Top bar with score and lives
+        mTunnelBar = (FrameLayout) rootView.findViewById(R.id.tunnel_bar);
+        mLivesView = new View(getActivity()) {
+            @Override
+            protected void onDraw(Canvas canvas) {
+                if (mShowLives) {
+                    mLives.draw(canvas);
+                }
+            }
+        };
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        mTunnelBar.addView(mLivesView, params);
 
         return rootView;
     }
@@ -403,6 +410,7 @@ public class Tunnel extends GameFragment {
             }
 
             mGame.invalidate();
+            mLivesView.invalidate();
         }
 
         @Override
