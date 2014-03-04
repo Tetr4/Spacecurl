@@ -4,12 +4,8 @@ package de.klimek.spacecurl.game.pong;
 import java.util.Random;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
@@ -25,20 +20,9 @@ import de.klimek.spacecurl.game.GameFragment;
 public class Pong extends GameFragment {
     private FrameLayout mPongLayout;
     private TextView mPongScore;
-    private LinearLayout mResultLayout;
-    private TextView mResultScore;
-    private TextView mResultContinueTime;
 
     private GamePongView mGame;
     private PongSettings mSettings;
-
-    private static enum State {
-        Normal, Smiling, Frowning,
-    }
-
-    private static enum PaddleSide {
-        Left, Top, Right, Bottom
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,12 +33,6 @@ public class Pong extends GameFragment {
         View rootView = inflater.inflate(R.layout.game_pong, container, false);
         mPongLayout = (FrameLayout) rootView.findViewById(R.id.game_pong_layout);
         mPongScore = (TextView) mPongLayout.findViewById(R.id.game_pong_score);
-        mResultLayout = (LinearLayout)
-                rootView.findViewById(R.id.game_result_layout);
-        mResultScore = (TextView)
-                rootView.findViewById(R.id.game_result_score);
-        mResultContinueTime = (TextView)
-                rootView.findViewById(R.id.game_result_continue_time);
         mGame = new GamePongView(getActivity(), lives, showlives);
         mPongLayout.addView(mGame);
         return rootView;
@@ -116,14 +94,15 @@ public class Pong extends GameFragment {
         // Constructor
         public GamePongView(Context context, int lives, boolean showlives) {
             super(context);
-            mTotalLives = lives;
-            mLives = new Lives(mTotalLives);
+            mBall = new Ball(getResources());
+            Resources res = getResources();
             mShowLives = showlives;
-            mBall = new Ball();
-            mPaddleLeft = new Paddle(PaddleSide.Left);
-            mPaddleTop = new Paddle(PaddleSide.Top);
-            mPaddleRight = new Paddle(PaddleSide.Right);
-            mPaddleBottom = new Paddle(PaddleSide.Bottom);
+            mTotalLives = lives;
+            mLives = new Lives(mTotalLives, res);
+            mPaddleLeft = new Paddle(Paddle.PaddleSide.Left, res);
+            mPaddleTop = new Paddle(Paddle.PaddleSide.Top, res);
+            mPaddleRight = new Paddle(Paddle.PaddleSide.Right, res);
+            mPaddleBottom = new Paddle(Paddle.PaddleSide.Bottom, res);
         }
 
         // @Override
@@ -216,67 +195,70 @@ public class Pong extends GameFragment {
             }
 
             private void updateBall() {
-                if (mBall.mState != State.Frowning) {
+                if (mBall.getFaceState() != Ball.FaceState.Frowning) {
                     // Get new (x,y) position
-                    mBall.mPositionX += mBall.mSpeedX;
-                    mBall.mPositionY += mBall.mSpeedY;
+                    mBall.setPositionX(mBall.getPositionX() + mBall.getSpeedX());
+                    mBall.setPositionY(mBall.getPositionY() + mBall.getSpeedY());
                 }
             }
 
             private void checkCollisions(long deltaTime) {
                 // ball has collided with wall
-                if (mBall.mState == State.Frowning) {
-                    if (mBall.mRemainingFaceTime > 0) {
-                        mBall.mRemainingFaceTime -= deltaTime;
+                if (mBall.getFaceState() == Ball.FaceState.Frowning) {
+                    if (mBall.getRemainingFaceTime() > 0) {
+                        mBall.setRemainingFaceTime(mBall.getRemainingFaceTime() - deltaTime);
                     } else if (mLives.getLives() <= 0) {
                         mFinished = true;
                     } else {
                         mBallContacts = 0;
-                        mBall.mState = State.Normal;
-                        mBall.mPositionX = mViewWidthMax / 2;
-                        mBall.mPositionY = mViewHeightMax / 2;
-                        mBall.mSpeedX = new Random().nextBoolean() ? mBall.mSpeedX : -mBall.mSpeedX;
-                        mBall.mSpeedY = new Random().nextBoolean() ? mBall.mSpeedY : -mBall.mSpeedY;
+                        mBall.setFaceState(Ball.FaceState.Normal);
+                        mBall.setPositionX(mViewWidthMax / 2);
+                        mBall.setPositionY(mViewHeightMax / 2);
+                        mBall.setSpeedX(new Random().nextBoolean() ? mBall.getSpeedX() : -mBall
+                                .getSpeedX());
+                        mBall.setSpeedY(new Random().nextBoolean() ? mBall.getSpeedY() : -mBall
+                                .getSpeedY());
                         // mBall.mSpeed += mBallSpeedModifier;
                         // mBall.randomAngle();
                     }
                 }
                 // Check paddle collisions and react
                 else if (mBall.collidesWithPaddle(mPaddleTop)) {
-                    mBall.mSpeedY = Math.abs(mBall.mSpeedY);
+                    mBall.setSpeedY(Math.abs(mBall.getSpeedY()));
                     ++mBallContacts;
                     mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
-                    mBall.mRemainingFaceTime = 500;
-                    mBall.mState = State.Smiling;
+                    mBall.setRemainingFaceTime(500);
+                    mBall.setFaceState(Ball.FaceState.Smiling);
                 } else if (mBall.collidesWithPaddle(mPaddleBottom)) {
-                    mBall.mSpeedY = -Math.abs(mBall.mSpeedY);
+                    mBall.setSpeedY(-Math.abs(mBall.getSpeedY()));
                     ++mBallContacts;
                     mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
-                    mBall.mRemainingFaceTime = 500;
-                    mBall.mState = State.Smiling;
+                    mBall.setRemainingFaceTime(500);
+                    mBall.setFaceState(Ball.FaceState.Smiling);
                 } else if (mBall.collidesWithPaddle(mPaddleLeft)) {
-                    mBall.mSpeedX = Math.abs(mBall.mSpeedX);
+                    mBall.setSpeedX(Math.abs(mBall.getSpeedX()));
                     ++mBallContacts;
                     mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
-                    mBall.mRemainingFaceTime = 500;
-                    mBall.mState = State.Smiling;
+                    mBall.setRemainingFaceTime(500);
+                    mBall.setFaceState(Ball.FaceState.Smiling);
                 } else if (mBall.collidesWithPaddle(mPaddleRight)) {
-                    mBall.mSpeedX = -Math.abs(mBall.mSpeedX);
+                    mBall.setSpeedX(-Math.abs(mBall.getSpeedX()));
                     ++mBallContacts;
                     mHighscore = mBallContacts > mHighscore ? mBallContacts : mHighscore;
-                    mBall.mRemainingFaceTime = 500;
-                    mBall.mState = State.Smiling;
-                } else if (mBall.collidesWithWall()) {
-                    mBall.mRemainingFaceTime = 500;
-                    mBall.mState = State.Frowning;
+                    mBall.setRemainingFaceTime(500);
+                    mBall.setFaceState(Ball.FaceState.Smiling);
+                } else if (mBall.collidesWithWall(mViewWidthMin, mViewHeightMin, mViewWidthMax,
+                        mViewHeightMax)) {
+                    mBall.setRemainingFaceTime(500);
+                    mBall.setFaceState(Ball.FaceState.Frowning);
                     if (mLives.getLives() > 0) {
                         mLives.setLives(mLives.getLives() - 1);
                         mGameOver = true;
                     }
                 } else {
-                    mBall.mRemainingFaceTime -= deltaTime;
-                    if (mBall.mRemainingFaceTime <= 0) {
-                        mBall.mState = State.Normal;
+                    mBall.setRemainingFaceTime(mBall.getRemainingFaceTime() - deltaTime);
+                    if (mBall.getRemainingFaceTime() <= 0) {
+                        mBall.setFaceState(Ball.FaceState.Normal);
                     }
                 }
             }
@@ -314,232 +296,5 @@ public class Pong extends GameFragment {
             }
         }
 
-        /**
-         * Ball
-         */
-        private class Ball {
-            private int mRadius = 40; // Ball's radius
-            private int mPositionX = mRadius + 400; // Ball's center (x,y)
-            private int mPositionY = mRadius + 400;
-            private int mSpeedX = 7; // Ball's speed (x,y)
-            private int mSpeedY = 3;
-            private Paint mPaint = new Paint();
-            private Bitmap mSmileyNormalScaled;
-            private Bitmap mSmileyFrowningScaled;
-            private Bitmap mSmileySmilingScaled;
-            private Rect mSource = new Rect();
-            private Rect mDest = new Rect();
-            private State mState = State.Normal;
-            private long mRemainingFaceTime = 500;
-
-            private Ball() {
-                mPaint.setColor(Color.RED);
-                mSource.set(0,
-                        0,
-                        mRadius * 2,
-                        mRadius * 2);
-                Bitmap smileyNormal = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smiley_normal);
-                Bitmap smileyFrowning = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smiley_frowning);
-                Bitmap smileySmiling = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smiley_smiling);
-                mSmileyNormalScaled = Bitmap.createScaledBitmap(smileyNormal, mRadius * 2,
-                        mRadius * 2,
-                        true);
-                mSmileyFrowningScaled = Bitmap.createScaledBitmap(smileyFrowning, mRadius * 2,
-                        mRadius * 2,
-                        true);
-                mSmileySmilingScaled = Bitmap.createScaledBitmap(smileySmiling, mRadius * 2,
-                        mRadius * 2,
-                        true);
-            }
-
-            protected void draw(Canvas canvas) {
-                mDest.set(mPositionX - mRadius,
-                        mPositionY - mRadius,
-                        mPositionX + mRadius,
-                        mPositionY + mRadius);
-                switch (mState) {
-                    case Normal:
-                        canvas.drawBitmap(mSmileyNormalScaled, mSource, mDest, null);
-                        return;
-                    case Frowning:
-                        canvas.drawBitmap(mSmileyFrowningScaled, mSource, mDest, null);
-                        return;
-                    case Smiling:
-                        canvas.drawBitmap(mSmileySmilingScaled, mSource, mDest, null);
-                        return;
-                }
-
-                // canvas.drawCircle(mPositionX, mPositionY, mRadius, mPaint);
-            }
-
-            private boolean collidesWithWall() {
-                if (mPositionX + mRadius > mViewWidthMax)
-                    return true;
-                if (mPositionX - mRadius < mViewWidthMin)
-                    return true;
-                if (mPositionY + mRadius > mViewHeightMax)
-                    return true;
-                if (mPositionY - mRadius < mViewHeightMin)
-                    return true;
-                return false;
-            }
-
-            private boolean collidesWithPaddle(Paddle paddle) {
-                switch (paddle.mSide) {
-                    case Left:
-                        if (mSpeedX > 0)
-                            return false;
-                        break;
-                    case Top:
-                        if (mSpeedY > 0)
-                            return false;
-                        break;
-                    case Right:
-                        if (mSpeedX < 0)
-                            return false;
-                        break;
-                    case Bottom:
-                        if (mSpeedY < 0)
-                            return false;
-                        break;
-                }
-                int distanceX = (int) Math.abs(mPositionX - paddle.mOnScreenCenterX);
-                int distanceY = (int) Math.abs(mPositionY - paddle.mOnScreenCenterY);
-
-                // Circle completely outside
-                if (distanceX > (paddle.mOnScreenWidth / 2.0f + mRadius))
-                    return false;
-                if (distanceY > (paddle.mOnScreenHeight / 2.0f + mRadius))
-                    return false;
-
-                // Circlecenter inside
-                if (distanceX <= (paddle.mOnScreenWidth / 2.0f))
-                    return true;
-                if (distanceY <= (paddle.mOnScreenHeight / 2.0f))
-                    return true;
-
-                // Corner
-                int cornerDistance_square = (distanceX - paddle.mOnScreenWidth /
-                        2) ^ 2 +
-                        (distanceY - paddle.mOnScreenHeight / 2) ^ 2;
-                return (cornerDistance_square <= (mRadius ^ 2));
-            }
-        }
-
-        /**
-         * Lives
-         */
-        private class Lives {
-            private static final int RADIUS = 32;
-            private static final int PADDING_TOP = 8;
-            private static final int PADDING_SIDE = 8;
-            private int mLives;
-            private Bitmap mSmileyBitmap;
-
-            public Lives(int lives) {
-                mLives = lives;
-                // mSource.set(0,
-                // 0,
-                // RADIUS * 2,
-                // RADIUS * 2);
-                Bitmap smiley = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smiley_normal);
-                mSmileyBitmap = Bitmap.createScaledBitmap(smiley, RADIUS * 2,
-                        RADIUS * 2,
-                        true);
-            }
-
-            public void setLives(int lives) {
-                mLives = lives;
-            }
-
-            public int getLives() {
-                return mLives;
-            }
-
-            protected void draw(Canvas canvas) {
-                for (int i = 0; i < mLives; i++) {
-                    canvas.drawBitmap(mSmileyBitmap, i * RADIUS * 2 + PADDING_SIDE, PADDING_TOP,
-                            null);
-                }
-            }
-        }
-
-        /**
-         * Paddle
-         */
-        private class Paddle {
-            private int mWidth = 196;
-            private int mHeight = 50;
-            private int mPadding = 12;
-            private volatile float mPosition;
-            private Paint mPaint = new Paint();
-            private Rect mSource = new Rect();
-            private Rect mDest = new Rect();
-            private PaddleSide mSide;
-            private int mOnScreenCenterX;
-            private int mOnScreenCenterY;
-            private int mOnScreenWidth;
-            private int mOnScreenHeight;
-            private Bitmap mPaddleBitmapScaled;
-
-            public Paddle(PaddleSide side) {
-                mSide = side;
-                mPaint.setColor(Color.WHITE);
-                // mPaint.setShadowLayer(10.0f, 0.0f, 2.0f, 0xFF000000);
-                // setLayerType(LAYER_TYPE_SOFTWARE, mPaint);
-                if (side == PaddleSide.Left || side == PaddleSide.Right) {
-                    mOnScreenWidth = mHeight;
-                    mOnScreenHeight = mWidth;
-                } else {
-                    mOnScreenWidth = mWidth;
-                    mOnScreenHeight = mHeight;
-                }
-                mSource.set(0,
-                        0,
-                        mOnScreenWidth,
-                        mOnScreenHeight);
-                Bitmap paddleBitmap = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.cloud);
-                mPaddleBitmapScaled = Bitmap.createScaledBitmap(paddleBitmap, mOnScreenWidth,
-                        mOnScreenHeight, true);
-            }
-
-            protected void draw(Canvas canvas) {
-                switch (mSide) {
-                    case Left:
-                        mOnScreenCenterX = mPadding + mHeight / 2;
-                        mOnScreenCenterY = (int) ((mPosition + 1.0f) / 2.0f
-                                * (canvas.getHeight() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
-                        break;
-                    case Top:
-                        mOnScreenCenterX = (int) ((mPosition + 1.0f) / 2.0f
-                                * (canvas.getWidth() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
-                        mOnScreenCenterY = mPadding + mHeight / 2;
-                        break;
-                    case Right:
-                        mOnScreenCenterX = canvas.getWidth() - mPadding - mHeight /
-                                2;
-                        mOnScreenCenterY = (int) ((mPosition + 1.0f) / 2.0f
-                                * (canvas.getHeight() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
-                        break;
-                    case Bottom:
-                        mOnScreenCenterX = (int) ((mPosition + 1.0f) / 2.0f
-                                * (canvas.getWidth() - (mWidth + mPadding * 2)) + mWidth / 2 + mPadding);
-                        mOnScreenCenterY = canvas.getHeight() - mPadding - mHeight /
-                                2;
-                        break;
-                }
-
-                mDest.set(mOnScreenCenterX - mOnScreenWidth / 2, mOnScreenCenterY
-                        - mOnScreenHeight / 2, mOnScreenCenterX + mOnScreenWidth / 2,
-                        mOnScreenCenterY + mOnScreenHeight / 2);
-                canvas.drawBitmap(mPaddleBitmapScaled, mSource, mDest, null);
-                // canvas.drawRect(mRect, mPaint);
-            }
-        }
     }
 }
