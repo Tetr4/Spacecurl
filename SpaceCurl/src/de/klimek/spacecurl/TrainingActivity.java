@@ -37,6 +37,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     private Training mTraining;
     private int mTrainingIndex = -1;
     private GameSettings mGameSettings;
+    private boolean mEnded = false;
 
     /**
      * Called by OS when the activity is first created.
@@ -85,7 +86,9 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
             switchToGame(mGameSettings, R.anim.slide_in_right,
                     R.anim.slide_out_left);
         } else {
-            expandSlidingPane();
+            expandSlidingPane(true);
+            mEnded = true;
+            invalidateOptionsMenu();
         }
     }
 
@@ -117,10 +120,12 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.training, menu);
+        MenuItem itemShowStatus = menu.findItem(R.id.action_show_status);
+        itemShowStatus.setVisible(!mEnded);
         MenuItem itemNext = menu.findItem(R.id.action_next_game);
-        itemNext.setVisible(mTrainingIndex + 1 < mTraining.size());
+        itemNext.setVisible(mTrainingIndex + 1 < mTraining.size() && !mEnded);
         MenuItem itemPrevious = menu.findItem(R.id.action_previous_game);
-        itemPrevious.setVisible(mTrainingIndex > 0);
+        itemPrevious.setVisible(mTrainingIndex > 0 && !mEnded);
         return true;
     }
 
@@ -142,7 +147,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
                 nextGame();
                 break;
             case R.id.action_show_status:
-                expandSlidingPane();
+                expandSlidingPane(false);
                 break;
             default:
                 return super.onOptionsItemSelected(item);

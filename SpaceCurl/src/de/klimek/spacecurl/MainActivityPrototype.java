@@ -138,7 +138,10 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mGameFrame.setOnClickListener(this);
     }
 
-    protected void expandSlidingPane() {
+    protected void expandSlidingPane(boolean locked) {
+        if (locked) {
+            mStatusIndicator.setVisibility(View.GONE);
+        }
         if (mSlidingUpPanel != null) {
             pause();
             mSlidingUpPanel.expandPane();
@@ -166,7 +169,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
             @Override
             public void onClick(View v) {
                 if (mButtonImageIsExpand) {
-                    expandSlidingPane();
+                    expandSlidingPane(false);
                     mSlidingToggleButton.setImageResource(R.drawable.ic_collapse);
                     mButtonImageIsExpand = false;
                 } else {
@@ -190,6 +193,7 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         mSlidingUpPanel.setShadowDrawable(getResources().getDrawable(R.drawable.above_shadow));
 
         // setup cardlist
+        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         mCardListView.setAdapter(mCardArrayAdapter);

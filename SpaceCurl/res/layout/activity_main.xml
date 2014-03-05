@@ -34,6 +34,16 @@
 
         <!-- Status Indicator -->
         <include layout="@layout/status_indicator" />
+        
+        <TextView 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/status_evaluation"
+            android:layout_gravity="center"
+            android:gravity="center"
+    		android:textSize="30sp"
+    		android:paddingBottom="8dp"
+    		android:textStyle="bold"/>
 
         <!-- CardList -->
         <it.gmariotti.cardslib.library.view.CardListView
