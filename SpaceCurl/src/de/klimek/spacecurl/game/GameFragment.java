@@ -226,6 +226,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
                 SensorManager.getOrientation(mResultRotationMatrix, mOrientation);
                 // Add inclination of the phone in its holder
                 mOrientation[1] = mOrientation[1] - mPhoneInclinationRadian;
+                mOrientation[2] = -mOrientation[2]; //
 
                 // Scaling azimuth, pitch, roll from -1.0f to 1.0f
                 mOrientationScaled[0] = mOrientation[0] / (float) Math.PI;
