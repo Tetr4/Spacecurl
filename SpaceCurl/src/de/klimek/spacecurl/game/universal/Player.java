@@ -26,7 +26,7 @@ public class Player extends Drawable {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(4);
-        mPaint.setColor(Color.GREEN);
+        mPaint.setColor(Color.RED);
     }
 
     public boolean intersects(Target mTarget) {
