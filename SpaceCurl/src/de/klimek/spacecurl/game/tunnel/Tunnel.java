@@ -49,7 +49,7 @@ public class Tunnel extends GameFragment {
     private View mLivesView;
 
     // Game difficulty parameters
-    private int mCurveWidth = 300;
+    private int mCurveWidth = 450;
     private int mSpeed = 3;
     private int mMinTunnelHeight = 190;
     private int mPadding = 12;

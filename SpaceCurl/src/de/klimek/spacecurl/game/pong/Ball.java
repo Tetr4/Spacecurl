@@ -19,8 +19,8 @@ public class Ball extends Drawable {
     private int mRadius = 40; // Ball's radius
     private int mPositionX = mRadius + 400; // Ball's center (x,y)
     private int mPositionY = mRadius + 400;
-    private int mSpeedX = 7; // Ball's speed (x,y)
-    private int mSpeedY = 3;
+    private int mSpeedX = 4; // Ball's speed (x,y)
+    private int mSpeedY = 2;
     private Paint mPaint = new Paint();
     private Bitmap mSmileyNormalScaled;
     private Bitmap mSmileyFrowningScaled;

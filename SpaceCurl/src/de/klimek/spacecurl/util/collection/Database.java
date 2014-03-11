@@ -210,8 +210,8 @@ public class Database {
 
         // Bauch- und Rueckenlage
         UniversalSettings settingsBauchRueck = new UniversalSettings("Bauchlage");
-        settingsBauchRueck.addTarget(new Target(0.5f, 1.0f, 0.07f, 6000));
-        settingsBauchRueck.addTarget(new Target(0.5f, 0.0f, 0.07f, 6000));
+        settingsBauchRueck.addTarget(new Target(0.5f, 0.9f, 0.07f, 6000));
+        settingsBauchRueck.addTarget(new Target(0.5f, 0.1f, 0.07f, 6000));
         settingsBauchRueck
                 .setInstructions("Halte deine Position in der Bauchlage und dann in der Rückenlage");
         balanceTraining2.add(settingsBauchRueck);
@@ -239,16 +239,16 @@ public class Database {
             settingsAchsen.addTarget(new Target(0.25f, 0.25f, 0.1f));
             settingsAchsen.addTarget(new Target(0.75f, 0.75f, 0.1f));
         }
-        settingsAchsen.setInstructions("Bewege dich um die dargestellten Achsen");
+        settingsAchsen.setInstructions("Bewege zu den dargestellten Punkten");
         balanceTraining2.add(settingsAchsen);
 
         // Viereckiger Grundrahmen
         UniversalSettings settingsViereck = new UniversalSettings("Viereck");
         for (int i = 0; i < 4; i++) {
-            settingsViereck.addTarget(new Target(0.3f, 0.3f, 0.1f));
-            settingsViereck.addTarget(new Target(0.7f, 0.3f, 0.1f));
-            settingsViereck.addTarget(new Target(0.7f, 0.7f, 0.1f));
-            settingsViereck.addTarget(new Target(0.3f, 0.7f, 0.1f));
+            settingsViereck.addTarget(new Target(0.4f, 0.4f, 0.1f));
+            settingsViereck.addTarget(new Target(0.6f, 0.4f, 0.1f));
+            settingsViereck.addTarget(new Target(0.6f, 0.6f, 0.1f));
+            settingsViereck.addTarget(new Target(0.4f, 0.6f, 0.1f));
         }
         settingsViereck.setInstructions("Bewege dich im Viereck");
         balanceTraining2.add(settingsViereck);

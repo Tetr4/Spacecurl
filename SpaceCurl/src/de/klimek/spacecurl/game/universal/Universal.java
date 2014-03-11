@@ -73,6 +73,7 @@ public class Universal extends GameFragment {
             mTargets.addAll(mSettings.getTargets());
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
+            mCurTarget.mRemainingHoldingTime = mCurTarget.mHoldingTime;
             if (mCurTargetIndex + 1 < mTargets.size()) {
                 mNextTarget = mTargets.get(mCurTargetIndex + 1);
             }
@@ -221,7 +222,7 @@ public class Universal extends GameFragment {
             // Borders
             if (!mBordersSet) {
                 mInnerBorder = _distance > mCurTarget.mRadius
-                        ? _distance * 1.05f : mCurTarget.mRadius;
+                        ? _distance * 1.15f : mCurTarget.mRadius;
                 mOuterBorder = mInnerBorder * 2.0f;
                 mBordersSet = true;
             }
@@ -264,6 +265,7 @@ public class Universal extends GameFragment {
                         } else {
                             ++mCurTargetIndex;
                             mCurTarget = mTargets.get(mCurTargetIndex);
+                            mCurTarget.mRemainingHoldingTime = mCurTarget.mHoldingTime;
                             mCurTarget.setDrawable(mTargetDrawable);
                             ;
                             if (mCurTargetIndex + 1 < mTargets.size()) {

@@ -19,7 +19,7 @@ import de.klimek.spacecurl.game.GameFragment;
 public class Lights extends GameFragment {
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
     private static final int FPS = 30;
-    private int mGoalDistance = 60000;
+    private int mGoalDistance = 25000;
     private volatile float mDistance = 0;
     private volatile long mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;;
     private volatile long mTotalTime = 0;
@@ -27,7 +27,7 @@ public class Lights extends GameFragment {
 
     private float mStatus = 1.0f;
     private float mFilteredStatus = mStatus;
-    private float mFilterWeight = 0.05f;
+    private float mFilterWeight = 0.02f;
 
     private Stage mStage = Stage.Go;
 
@@ -176,7 +176,7 @@ public class Lights extends GameFragment {
                             }
 
                             // update status
-                            mStatus = _rotationSpeed / 2.0f;
+                            mStatus = _rotationSpeed;
                             // Cutoff values between 0.0f and 1.0f
                             mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
                             // filter
