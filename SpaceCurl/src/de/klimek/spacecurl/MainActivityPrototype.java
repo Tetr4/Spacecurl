@@ -194,7 +194,6 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
 
         // setup cardlist
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
-        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         mCardListView.setAdapter(mCardArrayAdapter);
     }
@@ -238,10 +237,12 @@ public abstract class MainActivityPrototype extends FragmentActivity implements 
         // tv.setText(highScore);
         // toast2.setView(tv);
         // toast2.show();
-        Toast toast = Toast.makeText(getApplicationContext(), mHighScore,
-                Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
-        toast.show();
+        for (int i = 0; i < 2; i++) { // double duration
+            Toast toast = Toast.makeText(getApplicationContext(), mHighScore,
+                    Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
+            toast.show();
+        }
     }
 
     /**
