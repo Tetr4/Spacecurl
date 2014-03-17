@@ -7,24 +7,74 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.LineGraphView;
+
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
 public class Sensor extends GameFragment {
+    public static final int MAX_DATA_COUNT = 200;
+
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
 
-    private TextView orientXValue;
-    private TextView orientYValue;
-    private TextView orientZValue;
+    private TextView mOrientXValue;
+    private TextView mOrientYValue;
+    private TextView mOrientZValue;
+    private LinearLayout mLayoutGraph1;
+    private LinearLayout mLayoutGraph2;
+    private GraphView mGraph1;
+    private GraphView mGraph2;
+    private GraphViewSeries mGraphViewSeries1;
+    private GraphViewSeries mGraphViewSeries2;
+    private int mValueX = 0;
+    private float mStatus = 1.0f;
+    private float mFilteredStatus = 1.0f;
+    private float mFilterWeight = 0.027f;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.game_sensor, container, false);
 
-        orientXValue = (TextView) rootView.findViewById(R.id.orient_x_value);
-        orientYValue = (TextView) rootView.findViewById(R.id.orient_y_value);
-        orientZValue = (TextView) rootView.findViewById(R.id.orient_z_value);
+        mOrientXValue = (TextView) rootView.findViewById(R.id.orient_x_value);
+        mOrientYValue = (TextView) rootView.findViewById(R.id.orient_y_value);
+        mOrientZValue = (TextView) rootView.findViewById(R.id.orient_z_value);
+
+        mLayoutGraph1 = (LinearLayout) rootView.findViewById(R.id.graph1);
+        mLayoutGraph2 = (LinearLayout) rootView.findViewById(R.id.graph2);
+
+        mGraphViewSeries1 = new GraphViewSeries(new
+                GraphViewData[] {
+                        new GraphViewData(mValueX, 1.0f)
+                });
+
+        mGraphViewSeries2 = new GraphViewSeries(new
+                GraphViewData[] {
+                        new GraphViewData(mValueX, 1.0f)
+                });
+
+        mGraph1 = new LineGraphView(getActivity(), "");
+        mGraph1.addSeries(mGraphViewSeries1);
+        mGraph1.setManualYAxisBounds(1.0f, 0.0f);
+        mGraph1.setViewPort(0.0f, 200.0f);
+        mGraph1.setScrollable(true);
+        mGraph1.setDisableTouch(true);
+        mGraph1.getGraphViewStyle().setNumHorizontalLabels(1);
+        mLayoutGraph1.addView(mGraph1);
+
+        mGraph2 = new LineGraphView(getActivity(), "");
+        mGraph2.addSeries(mGraphViewSeries2);
+        mGraph2.setManualYAxisBounds(1.0f, 0.0f);
+        mGraph2.setViewPort(0.0f, 200.0f);
+        mGraph2.setScrollable(true);
+        mGraph2.setDisableTouch(true);
+        mGraph2.getGraphViewStyle().setNumHorizontalLabels(1);
+        mLayoutGraph2.addView(mGraph2);
 
         return rootView;
     }
@@ -73,10 +123,16 @@ public class Sensor extends GameFragment {
         protected void onProgressUpdate(Void... values) {
             // float[] orientation = getOrientation();
             float[] orientation = getScaledOrientation();
+            mStatus = (orientation[1] + 1f) / 2.0f;
+            mFilteredStatus += mFilterWeight * (mStatus - mFilteredStatus);
 
-            orientXValue.setText(String.format(" %.2f", orientation[0]));
-            orientYValue.setText(String.format(" %.2f", orientation[1]));
-            orientZValue.setText(String.format(" %.2f", orientation[2]));
+            mOrientXValue.setText(String.format(" %.2f", orientation[0]));
+            mOrientYValue.setText(String.format(" %.2f", orientation[1]));
+            mOrientZValue.setText(String.format(" %.2f", orientation[2]));
+            mGraphViewSeries1.appendData(new GraphViewData(mValueX, mStatus), true, MAX_DATA_COUNT);
+            mGraphViewSeries2.appendData(new GraphViewData(mValueX, mFilteredStatus), true,
+                    MAX_DATA_COUNT);
+            ++mValueX;
         }
 
         @Override
