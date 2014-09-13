@@ -13,11 +13,11 @@ import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
-import de.klimek.spacecurl.util.collection.Database;
+import de.klimek.spacecurl.Database;
 
 /**
  * Prototype Class for GameFragments. <br>
- * Extend Class
+ * Subclasses
  * 
  * @author Mike Klimek
  */
@@ -41,20 +41,12 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     private float mPitchMultiplier = mDatabase.getPitchMultiplier();
     private float mPhoneInclinationRadian = mDatabase.getPhoneInclination() * (float) Math.PI / 180;
 
-    private GameSettings mSettings;
-
     private boolean mLandscape;
     private boolean mViewCreated = false;
     private boolean mPaused = true;
     private ArrayList<GameCallBackListener> mListeners = new ArrayList<GameCallBackListener>();
 
-    public static enum FreeAxisCount {
-        Zero, One, Two, Three
-    }
-
-    public static enum Effect {
-        Accuracy, Speed, Strength, Endurance
-    }
+    private GameDescription mGameDescription;
 
     // Empty constructor required for fragment subclasses
     public GameFragment() {
@@ -79,19 +71,15 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     protected abstract void doResumeGame();
 
-    public abstract FreeAxisCount getFreeAxisCount();
-
-    public abstract Effect[] getEffects();
-
     private boolean isUsingSensor() {
-        return getFreeAxisCount() != FreeAxisCount.Zero;
+        return mGameDescription.getFreeAxisCount() > 0;
     }
 
     public void registerGameCallBackListener(GameCallBackListener listener) {
         mListeners.add(listener);
     }
 
-    public boolean notifyFinished(String highScore) {
+    protected boolean notifyFinished(String highScore) {
         boolean handled = false;
         for (GameCallBackListener curListener : mListeners) {
             curListener.onGameFinished(highScore);
@@ -100,7 +88,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
         return handled;
     }
 
-    public void notifyStatusChanged(float status) {
+    protected void notifyStatusChanged(float status) {
         for (GameCallBackListener curListener : mListeners) {
             curListener.onStatusChanged(status);
         }
@@ -258,12 +246,12 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     }
 
-    public void setSettings(GameSettings settings) {
-        mSettings = settings;
+    public void setGameDescription(GameDescription gameDescription) {
+        mGameDescription = gameDescription;
     }
 
-    protected GameSettings getSettings() {
-        return mSettings;
+    public GameDescription getGameDescription() {
+        return mGameDescription;
     }
 
 }

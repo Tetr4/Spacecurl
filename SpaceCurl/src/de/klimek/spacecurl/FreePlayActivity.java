@@ -14,9 +14,8 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
-import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
@@ -27,12 +26,10 @@ import de.klimek.spacecurl.util.collection.training.Training;
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public class FreePlayActivity extends MainActivityPrototype implements OnClickListener {
-    @SuppressWarnings("unused")
-    private static final String TAG = FreePlayActivity.class.getName();
+public class FreePlayActivity extends BasicTrainingActivity implements OnClickListener {
+    public static final String TAG = FreePlayActivity.class.getName();
     protected static final String STATE_ACTIONBAR_SELECTED_ITEM = "STATE_ACTIONBAR_SELECTED_ITEM";
 
-    private Database mDatabase;
     private ActionBar mActionBar;
     private Training mFreeplayGames;
 
@@ -46,19 +43,15 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabase = Database.getInstance(this);
-        mFreeplayGames = mDatabase.getFreeplayGames();
+
+        Database database = Database.getInstance(this);
+        mFreeplayGames = database.getFreeplayGames();
+
+        loadTraining(mFreeplayGames);
         hideSlidingPane();
-        setupActionbar();
-        if (savedInstanceState == null) {
-            // Select first game on new start
-            mActionBar.setSelectedNavigationItem(0);
-        }
-        else {
-            // select saved game on restart
-            mActionBar.setSelectedNavigationItem(
-                    savedInstanceState.getInt(STATE_ACTIONBAR_SELECTED_ITEM));
-        }
+
+        setupActionbar(savedInstanceState);
+
     }
 
     /**
@@ -72,7 +65,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
      *      href="http://developer.android.com/design/building-blocks/spinners.html">
      *      Spinner Design</a>
      */
-    private void setupActionbar() {
+    private void setupActionbar(Bundle savedInstanceState) {
         mActionBar = getActionBar();
         mActionBar.setDisplayShowTitleEnabled(false);
         mActionBar.setDisplayShowHomeEnabled(true); // "up-caret"
@@ -80,7 +73,7 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
 
         // Adapter to fill spinner with items
         List<String> gameTitles = new ArrayList<String>();
-        for (GameSettings curGame : mFreeplayGames) {
+        for (GameDescription curGame : mFreeplayGames) {
             gameTitles.add(curGame.getTitle());
         }
         SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
@@ -89,12 +82,22 @@ public class FreePlayActivity extends MainActivityPrototype implements OnClickLi
         OnNavigationListener onNavigationListener = new OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int position, long itemId) {
-                switchToGame(mFreeplayGames.get(position));
+                switchToGame(position);
                 return true;
             }
         };
         mActionBar.setListNavigationCallbacks(spinnerAdapter,
                 onNavigationListener);
+
+        if (savedInstanceState == null) {
+            // Select first game on new start
+            mActionBar.setSelectedNavigationItem(0);
+        }
+        else {
+            // select saved game on restart
+            mActionBar.setSelectedNavigationItem(
+                    savedInstanceState.getInt(STATE_ACTIONBAR_SELECTED_ITEM));
+        }
     }
 
     /**

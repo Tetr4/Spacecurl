@@ -18,10 +18,15 @@ import com.jjoe64.graphview.LineGraphView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
+/**
+ * Live sensor data output for debugging, display, etc
+ * 
+ * @author mike
+ */
 public class Sensor extends GameFragment {
     public static final int MAX_DATA_COUNT = 200;
 
-    private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
+    private AsyncTask<Void, Void, Void> mLogicThread = new LogicThread();
 
     private TextView mOrientXValue;
     private TextView mOrientYValue;
@@ -81,26 +86,15 @@ public class Sensor extends GameFragment {
 
     @Override
     public void doPauseGame() {
-        _logicThread.cancel(true);
+        mLogicThread.cancel(true);
     }
 
     @Override
     public void doResumeGame() {
-        if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            _logicThread = new LogicThread();
-            _logicThread.execute();
+        if (!mLogicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            mLogicThread = new LogicThread();
+            mLogicThread.execute();
         }
-    }
-
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.One;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        Effect[] e = {};
-        return e;
     }
 
     private class LogicThread extends AsyncTask<Void, Void, Void> {

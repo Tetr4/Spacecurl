@@ -1,10 +1,9 @@
 
 package de.klimek.spacecurl.util.collection.status;
 
-import java.util.ArrayList;
+import android.util.SparseArray;
 
-public class TrainingStatus extends ArrayList<GameStatus> {
-    private static final long serialVersionUID = -4374659462874669024L;
+public class TrainingStatus extends SparseArray<GameStatus> {
     private String mTitle = "";
     private float mScore = 0.0f;
     private int mTrainingKey;

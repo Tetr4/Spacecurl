@@ -8,8 +8,8 @@
     android:visibility="visible" >
 
     <!-- Resume Button -->
-
     <ImageView
+        android:id="@+id/resume_button"
         android:layout_width="96dip"
         android:layout_height="96dip"
         android:layout_gravity="center"
@@ -19,7 +19,6 @@
 
 
     <!-- Instructions -->
-
     <LinearLayout
         android:id="@+id/instruction_layout"
         android:layout_width="match_parent"

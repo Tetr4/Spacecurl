@@ -13,7 +13,7 @@ import android.graphics.drawable.Drawable;
 import de.klimek.spacecurl.R;
 
 /**
- * Ball
+ * Ball for Pong
  */
 public class Ball extends Drawable {
     private int mRadius = 40; // Ball's radius

@@ -16,19 +16,26 @@ import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
+/**
+ * A multi paddle pong game.
+ * 
+ * @author mike
+ */
 public class Pong extends GameFragment {
+    private static final String TAG = "Pong";
+
+    private AsyncTask<Void, Void, Void> mLogicThread = new LogicThread();
+    private static final int FPS = 30;
+
     private FrameLayout mPongLayout;
     private TextView mPongScore;
 
-    private static final String TAG = "Pong";
-    private static final int FPS = 30;
-    private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
-
-    private int mViewWidthMin = 0; // This view's bounds
+    // This view's bounds
+    private int mViewWidthMin = 0;
     private int mViewWidthMax;
     private int mViewHeightMin = 0;
     private int mViewHeightMax;
-    private boolean mHaveSize = false;
+    private boolean mSizeSet = false;
 
     private Ball mBall;
     private Paddle mPaddleTop;
@@ -46,31 +53,30 @@ public class Pong extends GameFragment {
     private boolean mFinished = false;
     private int mHighscore = 0;
     private boolean mStatusUpdate = true;
-    public float mStatus = 1.0f;
-    public float mStatusStepSize = 0.1f;
+    private float mStatus = 1.0f;
+    private float mStatusStepSize = 0.1f;
 
     private View mGame;
-    private PongSettings mSettings;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mSettings = (PongSettings) getSettings();
-
-        mBall = new Ball(getResources());
+        View rootView = inflater.inflate(R.layout.game_pong, container, false);
+        mPongLayout = (FrameLayout) rootView.findViewById(R.id.game_pong_layout);
+        mPongScore = (TextView) mPongLayout.findViewById(R.id.game_pong_score);
         Resources res = getResources();
-        mShowLives = mSettings.showLives();
-        mTotalLives = mSettings.getLives();
 
+        PongDescription pongDescription = (PongDescription) getGameDescription();
+        mShowLives = pongDescription.showLives();
+        mTotalLives = pongDescription.getLives();
+
+        mBall = new Ball(res);
         mLives = new Lives(mTotalLives, res);
         mPaddleLeft = new Paddle(Paddle.PaddleSide.Left, res);
         mPaddleTop = new Paddle(Paddle.PaddleSide.Top, res);
         mPaddleRight = new Paddle(Paddle.PaddleSide.Right, res);
         mPaddleBottom = new Paddle(Paddle.PaddleSide.Bottom, res);
 
-        View rootView = inflater.inflate(R.layout.game_pong, container, false);
-        mPongLayout = (FrameLayout) rootView.findViewById(R.id.game_pong_layout);
-        mPongScore = (TextView) mPongLayout.findViewById(R.id.game_pong_score);
-        mGame = new View(getActivity()) { // Called back to draw the view. Also
+        mGame = new View(getActivity()) {
             @Override
             protected void onDraw(Canvas canvas) {
                 if (mShowLives) {
@@ -91,42 +97,28 @@ public class Pong extends GameFragment {
                 // Set the movement bounds for the ball
                 mViewWidthMax = w - 1;
                 mViewHeightMax = h - 1;
-                mHaveSize = true;
+                mSizeSet = true;
             }
         };
+
         mPongLayout.addView(mGame);
         return rootView;
     }
 
     @Override
     public void doPauseGame() {
-        _logicThread.cancel(true);
+        mLogicThread.cancel(true);
     }
 
     @Override
     public void doResumeGame() {
-        if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            _logicThread = new LogicThread();
-            _logicThread.execute();
+        if (!mLogicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            mLogicThread = new LogicThread();
+            mLogicThread.execute();
         }
     }
 
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.Two;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        Effect[] e = {
-                Effect.Accuracy,
-                Effect.Speed
-        };
-        return e;
-    }
-
     private class LogicThread extends AsyncTask<Void, Void, Void> {
-
         @Override
         protected Void doInBackground(Void... params) {
             long _lastTime = System.currentTimeMillis();
@@ -138,7 +130,7 @@ public class Pong extends GameFragment {
                 _startTime = System.currentTimeMillis();
                 _deltaTime = _startTime - _lastTime;
                 _lastTime = _startTime;
-                if (mHaveSize) {
+                if (mSizeSet) {
                     updatePaddles();
                     updateBall();
                     checkCollisions(_deltaTime);
@@ -150,7 +142,7 @@ public class Pong extends GameFragment {
                 try {
                     Thread.sleep(_timeSleep < 0 ? 0 : _timeSleep);
                 } catch (InterruptedException e) {
-                    // e.printStackTrace();
+                    Log.w(TAG, "LogicThread sleep interrupted");
                 }
             }
             return null;
@@ -167,32 +159,34 @@ public class Pong extends GameFragment {
 
         private void updateBall() {
             if (mBall.getFaceState() != Ball.FaceState.Frowning) {
-                // Get new (x,y) position
                 mBall.setPositionX(mBall.getPositionX() + mBall.getSpeedX());
                 mBall.setPositionY(mBall.getPositionY() + mBall.getSpeedY());
             }
         }
 
         private void checkCollisions(long deltaTime) {
-            // ball has collided with wall
+            // check if ball has previously collided with wall
             if (mBall.getFaceState() == Ball.FaceState.Frowning) {
                 if (mBall.getRemainingFaceTime() > 0) {
+                    // wait a bit before resuming
                     mBall.setRemainingFaceTime(mBall.getRemainingFaceTime() - deltaTime);
-                } else if (mLives.getLives() <= 0) {
-                    mFinished = true;
-                } else {
-                    // reset
-                    mBallContacts = 0;
-                    mBall.setFaceState(Ball.FaceState.Normal);
-                    mBall.setPositionX(mViewWidthMax / 2);
-                    mBall.setPositionY(mViewHeightMax / 2);
-                    mBall.setSpeedX(new Random().nextBoolean() ? mBall.getSpeedX() : -mBall
-                            .getSpeedX());
-                    mBall.setSpeedY(new Random().nextBoolean() ? mBall.getSpeedY() : -mBall
-                            .getSpeedY());
-                    // mBall.mSpeed += mBallSpeedModifier;
-                    // mBall.randomAngle();
+                    return;
                 }
+                if (mLives.getLives() <= 0) {
+                    mFinished = true;
+                    return;
+                }
+                // lives left -> reset
+                mBallContacts = 0;
+                mBall.setFaceState(Ball.FaceState.Normal);
+                mBall.setPositionX(mViewWidthMax / 2);
+                mBall.setPositionY(mViewHeightMax / 2);
+                mBall.setSpeedX(new Random().nextBoolean() ? mBall.getSpeedX() : -mBall
+                        .getSpeedX());
+                mBall.setSpeedY(new Random().nextBoolean() ? mBall.getSpeedY() : -mBall
+                        .getSpeedY());
+                // mBall.mSpeed += mBallSpeedModifier;
+                // mBall.randomAngle();
                 return; // returns instead of "else if" for readability
             }
 
@@ -222,7 +216,7 @@ public class Pong extends GameFragment {
                 return;
             }
 
-            // Wall collision
+            // Check Wall collision
             if (mBall.collidesWithWall(mViewWidthMin, mViewHeightMin, mViewWidthMax,
                     mViewHeightMax)) {
                 mBall.setRemainingFaceTime(500);
@@ -247,7 +241,7 @@ public class Pong extends GameFragment {
                 return;
             }
 
-            // no collision and
+            // no collision happened
             mBall.setRemainingFaceTime(mBall.getRemainingFaceTime() - deltaTime);
             if (mBall.getRemainingFaceTime() <= 0) {
                 mBall.setFaceState(Ball.FaceState.Normal);
@@ -273,8 +267,10 @@ public class Pong extends GameFragment {
             }
 
             if (mFinished) {
+                // TODO string resource
                 boolean handled = notifyFinished(String.format("Beste Score: %d", mHighscore));
                 if (!handled) {
+                    // restart
                     mLives.setLives(mTotalLives);
                     mFinished = false;
                     mHighscore = 0;

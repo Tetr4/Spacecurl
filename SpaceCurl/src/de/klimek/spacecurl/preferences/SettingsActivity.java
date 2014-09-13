@@ -18,8 +18,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.util.collection.Database;
 
 /**
  * Activity showing general settings and headers leading to game settings. <br>

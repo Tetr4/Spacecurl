@@ -16,14 +16,23 @@ import android.widget.TextView;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
+/**
+ * A game, where the user has to move during a "GO"-stage in order to earn
+ * points and stop during a "STOP"-stage so he doesn't lose points.
+ * 
+ * @author mike
+ */
 public class Lights extends GameFragment {
-    private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
+    private static final String TAG = "Lights";
+
+    private AsyncTask<Void, Void, Void> mLogicThread = new LogicThread();
     private static final int FPS = 30;
+
     private int mGoalDistance = 25000;
-    private volatile float mDistance = 0;
-    private volatile long mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;;
-    private volatile long mTotalTime = 0;
-    private volatile boolean mBonus = false;
+    private float mDistance = 0;
+    private long mRemainingStageTime = new Random().nextInt(20000 - 10000) + 10000;;
+    private long mTotalTime = 0;
+    private boolean mBonus = false;
 
     private float mStatus = 1.0f;
     private float mFilteredStatus = mStatus;
@@ -51,12 +60,13 @@ public class Lights extends GameFragment {
     private TextView mTextViewFinalTime;
     private TextView mTextViewContinueTime;
 
-    // private StatusBundle mStatusBundle;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.game_lights, container, false);
         Resources res = getResources();
+
+        LightsDescription lightsDescription = (LightsDescription) getGameDescription();
+        mGoalDistance = lightsDescription.getRequiredDistance();
 
         mMessageGo = res.getString(R.string.game_lights_message_go);
         mMessageStop = res.getString(R.string.game_lights_message_stop);
@@ -74,32 +84,22 @@ public class Lights extends GameFragment {
 
         mTextViewFinalTime = (TextView) rootView.findViewById(R.id.game_result_score);
         mTextViewContinueTime = (TextView) rootView.findViewById(R.id.game_result_continue_time);
+
         go();
         return rootView;
     }
 
     @Override
     public void doPauseGame() {
-        _logicThread.cancel(true);
+        mLogicThread.cancel(true);
     }
 
     @Override
     public void doResumeGame() {
-        if (!_logicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            _logicThread = new LogicThread();
-            _logicThread.execute();
+        if (!mLogicThread.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            mLogicThread = new LogicThread();
+            mLogicThread.execute();
         }
-    }
-
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.Three;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        Effect[] e = {};
-        return e;
     }
 
     private void go() {
@@ -131,12 +131,12 @@ public class Lights extends GameFragment {
         mTextViewFinalTime.setText(timeToString(mTotalTime, true));
     }
 
-    private String timeToString(long time, boolean showMillis) {
+    private static String timeToString(long time, boolean showMillis) {
         if (showMillis) {
             return "" + time / 1000
                     + ":" + time % 1000;
         } else {
-            return "" + time / 1000;
+            return "" + (1 + time / 1000);
         }
     }
 
@@ -155,19 +155,21 @@ public class Lights extends GameFragment {
                 _deltaTime = _startTime - _lastTime;
                 _lastTime = _startTime;
                 mRemainingStageTime -= _deltaTime;
+
                 // Stage time remaining
-                if (mRemainingStageTime > 1000) {
-                    // TODO set mBonus
+                if (mRemainingStageTime > 0) {
+                    // TODO set overhead mBonus
                     _rotationSpeed = getRotationSpeed();
                     _rotation = _rotationSpeed * _deltaTime;
                     switch (mStage) {
                         case Go:
                             // prevent potential overflow
-                            if (Long.MAX_VALUE - _deltaTime < mTotalTime) {
+                            if (mTotalTime > (Long.MAX_VALUE - _deltaTime)) {
                                 mStage = Stage.Result;
                                 mRemainingStageTime = 7000;
+                            } else {
+                                mTotalTime += _deltaTime;
                             }
-                            mTotalTime += _deltaTime;
 
                             mDistance += _rotation;
                             if (mDistance >= mGoalDistance) { // reached goal
@@ -189,7 +191,6 @@ public class Lights extends GameFragment {
                             if (mDistance < 0)
                                 mDistance = 0;
                             // update status
-                            Log.d(TAG, Float.toString(_rotationSpeed));
                             mStatus = 1.0f - (_rotationSpeed);
                             // Cutoff values between 0.0f and 1.0f
                             mStatus = Math.min(1.0f, Math.max(mStatus, 0.0f));
@@ -228,7 +229,7 @@ public class Lights extends GameFragment {
                 try {
                     Thread.sleep(_timeSleep < 0 ? 0 : _timeSleep);
                 } catch (InterruptedException e) {
-                    // e.printStackTrace();
+                    Log.w(TAG, "LogicThread sleep interrupted");
                 }
             }
             return null;
@@ -246,9 +247,11 @@ public class Lights extends GameFragment {
                     notifyStatusChanged(mFilteredStatus);
                     break;
                 case Result:
+                    // TODO resource string
                     boolean handled = notifyFinished("Gesamtzeit: "
                             + timeToString(mTotalTime, true));
                     if (!handled) {
+                        // restart
                         result();
                     }
                     break;
@@ -260,4 +263,5 @@ public class Lights extends GameFragment {
             Log.v(TAG, "Thread: Cancelled");
         }
     }
+
 }

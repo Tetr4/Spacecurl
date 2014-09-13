@@ -20,15 +20,15 @@ public class Universal3D extends GameFragment {
     public static final int DEFAULT_TITLE_RESOURCE_ID = R.string.game_universal;
     // private StatusBundle mStatusBundle;
     private GLSurfaceView mGame;
-    private Universal3DSettings mSettings;
+    private Universal3DDescription mUniversal3DParams;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mSettings = (Universal3DSettings) getSettings();
+        mUniversal3DParams = (Universal3DDescription) getGameDescription();
         // mGame = new GameUniversal3DView(getActivity());
         mGame = new GLSurfaceView(getActivity());
         GameUniversal3DRenderer renderer = new GameUniversal3DRenderer(this, getResources(),
-                mSettings.getDrawableResId(), mSettings.getTargets());
+                mUniversal3DParams.getDrawableResId(), mUniversal3DParams.getTargets());
         mGame.setRenderer(renderer);
         return mGame;
     }
@@ -41,20 +41,6 @@ public class Universal3D extends GameFragment {
     @Override
     public void doResumeGame() {
         mGame.onResume();
-    }
-
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.Three;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        Effect[] e = {
-                Effect.Accuracy,
-                Effect.Endurance
-        };
-        return e;
     }
 
     private static class GameUniversal3DRenderer implements GLSurfaceView.Renderer {

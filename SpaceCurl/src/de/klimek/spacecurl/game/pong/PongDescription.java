@@ -1,26 +1,31 @@
 
 package de.klimek.spacecurl.game.pong;
 
+import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.GameSettings;
 
-public class PongSettings extends GameSettings {
+public class PongDescription extends GameDescription {
     private int mLives;
     private boolean mShowLives = true;
 
-    public PongSettings(String title, int lives) {
+    public PongDescription(String title, int lives) {
         super(title);
         mLives = lives;
+        setFreeAxisCount(2);
+        Effect[] effects = {
+                Effect.Accuracy,
+                Effect.Speed
+        };
+        setEffects(effects);
     }
 
     @Override
-    public GameFragment getFragment() {
-        Pong fragment = new Pong();
-        fragment.setSettings(this);
-        return fragment;
+    public GameFragment createFragment() {
+        return new Pong();
     }
 
     public void setPaddleWidth(float width) {
+        // TODO implement
     }
 
     public int getLives() {

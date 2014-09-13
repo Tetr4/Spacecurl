@@ -11,13 +11,13 @@ import android.graphics.Rect;
 import de.klimek.spacecurl.R;
 
 /**
- * Paddle
+ * Paddle for Pong
  */
 public class Paddle {
-    private int mWidth = 196;
-    private int mHeight = 50;
-    private int mPadding = 12;
-    volatile float mPosition;
+    int mWidth = 196;
+    int mHeight = 50;
+    int mPadding = 12;
+    float mPosition;
     private Paint mPaint = new Paint();
     private Rect mSource = new Rect();
     private Rect mDest = new Rect();

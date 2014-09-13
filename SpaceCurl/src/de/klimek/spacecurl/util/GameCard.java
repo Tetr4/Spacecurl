@@ -7,14 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.game.GameDescription;
 
 public class GameCard extends Card {
     private TextView mGameTitleTextView;
     private String mGameTitle;
-    private GameSettings mGameSettings;
+    private GameDescription mGameSettings;
 
-    public GameCard(Context context, GameSettings gameSettings) {
+    public GameCard(Context context, GameDescription gameSettings) {
         super(context, R.layout.card_game);
         setGameSettings(gameSettings);
         mGameTitle = gameSettings.getTitle();
@@ -27,11 +27,11 @@ public class GameCard extends Card {
         mGameTitleTextView.setText(mGameTitle);
     }
 
-    public GameSettings getGameSettings() {
+    public GameDescription getGameSettings() {
         return mGameSettings;
     }
 
-    public void setGameSettings(GameSettings gameSettings) {
+    public void setGameSettings(GameDescription gameSettings) {
         mGameSettings = gameSettings;
     }
 

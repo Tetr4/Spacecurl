@@ -5,14 +5,13 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 import de.klimek.spacecurl.game.GameCallBackListener;
-import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.GameSettings;
 import de.klimek.spacecurl.training.TrainingSelectActivity;
-import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 /**
@@ -23,20 +22,18 @@ import de.klimek.spacecurl.util.collection.training.Training;
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public class TrainingActivity extends MainActivityPrototype implements OnClickListener,
+public class TrainingActivity extends BasicTrainingActivity implements OnClickListener,
         GameCallBackListener {
-    private static final String TAG = "TrainingActivity"; // Used for log output
+    private static final String TAG = BasicTrainingActivity.class.getSimpleName();
     protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
     protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
-    public final static String EXTRA_TRAINING_KEY = "EXTRA_TRAINING";
+    public final static String EXTRA_TRAINING_INDEX = "EXTRA_TRAINING";
 
-    private Database mDatabase;
     private ActionBar mActionBar;
     private String mTitle = "";
 
     private Training mTraining;
-    private int mTrainingIndex = -1;
-    private GameSettings mGameSettings;
+    private int mCurGameDescriptionIndex = -1;
     private boolean mEnded = false;
 
     /**
@@ -49,12 +46,14 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDatabase = Database.getInstance(this);
-        int key = getIntent().getIntExtra(EXTRA_TRAINING_KEY, 0);
 
-        mTraining = mDatabase.getTrainings().get(key);
+        int trainingNr = getIntent().getIntExtra(EXTRA_TRAINING_INDEX, -1);
+        Database database = Database.getInstance(this);
+        mTraining = database.getTrainings().get(trainingNr);
+        loadTraining(mTraining);
 
-        useStatusForTraining(key);
+        // enable status panel
+        useStatus(trainingNr);
 
         setupActionbar();
         nextGame();
@@ -66,48 +65,64 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
         mActionBar.setDisplayShowTitleEnabled(true);
     }
 
-    private void previousGame() {
-        Log.v(TAG, "previousGame");
-        if (mTrainingIndex - 1 >= 0) {
-            --mTrainingIndex;
-            mGameSettings = mTraining.get(mTrainingIndex);
-            switchStatus(mTrainingIndex);
-            switchToGame(mGameSettings, android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right);
-        }
-    }
-
+    /**
+     * Game has finished, or skipped
+     */
     private void nextGame() {
-        Log.v(TAG, "nextGame");
-        if (mTrainingIndex + 1 < mTraining.size()) {
-            ++mTrainingIndex;
-            mGameSettings = mTraining.get(mTrainingIndex);
-            switchStatus(mTrainingIndex);
-            switchToGame(mGameSettings, R.anim.slide_in_right,
-                    R.anim.slide_out_left);
+        Log.i(TAG, "nextGame");
+        // check if next Game exists
+        if (mCurGameDescriptionIndex + 1 < mTraining.size()) {
+            ++mCurGameDescriptionIndex;
+            switchToGame(mCurGameDescriptionIndex, R.anim.slide_in_right, R.anim.slide_out_left);
+            updateActionbar();
         } else {
-            expandSlidingPane(true);
+            // training finished
+            expandSlidingPane();
+            lockSlidingPane();
+            hideStatusIndicator();
             mEnded = true;
             invalidateOptionsMenu();
         }
     }
 
+    /**
+     * User skips back to previous game
+     */
+    private void previousGame() {
+        Log.i(TAG, "previousGame");
+        if (mCurGameDescriptionIndex - 1 >= 0) {
+            --mCurGameDescriptionIndex;
+            switchToGame(mCurGameDescriptionIndex, android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right);
+            updateActionbar();
+        }
+    }
+
     @Override
     public void onStatusChanged(float status) {
-        doStatusChanged(status);
+        updateCurGameStatus(status);
     }
 
     @Override
     public void onGameFinished(String highScore) {
-        doPostHighScore(highScore);
+        postHighScore(highScore);
         nextGame();
     }
 
-    @Override
-    protected void onGameSwitched(GameFragment gameFragment) {
+    private void postHighScore(String highScore) {
+        // TODO Bigger Notification
+        for (int i = 0; i < 2; i++) { // double duration
+            Toast toast = Toast.makeText(getApplicationContext(), highScore,
+                    Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP, 0, getActionBar().getHeight() + 32);
+            toast.show();
+        }
+    }
+
+    private void updateActionbar() {
         mTitle = mTraining.getTitle();
         mActionBar.setTitle(
-                mTitle + " (" + (mTrainingIndex + 1) + "/" + mTraining.size() + ")"
+                mTitle + " (" + (mCurGameDescriptionIndex + 1) + "/" + mTraining.size() + ")"
                 );
         invalidateOptionsMenu();
     }
@@ -123,9 +138,9 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
         MenuItem itemShowStatus = menu.findItem(R.id.action_show_status);
         itemShowStatus.setVisible(!mEnded);
         MenuItem itemNext = menu.findItem(R.id.action_next_game);
-        itemNext.setVisible(mTrainingIndex + 1 < mTraining.size() && !mEnded);
+        itemNext.setVisible(mCurGameDescriptionIndex + 1 < mTraining.size() && !mEnded);
         MenuItem itemPrevious = menu.findItem(R.id.action_previous_game);
-        itemPrevious.setVisible(mTrainingIndex > 0 && !mEnded);
+        itemPrevious.setVisible(mCurGameDescriptionIndex > 0 && !mEnded);
         return true;
     }
 
@@ -147,7 +162,7 @@ public class TrainingActivity extends MainActivityPrototype implements OnClickLi
                 nextGame();
                 break;
             case R.id.action_show_status:
-                expandSlidingPane(false);
+                expandSlidingPane();
                 break;
             default:
                 return super.onOptionsItemSelected(item);

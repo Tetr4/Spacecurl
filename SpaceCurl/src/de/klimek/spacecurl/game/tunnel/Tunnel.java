@@ -23,6 +23,7 @@ import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
 public class Tunnel extends GameFragment {
+    // FIXME 1 pixel offset at the bottom
     private static final String TAG = "Tunnel";
     private static final int FPS = 30;
     private AsyncTask<Void, Void, Void> _logicThread = new LogicThread();
@@ -34,7 +35,7 @@ public class Tunnel extends GameFragment {
     private TextView mResultScore;
     private TextView mResultContinueTime;
     private TextView mTunnelScore;
-    private TunnelSettings mSettings;
+    private TunnelDescription mTunnelParams;
 
     // Drawing variables
     private int mViewWidthMax;
@@ -88,9 +89,9 @@ public class Tunnel extends GameFragment {
         View rootView = inflater.inflate(R.layout.game_tunnel, container, false);
 
         // Settings
-        mSettings = (TunnelSettings) getSettings();
-        mTotalLives = mSettings.getLives();
-        mShowLives = mSettings.showLives();
+        mTunnelParams = (TunnelDescription) getGameDescription();
+        mTotalLives = mTunnelParams.getLives();
+        mShowLives = mTunnelParams.showLives();
 
         // Objects
         mPlayer = new Player(96, 59, getResources());
@@ -186,20 +187,6 @@ public class Tunnel extends GameFragment {
             _logicThread = new LogicThread();
             _logicThread.execute();
         }
-    }
-
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        return FreeAxisCount.One;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        Effect[] e = {
-                Effect.Accuracy,
-                Effect.Speed
-        };
-        return e;
     }
 
     private static float interpolate(int y1, int y2, float mu) {
@@ -395,7 +382,7 @@ public class Tunnel extends GameFragment {
                 case GameOver:
                     if (mLives.getLives() <= 0 && !mExplode) {
                         boolean handled = notifyFinished(String.format(
-                                "Längste geschaffte Strecke: %.0f m", mHighscore));
+                                "Lï¿½ngste geschaffte Strecke: %.0f m", mHighscore));
                         if (!handled) {
                             // mResultLayout.startAnimation(AnimationUtils.loadAnimation(
                             // getActivity(),

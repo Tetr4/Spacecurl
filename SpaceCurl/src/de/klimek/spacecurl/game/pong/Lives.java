@@ -8,7 +8,7 @@ import android.graphics.Canvas;
 import de.klimek.spacecurl.R;
 
 /**
- * Lives
+ * Multiple icons for remaining lives
  */
 public class Lives {
     private static final int RADIUS = 32;

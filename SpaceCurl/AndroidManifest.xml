@@ -21,7 +21,8 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppBaseTheme">
+        android:theme="@style/AppBaseTheme"
+        android:label="@string/app_name">
 
         <!-- FreePlayActivity -->
         <activity
@@ -50,7 +51,6 @@
         <!-- TrainingSelectActivity -->
         <activity
             android:name="de.klimek.spacecurl.training.TrainingSelectActivity"
-            android:label="@string/title_activity_training_select"
             android:launchMode="singleTask" >
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.MAIN" />

@@ -4,7 +4,10 @@
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    sothree:panelHeight="0px"
+    sothree:shadowHeight="4dp" >
 
     <!-- MainFrame -->
     <FrameLayout

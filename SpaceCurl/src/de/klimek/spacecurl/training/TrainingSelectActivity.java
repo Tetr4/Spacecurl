@@ -21,11 +21,11 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.FreePlayActivity;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.preferences.SettingsActivity;
-import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
@@ -104,17 +104,21 @@ public class TrainingSelectActivity extends FragmentActivity {
                 .inflate(R.layout.list_item_training_footer, mListView, false);
         mListView.addFooterView(footerItem, null, false);
 
+        // Freeplay item
         View freePlayItem = getLayoutInflater()
                 .inflate(R.layout.list_item_freeplay, mListView, false);
         freePlayItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // start Freeplay
-                Intent intent = new Intent(TrainingSelectActivity.this, FreePlayActivity.class);
+                Intent intent = new Intent(TrainingSelectActivity.this,
+                        FreePlayActivity.class);
                 startActivity(intent);
             }
         });
-        View editbutton = freePlayItem.findViewById(R.id.freeplay_edit_button);
+        // FIXME Settings for Freeplay instead of general settings
+        View editbutton =
+                freePlayItem.findViewById(R.id.freeplay_edit_button);
         editbutton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -126,6 +130,11 @@ public class TrainingSelectActivity extends FragmentActivity {
         });
         mListView.addHeaderView(freePlayItem, null, false);
 
+        // trainings
+        mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
+        mListView.setAdapter(mArrayAdapter);
+
+        // list interaction
         mListView.setClickable(true);
         mListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -134,27 +143,25 @@ public class TrainingSelectActivity extends FragmentActivity {
                 startTraining(mTrainings.get(position - 1));
             }
         });
-        mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
-        mListView.setAdapter(mArrayAdapter);
     }
 
     private void startTraining(Training training) {
         int key = mTrainings.indexOf(training);
         Intent intent = new Intent(this, TrainingActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, key);
         startActivity(intent);
     }
 
     private void editTraining(Training training) {
         int key = mTrainings.indexOf(training);
         Intent intent = new Intent(this, TrainingBuilderActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, key);
         startActivity(intent);
     }
 
     private void addTraining() {
         Intent intent = new Intent(this, TrainingBuilderActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, TrainingBuilderActivity.NEW_TRAINING);
+        intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, TrainingBuilderActivity.NEW_TRAINING);
         startActivity(intent);
     }
 
@@ -179,7 +186,7 @@ public class TrainingSelectActivity extends FragmentActivity {
                 convertView = inflater.inflate(R.layout.list_item_training, parent, false);
             }
             // create view from training
-            TextView trainingName = (TextView) convertView.findViewById(R.id.training_name);
+            TextView trainingNameTextView = (TextView) convertView.findViewById(R.id.training_name);
             ImageButton editButton = (ImageButton) convertView
                     .findViewById(R.id.training_edit_button);
             editButton.setOnClickListener(new OnClickListener() {
@@ -188,7 +195,7 @@ public class TrainingSelectActivity extends FragmentActivity {
                     editTraining(training);
                 }
             });
-            trainingName.setText(training.getTitle());
+            trainingNameTextView.setText(training.getTitle());
             return convertView;
         }
     }

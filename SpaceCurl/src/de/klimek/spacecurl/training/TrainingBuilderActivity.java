@@ -21,11 +21,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.TrainingActivity;
-import de.klimek.spacecurl.game.GameSettings;
+import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.util.GameCard;
-import de.klimek.spacecurl.util.collection.Database;
 import de.klimek.spacecurl.util.collection.training.Training;
 
 public class TrainingBuilderActivity extends FragmentActivity {
@@ -42,7 +42,8 @@ public class TrainingBuilderActivity extends FragmentActivity {
         setContentView(R.layout.activity_training_builder);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        int key = getIntent().getExtras().getInt(TrainingActivity.EXTRA_TRAINING_KEY);
+        int key = getIntent().getExtras().getInt(TrainingActivity.EXTRA_TRAINING_INDEX,
+                NEW_TRAINING);
         if (key != NEW_TRAINING) {
             mTraining = mDatabase.getTrainings().get(key);
             setupCards();
@@ -85,7 +86,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 contextWithThemeHolo,
                 android.R.layout.select_dialog_singlechoice);
-        for (GameSettings curGame : mDatabase.getTrainingGames()) {
+        for (GameDescription curGame : mDatabase.getSelectableGames()) {
             arrayAdapter.add(curGame.getTitle());
         }
 
@@ -94,7 +95,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addGame(mDatabase.getTrainingGames().get(which));
+                        addGame(mDatabase.getSelectableGames().get(which));
                     }
 
                 });
@@ -145,7 +146,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
             case R.id.action_play:
                 int key = mDatabase.getTrainings().indexOf(mTraining);
                 Intent intent = new Intent(this, TrainingActivity.class);
-                intent.putExtra(TrainingActivity.EXTRA_TRAINING_KEY, key);
+                intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, key);
                 startActivity(intent);
                 break;
             case R.id.action_rename:
@@ -158,7 +159,7 @@ public class TrainingBuilderActivity extends FragmentActivity {
     }
 
     private void setupCards() {
-        for (GameSettings curGame : mTraining) {
+        for (GameDescription curGame : mTraining) {
             mCards.add(createGameCard(curGame));
         }
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
@@ -170,9 +171,9 @@ public class TrainingBuilderActivity extends FragmentActivity {
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
-    public void addGame(GameSettings settings) {
-        mTraining.add(settings);
-        mCards.add(createGameCard(settings));
+    public void addGame(GameDescription game) {
+        mTraining.add(game);
+        mCards.add(createGameCard(game));
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
@@ -182,8 +183,8 @@ public class TrainingBuilderActivity extends FragmentActivity {
         mCardArrayAdapter.notifyDataSetChanged();
     }
 
-    private GameCard createGameCard(GameSettings settings) {
-        GameCard card = new GameCard(this, settings);
+    private GameCard createGameCard(GameDescription game) {
+        GameCard card = new GameCard(this, game);
         return card;
     }
 

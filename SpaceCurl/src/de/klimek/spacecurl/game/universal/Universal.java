@@ -16,8 +16,6 @@ import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.game.GameFragment;
 
 public class Universal extends GameFragment {
-    private Effect[] mEffects;
-    private FreeAxisCount mFreeAxisCount;
     private Mode mMode;
 
     public static enum Mode {
@@ -27,7 +25,7 @@ public class Universal extends GameFragment {
     private Random mRandom = new Random();
     private AsyncTask<Void, Void, Void> _logicThread;
 
-    private UniversalSettings mSettings;
+    private UniversalDescription mUniversalParams;
     private View mGameView;
 
     private Player mPlayer = new Player(0.1f);
@@ -65,12 +63,12 @@ public class Universal extends GameFragment {
     }
 
     private void setupSettings() {
-        mSettings = (UniversalSettings) getSettings();
+        mUniversalParams = (UniversalDescription) getGameDescription();
         mTargetDrawable = getResources().getDrawable(R.drawable.target);
-        if (!mSettings.getTargets().isEmpty()) { // TARGET
+        if (!mUniversalParams.getTargets().isEmpty()) { // TARGET
             mMode = Mode.Targets;
 
-            mTargets.addAll(mSettings.getTargets());
+            mTargets.addAll(mUniversalParams.getTargets());
             mCurTargetIndex = 0;
             mCurTarget = mTargets.get(mCurTargetIndex);
             mCurTarget.mRemainingHoldingTime = mCurTarget.mHoldingTime;
@@ -80,9 +78,9 @@ public class Universal extends GameFragment {
 
             mCurTarget.setDrawable(mTargetDrawable);
         }
-        else if (!mSettings.getPaths().isEmpty()) { // PATH
+        else if (!mUniversalParams.getPaths().isEmpty()) { // PATH
             mMode = Mode.Paths;
-            mPaths = mSettings.getPaths();
+            mPaths = mUniversalParams.getPaths();
             mCurPathIndex = 0;
             mCurPath = mPaths.get(mCurPathIndex);
         }
@@ -138,17 +136,6 @@ public class Universal extends GameFragment {
             _logicThread = new LogicThread();
             _logicThread.execute();
         }
-    }
-
-    @Override
-    public FreeAxisCount getFreeAxisCount() {
-        mFreeAxisCount = FreeAxisCount.One;
-        return mFreeAxisCount;
-    }
-
-    @Override
-    public Effect[] getEffects() {
-        return mEffects;
     }
 
     private class LogicThread extends AsyncTask<Void, Void, Void> {

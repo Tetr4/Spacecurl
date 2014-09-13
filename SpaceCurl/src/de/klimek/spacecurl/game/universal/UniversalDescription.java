@@ -3,11 +3,11 @@ package de.klimek.spacecurl.game.universal;
 
 import java.util.ArrayList;
 
+import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.GameSettings;
 
-public class UniversalSettings extends GameSettings {
-    public UniversalSettings(String title) {
+public class UniversalDescription extends GameDescription {
+    public UniversalDescription(String title) {
         super(title);
     }
 
@@ -39,9 +39,7 @@ public class UniversalSettings extends GameSettings {
     }
 
     @Override
-    public GameFragment getFragment() {
-        Universal fragment = new Universal();
-        fragment.setSettings(this);
-        return fragment;
+    protected GameFragment createFragment() {
+        return new Universal();
     }
 }

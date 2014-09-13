@@ -1,26 +1,25 @@
 
 package de.klimek.spacecurl.game.tunnel;
 
+import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.game.GameSettings;
 
-public class TunnelSettings extends GameSettings {
+public class TunnelDescription extends GameDescription {
     private int mLives;
     private boolean mShowLives = true;
 
-    public TunnelSettings(String title, int lives) {
+    public TunnelDescription(String title, int lives) {
         super(title);
         mLives = lives;
+        setFreeAxisCount(1);
+        Effect[] effects = {
+                Effect.Accuracy,
+                Effect.Speed
+        };
+        setEffects(effects);
     }
 
     public void setTunnelHeight(float height) {
-    }
-
-    @Override
-    public GameFragment getFragment() {
-        Tunnel fragment = new Tunnel();
-        fragment.setSettings(this);
-        return fragment;
     }
 
     public int getLives() {
@@ -37,6 +36,11 @@ public class TunnelSettings extends GameSettings {
 
     public void setShowLives(boolean showLives) {
         mShowLives = showLives;
+    }
+
+    @Override
+    protected GameFragment createFragment() {
+        return new Tunnel();
     }
 
 }
