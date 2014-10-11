@@ -26,10 +26,18 @@ import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.preferences.SettingsActivity;
 import de.klimek.spacecurl.util.collection.Training;
 
+/**
+ * Entrypoint when starting the App. Contains a list of all trainings (+
+ * freeplay training), with buttons to edit each training or to create a new
+ * training. A training begins by clicking on it.
+ * 
+ * @author Mike Klimek
+ */
 public class TrainingSelectActivity extends FragmentActivity {
+    public static final String TAG = TrainingSelectActivity.class.getName();
     private boolean mDoubleBackToExitPressedOnce;
     private Database mDatabase;
-    private ListView mListView;
+    private ListView mTrainingsListView;
     private TrainingArrayAdapter mArrayAdapter;
     private List<Training> mTrainings = new ArrayList<Training>();
 
@@ -38,10 +46,9 @@ public class TrainingSelectActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
         setContentView(R.layout.activity_training_select);
-        // getActionBar().setDisplayHomeAsUpEnabled(true);
         mTrainings = mDatabase.getTrainings();
         setupListView();
-        setupAddButton();
+        setupAddTrainingButton();
     }
 
     @Override
@@ -54,38 +61,16 @@ public class TrainingSelectActivity extends FragmentActivity {
         }
     }
 
-    // Intent intent = new Intent(TrainingSelectActivity.this,
-    // SettingsActivity.class);
-
     @Override
     protected void onRestart() {
         super.onRestart();
+        // Called e.g. when returning after editing a training
         if (mArrayAdapter != null) {
             mArrayAdapter.notifyDataSetChanged();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mDoubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            return;
-        }
-        mDoubleBackToExitPressedOnce = true;
-        Toast.makeText(this, getResources().getString(R.string.click_back_again),
-                Toast.LENGTH_SHORT)
-                .show();
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                mDoubleBackToExitPressedOnce = false;
-
-            }
-        }, 2000);
-    }
-
-    private void setupAddButton() {
+    private void setupAddTrainingButton() {
         ImageButton btn = (ImageButton) findViewById(R.id.training_add_button);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,15 +81,16 @@ public class TrainingSelectActivity extends FragmentActivity {
     }
 
     private void setupListView() {
-        mListView = (ListView) findViewById(R.id.training_list);
+        mTrainingsListView = (ListView) findViewById(R.id.training_list);
+
         // add footer (so nothing is behind add_button_bar when scrolled down)
         View footerItem = getLayoutInflater()
-                .inflate(R.layout.list_item_training_footer, mListView, false);
-        mListView.addFooterView(footerItem, null, false);
+                .inflate(R.layout.list_item_training_footer, mTrainingsListView, false);
+        mTrainingsListView.addFooterView(footerItem, null, false);
 
         // Freeplay item
         View freePlayItem = getLayoutInflater()
-                .inflate(R.layout.list_item_freeplay, mListView, false);
+                .inflate(R.layout.list_item_freeplay, mTrainingsListView, false);
         freePlayItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,7 +104,6 @@ public class TrainingSelectActivity extends FragmentActivity {
         View editbutton =
                 freePlayItem.findViewById(R.id.freeplay_edit_button);
         editbutton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(TrainingSelectActivity.this,
@@ -126,15 +111,15 @@ public class TrainingSelectActivity extends FragmentActivity {
                 startActivity(intent);
             }
         });
-        mListView.addHeaderView(freePlayItem, null, false);
+        mTrainingsListView.addHeaderView(freePlayItem, null, false);
 
         // trainings
         mArrayAdapter = new TrainingArrayAdapter(this, R.layout.list_item_training, mTrainings);
-        mListView.setAdapter(mArrayAdapter);
+        mTrainingsListView.setAdapter(mArrayAdapter);
 
         // list interaction
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(new OnItemClickListener() {
+        mTrainingsListView.setClickable(true);
+        mTrainingsListView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
@@ -153,34 +138,56 @@ public class TrainingSelectActivity extends FragmentActivity {
     private void editTraining(Training training) {
         int key = mTrainings.indexOf(training);
         Intent intent = new Intent(this, TrainingBuilderActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, key);
+        intent.putExtra(TrainingBuilderActivity.EXTRA_TRAINING_INDEX, key);
         startActivity(intent);
     }
 
     private void addTraining() {
         Intent intent = new Intent(this, TrainingBuilderActivity.class);
-        intent.putExtra(TrainingActivity.EXTRA_TRAINING_INDEX, TrainingBuilderActivity.NEW_TRAINING);
         startActivity(intent);
     }
 
+    @Override
+    public void onBackPressed() {
+        // Require double clicking the back button to prevent user from
+        // accidentally exiting the App
+
+        if (mDoubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        Toast.makeText(this, getResources().getString(R.string.click_back_again),
+                Toast.LENGTH_SHORT)
+                .show();
+
+        mDoubleBackToExitPressedOnce = true;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // reset after 2s (~Toast.LENGTH_SHORT)
+                mDoubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
+    }
+
     public class TrainingArrayAdapter extends ArrayAdapter<Training> {
-        private final Context context;
-        private final List<Training> trainings;
+        private final Context mContext;
+        private final List<Training> mAdapterTrainings;
 
         public TrainingArrayAdapter(Context context, int layoutRessource, List<Training> trainings) {
             super(context, layoutRessource, trainings);
-            this.context = context;
-            this.trainings = trainings;
+            mContext = context;
+            mAdapterTrainings = trainings;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             // get training
-            final Training training = trainings.get(position);
+            final Training training = mAdapterTrainings.get(position);
 
             if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) context
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = LayoutInflater.from(mContext);
                 convertView = inflater.inflate(R.layout.list_item_training, parent, false);
             }
             // create view from training

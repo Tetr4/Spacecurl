@@ -1,8 +1,6 @@
 
 package de.klimek.spacecurl.activities;
 
-import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -12,65 +10,45 @@ import android.view.View.OnClickListener;
 import android.widget.Toast;
 import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.R.anim;
-import de.klimek.spacecurl.R.id;
-import de.klimek.spacecurl.R.menu;
-import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
- * This program is an App for the Android OS 4.4, intended to provide
- * information and visual support while training on the SpaceCurl.
+ * Automatically switched to next game after the previous has finished. Enables
+ * skipping to previous/next game with actionbar icons. After the training has
+ * finished the status panel is expanded and locked.The training's database
+ * index must be given as an extra (EXTRA_TRAINING_INDEX) when starting the
+ * activity.
  * 
  * @author Mike Klimek
- * @see <a href="http://developer.android.com/reference/packages.html">Android
- *      API</a>
  */
-public class TrainingActivity extends BasicTrainingActivity implements OnClickListener,
-        GameCallBackListener {
-    private static final String TAG = BasicTrainingActivity.class.getSimpleName();
-    protected static final String STATE_CURRENT_TRAINING = "STATE_CURRENT_TRAINING";
-    protected static final String STATE_CURRENT_GAME = "STATE_CURRENT_GAME";
-    public final static String EXTRA_TRAINING_INDEX = "EXTRA_TRAINING";
-
-    private ActionBar mActionBar;
-    private String mTitle = "";
+public class TrainingActivity extends BasicTrainingActivity implements OnClickListener {
+    private static final String TAG = TrainingActivity.class.getSimpleName();
+    public final static String EXTRA_TRAINING_INDEX = "EXTRA_TRAINING_INDEX";
 
     private Training mTraining;
     private int mCurGameDescriptionIndex = -1;
-    private boolean mEnded = false;
+    private boolean mTrainingHasEnded = false;
 
-    /**
-     * Called by OS when the activity is first created.
-     * 
-     * @param savedInstanceState a {@link Bundle} containing key-Value Pairs if
-     *            the activity is being re-initialized after previously being
-     *            destroyed to free memory
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        int trainingNr = getIntent().getIntExtra(EXTRA_TRAINING_INDEX, -1);
         Database database = Database.getInstance(this);
-        mTraining = database.getTrainings().get(trainingNr);
+        int trainingIndex = getIntent().getIntExtra(EXTRA_TRAINING_INDEX, -1);
+        mTraining = database.getTrainings().get(trainingIndex);
         loadTraining(mTraining);
 
         // enable status panel
-        useStatus(trainingNr);
+        TrainingStatus trainingStatus = new TrainingStatus(trainingIndex);
+        database.getStatuses().append(trainingIndex, trainingStatus);
+        showPanelForStatus(trainingStatus);
 
-        setupActionbar();
         nextGame();
     }
 
-    private void setupActionbar() {
-        mActionBar = getActionBar();
-        mActionBar.setTitle(mTitle);
-        mActionBar.setDisplayShowTitleEnabled(true);
-    }
-
     /**
-     * Game has finished, or skipped
+     * Called e.g. when game has finished, or is skipped by user
      */
     private void nextGame() {
         Log.i(TAG, "nextGame");
@@ -84,8 +62,8 @@ public class TrainingActivity extends BasicTrainingActivity implements OnClickLi
             expandSlidingPane();
             lockSlidingPane();
             hideStatusIndicator();
-            mEnded = true;
-            invalidateOptionsMenu();
+            mTrainingHasEnded = true;
+            updateActionbar();
         }
     }
 
@@ -123,42 +101,34 @@ public class TrainingActivity extends BasicTrainingActivity implements OnClickLi
         }
     }
 
+    /**
+     * Displays the training's name, number of the current game and total games.
+     * Also updates the previous/next icon.
+     */
     private void updateActionbar() {
-        mTitle = mTraining.getTitle();
-        mActionBar.setTitle(
-                mTitle + " (" + (mCurGameDescriptionIndex + 1) + "/" + mTraining.size() + ")"
+        String title = mTraining.getTitle();
+        // "Balance (2/8)"
+        getActionBar().setTitle(
+                title + " (" + (mCurGameDescriptionIndex + 1) + "/" + mTraining.size() + ")"
                 );
         invalidateOptionsMenu();
     }
 
-    /**
-     * Called by OS the first time the options menu (icons and overflow menu
-     * [three vertical dots] in the ActionBar) is displayed.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.training, menu);
         MenuItem itemShowStatus = menu.findItem(R.id.action_show_status);
-        itemShowStatus.setVisible(!mEnded);
+        itemShowStatus.setVisible(!mTrainingHasEnded); // hide if ended
         MenuItem itemNext = menu.findItem(R.id.action_next_game);
-        itemNext.setVisible(mCurGameDescriptionIndex + 1 < mTraining.size() && !mEnded);
+        itemNext.setVisible(mCurGameDescriptionIndex + 1 < mTraining.size() && !mTrainingHasEnded);
         MenuItem itemPrevious = menu.findItem(R.id.action_previous_game);
-        itemPrevious.setVisible(mCurGameDescriptionIndex > 0 && !mEnded);
+        itemPrevious.setVisible(mCurGameDescriptionIndex > 0 && !mTrainingHasEnded);
         return true;
     }
 
-    /**
-     * Called by OS when an item in the ActionBar is selected
-     * 
-     * @param item the selected MenuItem
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_new_training:
-                startActivity(new Intent(this, TrainingSelectActivity.class));
-                break;
             case R.id.action_previous_game:
                 previousGame();
                 break;

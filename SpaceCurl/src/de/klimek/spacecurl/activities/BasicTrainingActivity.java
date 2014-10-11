@@ -10,7 +10,6 @@ import java.util.List;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,10 +29,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.R.dimen;
-import de.klimek.spacecurl.R.drawable;
-import de.klimek.spacecurl.R.id;
-import de.klimek.spacecurl.R.layout;
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.game.GameFragment;
@@ -44,22 +39,20 @@ import de.klimek.spacecurl.util.collection.Training;
 import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
- * This program is an App for the Android OS 4.4, intended to provide
- * information and visual support while training on the SpaceCurl. <br>
  * This abstract class loads a training from the database and provides
  * functionality to subclasses, e. g. usage of the status panel, switching
- * games, and showing a pause screen. The training's number is given as an extra
- * (EXTRA_TRAINING_NR) when starting the activity. <br>
+ * games, and showing a pause screen. <br/>
+ * A Training must be loaded with {@link #loadTraining(Training)}. In order to
+ * display the status-panel {@link #showPanelForStatus(TrainingStatus)} has to
+ * be called.
  * 
  * @author Mike Klimek
  * @see <a href="http://developer.android.com/reference/packages.html">Android
  *      API</a>
  */
-public abstract class BasicTrainingActivity extends FragmentActivity implements OnClickListener {
-    // Used for log output
-    private static final String TAG = BasicTrainingActivity.class.getName();
-
-    private Database mDatabase;
+public abstract class BasicTrainingActivity extends FragmentActivity implements OnClickListener,
+        GameCallBackListener {
+    public static final String TAG = BasicTrainingActivity.class.getName();
 
     // Status panel
     private boolean mUsesStatus = false;
@@ -75,9 +68,11 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     private CardArrayAdapter mCardArrayAdapter;
     private List<Card> mCards = new ArrayList<Card>();
 
-    private Training mTraining;
     private GameFragment mGameFragment;
     private FrameLayout mGameFrame;
+
+    private Training mTraining;
+    private Database mDatabase;
 
     // Pause Frame
     private FrameLayout mPauseFrame;
@@ -92,26 +87,24 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         Paused, Pausing, Running
     }
 
-    /**
-     * Called by OS when the activity is first created.
-     * 
-     * @param savedInstanceState a {@link Bundle} containing key-Value Pairs if
-     *            the activity is being re-initialized after previously being
-     *            destroyed to free memory
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
         setContentView(R.layout.activity_main);
 
-        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
-        mSlidingToggleButton = (ImageButton) findViewById(R.id.panel_button);
-        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
-        hideSlidingPane(); // initially hidden
+        setupPauseView();
 
-        // setupPauseView (Notification window with instructions for the
-        // current exercise or pause/play icon)
+    }
+
+    /**
+     * Dialog with instructions for the current exercise or pause/play icon.
+     * Shows when the user interacts with the App.
+     */
+    private void setupPauseView() {
+        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
+        mGameFrame.setOnClickListener(this);
+        // hide initially
         mPauseFrame = (FrameLayout) findViewById(R.id.pause_layout);
         mPauseFrame.setAlpha(0.0f);
         mPauseFrame.setVisibility(View.GONE);
@@ -120,8 +113,6 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mInstructionsTextView = (TextView) findViewById(R.id.instructions_textview);
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
-        mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
-        mGameFrame.setOnClickListener(this);
     }
 
     @Override
@@ -135,11 +126,11 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     }
 
     /**
-     * Load training from database. The training's number is given as an extra
-     * (EXTRA_TRAINING_NR) when starting the activity. Otherwise a blank
-     * Training will be created.
+     * Subclasses must load a Training with this method.
+     * 
+     * @param training
      */
-    protected void loadTraining(Training training) {
+    protected final void loadTraining(Training training) {
         mTraining = training;
     }
 
@@ -147,7 +138,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_new_training:
-                startActivity(new Intent(this, TrainingSelectActivity.class));
+                finish();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -156,16 +147,17 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     }
 
     /**
-     * subclasses can use this methode to enable the statuspanel.
+     * Subclasses can use this method to enable the status-panel.
      */
-    protected final void useStatus(int trainingIndex) {
+    protected final void showPanelForStatus(TrainingStatus trainingStatus) {
+        mTrainingStatus = trainingStatus;
         mUsesStatus = true;
-        mTrainingStatus = new TrainingStatus(trainingIndex);
-        mDatabase.getStatuses().append(trainingIndex, mTrainingStatus);
-        showSlidingPane();
 
+        mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
+        mSlidingToggleButton = (ImageButton) findViewById(R.id.panel_button);
+
+        mSlidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.content_frame);
         mSlidingUpPanel.setPanelSlideListener(new PanelSlideListener() {
-
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
                 if (slideOffset > 0.5f && mButtonImageIsExpand) {
@@ -198,9 +190,9 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mSlidingUpPanel.setPanelHeight(statusIndicatorHeight);
         // delegate clicks to underlying panel
         mSlidingToggleButton.setClickable(false);
+        mSlidingUpPanel.showPanel();
 
         // setup cardlist
-        // FIXME bug in viewholder pattern
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         mCardListView.setAdapter(mCardArrayAdapter);
@@ -209,10 +201,9 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     protected final void updateCurGameStatus(final float status) {
         // graph
         mCurGameStatus.addStatus(status);
-        // indicator
+        // indicator color
         mStatusColor = mStatusGradient.getColorForFraction(status);
         mStatusIndicator.setBackgroundColor(mStatusColor);
-        // TODO threaded?
     }
 
     protected final void expandSlidingPane() {
@@ -225,16 +216,6 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
 
     protected final void collapseSlidingPane() {
         mSlidingUpPanel.collapsePanel();
-    }
-
-    protected final void showSlidingPane() {
-        mSlidingUpPanel.showPanel();
-        return;
-    }
-
-    protected final void hideSlidingPane() {
-        mSlidingUpPanel.hidePanel();
-        return;
     }
 
     protected final void showStatusIndicator() {
@@ -255,7 +236,8 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
 
     /**
      * Creates a new GameFragment from a gameDescriptionIndex and displays it.
-     * Switches to the associated gameStatus, e.g. to reuse previous gamecards
+     * Switches to the associated gameStatus from a previous game (overwriting
+     * it) or creates a new one.
      * 
      * @param gameDescriptionIndex the game to start
      * @param enterAnimation how the fragment should enter
@@ -266,7 +248,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mState = State.Paused;
         pause();
 
-        // GameFragment:
+        // get Fragment
         GameDescription newGameDescription = mTraining.get(gameDescriptionIndex);
         mGameFragment = newGameDescription.getFragment();
 
@@ -276,14 +258,12 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
                 .replace(R.id.game_frame, mGameFragment)
                 .commit();
 
-        // enable callback on certain subclasses
-        if (this instanceof GameCallBackListener) {
-            mGameFragment.registerGameCallBackListener((GameCallBackListener) this);
-        }
+        // enable callback
+        mGameFragment.registerGameCallBackListener(this);
 
         // update pause view
         mInstructions = newGameDescription.getInstructions();
-        if (mInstructions == null || mInstructions.equals("")) {
+        if (mInstructions == null || mInstructions.isEmpty()) {
             // only show pause/play icon
             mInstructionLayout.setVisibility(View.GONE);
             mResumeButton.setVisibility(View.VISIBLE);
@@ -312,8 +292,9 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     }
 
     /**
-     * Creates a new GameFragment from a gameDescriptionIndex and displays it
-     * using fade_in/fade_out animations.
+     * Convenience method. Same as
+     * {@link #switchToGame(int gameDescriptionIndex, int enterAnimation, int exitAnimation)}
+     * but uses standard fade_in/fade_out animations.
      * 
      * @param gameDescription the game to start
      */

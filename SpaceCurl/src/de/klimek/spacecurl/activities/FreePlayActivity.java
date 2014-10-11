@@ -6,29 +6,21 @@ import java.util.List;
 
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.R.id;
-import de.klimek.spacecurl.R.layout;
-import de.klimek.spacecurl.R.menu;
 import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.util.collection.Training;
 
 /**
- * This program is an App for the Android OS 4.4, intended to provide
- * information and visual support while training on the SpaceCurl.
+ * Enables free selection of games with a navigation {@link Spinner}.
  * 
  * @author Mike Klimek
- * @see <a href="http://developer.android.com/reference/packages.html">Android
- *      API</a>
  */
 public class FreePlayActivity extends BasicTrainingActivity implements OnClickListener {
     public static final String TAG = FreePlayActivity.class.getName();
@@ -37,25 +29,15 @@ public class FreePlayActivity extends BasicTrainingActivity implements OnClickLi
     private ActionBar mActionBar;
     private Training mFreeplayGames;
 
-    /**
-     * Called by OS when the activity is first created.
-     * 
-     * @param savedInstanceState a {@link Bundle} containing key-Value Pairs if
-     *            the activity is being re-initialized after previously being
-     *            destroyed to free memory
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Database database = Database.getInstance(this);
         mFreeplayGames = database.getFreeplayGames();
-
         loadTraining(mFreeplayGames);
-        hideSlidingPane();
 
         setupActionbar(savedInstanceState);
-
     }
 
     /**
@@ -72,7 +54,6 @@ public class FreePlayActivity extends BasicTrainingActivity implements OnClickLi
     private void setupActionbar(Bundle savedInstanceState) {
         mActionBar = getActionBar();
         mActionBar.setDisplayShowTitleEnabled(false);
-        mActionBar.setDisplayShowHomeEnabled(true); // "up-caret"
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
         // Adapter to fill spinner with items
@@ -82,7 +63,8 @@ public class FreePlayActivity extends BasicTrainingActivity implements OnClickLi
         }
         SpinnerAdapter spinnerAdapter = new ArrayAdapter<String>(this, R.layout.list_item_spinner,
                 gameTitles);
-        // Listener which calls selectSpinnerItem(pos) when an item is selected
+
+        // Listener which calls switchToGame(position) when an item is selected
         OnNavigationListener onNavigationListener = new OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int position, long itemId) {
@@ -104,53 +86,25 @@ public class FreePlayActivity extends BasicTrainingActivity implements OnClickLi
         }
     }
 
-    /**
-     * Called by OS the first time the options menu (icons and overflow menu
-     * [three vertical dots] in the ActionBar) is displayed.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.freeplay, menu);
         return true;
     }
 
-    /**
-     * Called by OS when an item in the ActionBar is selected
-     * 
-     * @param item the selected MenuItem
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        // case R.id.action_settings:
-        // startActivity(new Intent(this, SettingsActivity.class));
-        // break;
-        // case R.id.action_about:
-        // Toast.makeText(this, R.string.action_about,
-        // Toast.LENGTH_LONG)
-        // .show();
-        // break;
-            case R.id.action_new_training:
-                startActivity(new Intent(this, TrainingSelectActivity.class));
-                break;
-            // case R.id.action_help:
-            // break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-
-    /**
-     * Called by OS when the App will be destroyed to (e.g. to free Memory), but
-     * may be opened again.
-     * 
-     * @param outState a {@link Bundle} containing key-Value Pairs to be saved
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(STATE_ACTIONBAR_SELECTED_ITEM,
                 mActionBar.getSelectedNavigationIndex());
+    }
+
+    @Override
+    public void onGameFinished(String highScore) {
+        // do nothing
+    }
+
+    @Override
+    public void onStatusChanged(float status) {
+        // do nothing
     }
 }
