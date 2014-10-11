@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl;
+package de.klimek.spacecurl.activities;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
@@ -28,15 +28,20 @@ import android.widget.TextView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
+import de.klimek.spacecurl.Database;
+import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.R.dimen;
+import de.klimek.spacecurl.R.drawable;
+import de.klimek.spacecurl.R.id;
+import de.klimek.spacecurl.R.layout;
 import de.klimek.spacecurl.game.GameCallBackListener;
 import de.klimek.spacecurl.game.GameDescription;
 import de.klimek.spacecurl.game.GameFragment;
-import de.klimek.spacecurl.training.TrainingSelectActivity;
 import de.klimek.spacecurl.util.ColorGradient;
-import de.klimek.spacecurl.util.StatusCard;
-import de.klimek.spacecurl.util.collection.status.GameStatus;
-import de.klimek.spacecurl.util.collection.status.TrainingStatus;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.cards.StatusCard;
+import de.klimek.spacecurl.util.collection.GameStatus;
+import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide

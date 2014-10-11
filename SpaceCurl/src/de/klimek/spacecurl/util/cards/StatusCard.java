@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.util;
+package de.klimek.spacecurl.util.cards;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import android.content.Context;
@@ -11,7 +11,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LineGraphView;
 
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.util.collection.status.GameStatus;
+import de.klimek.spacecurl.util.collection.GameStatus;
 
 public class StatusCard extends Card {
     // private int mRatingColor = 0xFFFF0000;

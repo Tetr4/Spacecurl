@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.util.collection.training;
+package de.klimek.spacecurl.util.collection;
 
 import java.util.ArrayList;
 

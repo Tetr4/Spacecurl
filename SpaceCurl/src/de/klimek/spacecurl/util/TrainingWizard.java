@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.training;
+package de.klimek.spacecurl.util;
 
 import android.support.v4.app.FragmentActivity;
 

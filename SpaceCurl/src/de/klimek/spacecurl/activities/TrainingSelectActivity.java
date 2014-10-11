@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.training;
+package de.klimek.spacecurl.activities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +22,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.klimek.spacecurl.Database;
-import de.klimek.spacecurl.FreePlayActivity;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.preferences.SettingsActivity;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.collection.Training;
 
 public class TrainingSelectActivity extends FragmentActivity {
     private boolean mDoubleBackToExitPressedOnce;

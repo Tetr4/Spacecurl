@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.util.collection.status;
+package de.klimek.spacecurl.util.collection;
 
 import android.util.SparseArray;
 

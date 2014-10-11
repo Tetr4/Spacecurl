@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.training;
+package de.klimek.spacecurl.activities;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
@@ -23,10 +23,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
-import de.klimek.spacecurl.TrainingActivity;
 import de.klimek.spacecurl.game.GameDescription;
-import de.klimek.spacecurl.util.GameCard;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.cards.GameCard;
+import de.klimek.spacecurl.util.collection.Training;
 
 public class TrainingBuilderActivity extends FragmentActivity {
     public static final int NEW_TRAINING = Integer.MIN_VALUE;

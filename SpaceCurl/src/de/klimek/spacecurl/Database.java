@@ -16,8 +16,8 @@ import de.klimek.spacecurl.game.tunnel.TunnelDescription;
 import de.klimek.spacecurl.game.universal.Target;
 import de.klimek.spacecurl.game.universal.UniversalDescription;
 import de.klimek.spacecurl.game.universal3D.Universal3DDescription;
-import de.klimek.spacecurl.util.collection.status.TrainingStatus;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.collection.Training;
+import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
  * Singleton

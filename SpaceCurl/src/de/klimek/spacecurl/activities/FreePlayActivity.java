@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl;
+package de.klimek.spacecurl.activities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +14,13 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import de.klimek.spacecurl.Database;
+import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.R.id;
+import de.klimek.spacecurl.R.layout;
+import de.klimek.spacecurl.R.menu;
 import de.klimek.spacecurl.game.GameDescription;
-import de.klimek.spacecurl.training.TrainingSelectActivity;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.collection.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide

@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl;
+package de.klimek.spacecurl.activities;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -10,9 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
+import de.klimek.spacecurl.Database;
+import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.R.anim;
+import de.klimek.spacecurl.R.id;
+import de.klimek.spacecurl.R.menu;
 import de.klimek.spacecurl.game.GameCallBackListener;
-import de.klimek.spacecurl.training.TrainingSelectActivity;
-import de.klimek.spacecurl.util.collection.training.Training;
+import de.klimek.spacecurl.util.collection.Training;
 
 /**
  * This program is an App for the Android OS 4.4, intended to provide

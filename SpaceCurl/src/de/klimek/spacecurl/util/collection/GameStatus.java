@@ -1,5 +1,5 @@
 
-package de.klimek.spacecurl.util.collection.status;
+package de.klimek.spacecurl.util.collection;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
