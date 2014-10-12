@@ -4,6 +4,12 @@ package de.klimek.spacecurl.util.collection;
 import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
+/**
+ * Represents the status for a single game. Has a title and a
+ * {@link GraphViewSeries} for storing graph data.
+ * 
+ * @author Mike Klimek
+ */
 public class GameStatus {
     private String mTitle;
     private GraphViewSeries mGraphViewSeries;

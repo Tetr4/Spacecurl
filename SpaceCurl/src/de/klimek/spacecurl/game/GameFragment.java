@@ -23,8 +23,7 @@ import de.klimek.spacecurl.Database;
  * @author Mike Klimek
  */
 public abstract class GameFragment extends Fragment implements SensorEventListener {
-    public static final String TAG = "GameFragment"; // Used for log output
-    public static final String ARG_CONTROL_INVERSE = "ARG_CONTROL_INVERSE";
+    public static final String TAG = GameFragment.class.getSimpleName();
 
     private Database mDatabase = Database.getInstance();
     // Members for Sensor
@@ -49,9 +48,8 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     private GameDescription mGameDescription;
 
-    // Empty constructor required for fragment subclasses
     public GameFragment() {
-
+        // Empty constructor required for fragment subclasses
     }
 
     public final void onPauseGame() {
@@ -124,20 +122,19 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // TODO maybe onActivitycreated instead
+        super.onCreate(savedInstanceState);
         if (mInverseControls) {
             mRollMultiplier *= -1;
             mPitchMultiplier *= -1;
         }
+
+        // get Orientation
         Display display = ((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
         mLandscape = (display.getRotation() == Surface.ROTATION_90);
-        super.onCreate(savedInstanceState);
-        // SharedPreferences sharedPref =
-        // PreferenceManager.getDefaultSharedPreferences(getActivity());
-        // mLandscape = sharedPref.getBoolean("landscape", false);
+
+        // Setup Sensormanager
         if (isUsingSensor()) {
-            // Setup Sensormanager
             mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         }
     }
@@ -166,6 +163,7 @@ public abstract class GameFragment extends Fragment implements SensorEventListen
     public void onResume() {
         super.onResume();
         if (isUsingSensor()) {
+            // Bind all sensors
             Sensor gSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             Sensor rvSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             mSensorManager.registerListener(this, gSensor, SensorManager.SENSOR_DELAY_GAME);

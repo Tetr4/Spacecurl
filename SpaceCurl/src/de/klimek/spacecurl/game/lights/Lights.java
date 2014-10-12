@@ -20,7 +20,7 @@ import de.klimek.spacecurl.game.GameFragment;
  * A game, where the user has to move during a "GO"-stage in order to earn
  * points and stop during a "STOP"-stage so he doesn't lose points.
  * 
- * @author mike
+ * @author Mike Klimek
  */
 public class Lights extends GameFragment {
     private static final String TAG = "Lights";

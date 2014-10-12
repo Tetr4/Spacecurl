@@ -28,9 +28,9 @@ import de.klimek.spacecurl.util.cards.GameCard;
 import de.klimek.spacecurl.util.collection.Training;
 
 /**
- * Launched when choosing to edit a Training or create a new one. If a
+ * Launched when choosing to edit a training or create a new one. If a
  * training's database index is given as an extra (EXTRA_TRAINING_INDEX), the
- * training will be edited. Otherwise a new Training will be created.
+ * training will be edited. Otherwise a new training will be created.
  * 
  * @author Mike Klimek
  */

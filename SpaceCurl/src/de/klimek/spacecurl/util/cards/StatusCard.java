@@ -11,10 +11,17 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LineGraphView;
 
 import de.klimek.spacecurl.R;
+import de.klimek.spacecurl.activities.BasicTrainingActivity;
 import de.klimek.spacecurl.util.collection.GameStatus;
 
+/**
+ * Represents a {@link GameStatus} in the status-panel of the
+ * {@link BasicTrainingActivity}. Contains a title and a {@link GraphView} which
+ * displays the GameStatus' graph data.
+ * 
+ * @author Mike Klimek
+ */
 public class StatusCard extends Card {
-    // private int mRatingColor = 0xFFFF0000;
     private GraphView mGraphView;
     private GameStatus mStatus;
 
@@ -36,7 +43,6 @@ public class StatusCard extends Card {
         LinearLayout graphLayout = (LinearLayout) view.findViewById(
                 R.id.card_status_graph);
         if (graphLayout != null) {
-            // graphLayout.removeAllViews();
             graphLayout.addView(mGraphView);
         }
     }

@@ -18,9 +18,9 @@ import de.klimek.spacecurl.game.universal3D.Universal3DDescription;
 import de.klimek.spacecurl.util.collection.Training;
 
 /**
- * Singleton
+ * Singleton database access
  * 
- * @author Mike
+ * @author Mike Klimek
  */
 public class Database {
     private List<Training> mTrainings = new ArrayList<Training>();
@@ -37,6 +37,7 @@ public class Database {
     private static Database sInstance;
 
     public static Database getInstance(Context context) {
+        // TODO dependency injection instead of singleton?
         if (sInstance == null) {
             sInstance = new Database(context);
         }
@@ -92,12 +93,11 @@ public class Database {
     }
 
     /**
-     * freeplay games
+     * Freeplay games
      */
     private void addFreeplayGames(Context context) {
         Resources resources = context.getResources();
 
-        // Add games to Spinner
         TunnelDescription settingsTunnel = new TunnelDescription("Tunnel", 1);
         settingsTunnel.setShowLives(false);
         mFreeplayGames.add(settingsTunnel);
@@ -125,11 +125,6 @@ public class Database {
 
         // SensorSettings settingsSensor = new SensorSettings("Sensor Test");
         // mFreeplayGames.add(settingsSensor);
-
-        // TrainingStatus freeplayStatus = new TrainingStatus(mFreeplayIndex);
-        // for (GameSettings game : mFreeplayGames) {
-        // freeplayStatus.add(new GameStatus(game.getTitle()));
-        // }
     }
 
     /**
@@ -161,7 +156,6 @@ public class Database {
                 .setInstructions("Bewege dich um die Sagittalachse (nach vorne und hinten)");
         balanceTraining.add(settingsSagittal);
 
-        // FIXME Umlaute
         // Bauch- und Rueckenlage
         UniversalDescription settingsBauchRueck = new UniversalDescription("Bauch- und Rückenlage");
         settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
@@ -268,7 +262,7 @@ public class Database {
     }
 
     /**
-     * Balancetraining + games
+     * Balancetraining + Games
      */
     private void addMixedTraining(Context context) {
         Training balanceTraining2 = new Training("Balancetraining");
@@ -348,7 +342,7 @@ public class Database {
     }
 
     /**
-     * Random trainings
+     * Random training
      */
     private void loadRandomTraining(Context context, String title) {
         Random random = new Random();

@@ -5,9 +5,9 @@ package de.klimek.spacecurl.game;
  * Abstract class which contains game infos and settings, like title,
  * instructions, effects, ... <br>
  * Subclasses can add additional infos/settings (like number of lives,
- * difficulty, ...) and have to provide a GameFragment. Instances can be created
- * by the user with the TrainingBuilder or at start by querying the database.
- * Fragments can be created from an instance to play the game.
+ * difficulty, ...) and have to provide a GameFragment. Instances are usually
+ * created by the user with the TrainingBuilder or at start by querying the
+ * database. Fragments can be created from an instance to play the game.
  * 
  * @author Mike Klimek
  */
@@ -23,7 +23,7 @@ public abstract class GameDescription {
 
     protected abstract GameFragment newFragment();
 
-    public GameFragment createFragment() {
+    public final GameFragment createFragment() {
         GameFragment fragment = newFragment();
         fragment.setGameDescription(this);
         return fragment;

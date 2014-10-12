@@ -373,7 +373,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     /**
      * Fixes bug in {@link CardArrayAdapter CardArrayAdapter's} Viewholder
      * pattern. Otherwise the cards innerViewElements would not be replaced
-     * (Title and Graph form previous Graph is shown).
+     * (Title and Graph from previous Graph is shown).
      * 
      * @author Mike Klimek
      */
