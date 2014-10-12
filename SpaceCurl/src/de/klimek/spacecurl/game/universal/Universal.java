@@ -29,7 +29,7 @@ public class Universal extends GameFragment {
     private View mGameView;
 
     private Player mPlayer = new Player(0.1f);
-    private CenteredCircles mCircles = new CenteredCircles(6);
+    private CenterCross mCross = new CenterCross();
     private ArrayList<Target> mTargets = new ArrayList<Target>();
     private ArrayList<Path> mPaths = new ArrayList<Path>();
 
@@ -106,7 +106,7 @@ public class Universal extends GameFragment {
         mGameView = new View(getActivity()) {
             @Override
             protected void onDraw(Canvas canvas) {
-                mCircles.draw(canvas);
+                mCross.draw(canvas);
                 if (mCurTarget != null) {
                     mCurTarget.draw(canvas);
                     if (mNextTarget != null) {
