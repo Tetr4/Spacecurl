@@ -4,19 +4,23 @@ package de.klimek.spacecurl.activities;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
 import it.gmariotti.cardslib.library.view.CardListView;
+import it.gmariotti.cardslib.library.view.CardView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -89,15 +93,14 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = Database.getInstance(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_base);
 
         setupPauseView();
-
     }
 
     /**
-     * Dialog with instructions for the current exercise or pause/play icon.
-     * Shows when the user interacts with the App.
+     * Dialog with instructions for the current game or pause/play icon. Shows
+     * when the user interacts with the App.
      */
     private void setupPauseView() {
         mGameFrame = (FrameLayout) findViewById(R.id.game_frame);
@@ -179,10 +182,9 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mSlidingUpPanel.showPanel();
 
         // setup cardlist
-        mCardArrayAdapter = new CardArrayAdapter(this, mCards);
+        mCardArrayAdapter = new FixedCardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         mCardListView.setAdapter(mCardArrayAdapter);
-        // FIXME Bug in Viewholder pattern -> custom CardArrayAdapter?
     }
 
     protected final void updateCurGameStatus(final float status) {
@@ -368,4 +370,30 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
     }
 
+    /**
+     * Fixes bug in {@link CardArrayAdapter CardArrayAdapter's} Viewholder
+     * pattern. Otherwise the cards innerViewElements would not be replaced
+     * (Title and Graph form previous Graph is shown).
+     * 
+     * @author Mike Klimek
+     */
+    private class FixedCardArrayAdapter extends CardArrayAdapter {
+
+        public FixedCardArrayAdapter(Context context, List<Card> cards) {
+            super(context, cards);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Card card = (Card) getItem(position);
+            if (convertView == null) {
+                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
+                convertView = layoutInflater.inflate(R.layout.list_card_layout, parent, false);
+            }
+            CardView view = (CardView) convertView.findViewById(R.id.list_cardId);
+            view.setForceReplaceInnerLayout(true);
+            view.setCard(card);
+            return convertView;
+        }
+    }
 }

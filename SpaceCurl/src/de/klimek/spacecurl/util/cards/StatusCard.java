@@ -33,7 +33,7 @@ public class StatusCard extends Card {
         mGraphView.setScrollable(true);
         mGraphView.setDisableTouch(true);
         mGraphView.getGraphViewStyle().setNumHorizontalLabels(1);
-        LinearLayout graphLayout = (LinearLayout) parent.findViewById(
+        LinearLayout graphLayout = (LinearLayout) view.findViewById(
                 R.id.card_status_graph);
         if (graphLayout != null) {
             // graphLayout.removeAllViews();

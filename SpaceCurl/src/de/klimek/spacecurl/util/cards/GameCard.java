@@ -22,7 +22,7 @@ public class GameCard extends Card {
 
     @Override
     public void setupInnerViewElements(ViewGroup parent, View view) {
-        mGameTitleTextView = (TextView) parent.findViewById(
+        mGameTitleTextView = (TextView) view.findViewById(
                 R.id.card_game_name);
         mGameTitleTextView.setText(mGameTitle);
     }
