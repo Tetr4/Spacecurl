@@ -163,11 +163,11 @@ public class Database {
 
         // FIXME Umlaute
         // Bauch- und Rueckenlage
-        UniversalDescription settingsBauchRueck = new UniversalDescription("Bauch- und R�ckenlage");
+        UniversalDescription settingsBauchRueck = new UniversalDescription("Bauch- und Rückenlage");
         settingsBauchRueck.addTarget(new Target(0.5f, 0.8f, 0.07f, 6000));
         settingsBauchRueck.addTarget(new Target(0.5f, 0.2f, 0.07f, 6000));
         settingsBauchRueck
-                .setInstructions("Begib dich in die Bauchlage und dann in die R�ckenlage");
+                .setInstructions("Begib dich in die Bauchlage und dann in die Rückenlage");
         balanceTraining.add(settingsBauchRueck);
 
         // Abschluss
@@ -229,20 +229,20 @@ public class Database {
         // Bremsen Handgriffe
         LightsDescription settingsBremsen = new LightsDescription("Abbremsen");
         settingsBremsen
-                .setInstructions("Um den Balken zu f�llen, bewege dich in der gr�nen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffe fest");
+                .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffe fest");
         grobKoordinationsTraining.add(settingsBremsen);
 
         // Bremsen Handgriffe
         LightsDescription settingsBremsen2 = new LightsDescription("Abbremsen");
         settingsBremsen2
-                .setInstructions("Um den Balken zu f�llen, bewege dich in der gr�nen Phase, und stoppe in der roten Phase\n\nDiemsal ohne Handgriffe");
+                .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nDiemsal ohne Handgriffe");
         grobKoordinationsTraining.add(settingsBremsen2);
 
         // Rolle
         UniversalDescription settingsRolle = new UniversalDescription("Rolle");
         settingsRolle.addTarget(new Target(0.5f, 0.05f, 0.15f));
         settingsRolle.addTarget(new Target(0.5f, 0.95f, 0.15f));
-        settingsRolle.setInstructions("Mache eine Vorw�rts- oder R�ckw�rtsrolle");
+        settingsRolle.setInstructions("Mache eine Vorwärts- oder Rückwärtsrolle");
         grobKoordinationsTraining.add(settingsRolle);
 
         mTrainings.add(grobKoordinationsTraining);
@@ -293,13 +293,13 @@ public class Database {
         settingsBauchRueck.addTarget(new Target(0.5f, 0.9f, 0.07f, 6000));
         settingsBauchRueck.addTarget(new Target(0.5f, 0.1f, 0.07f, 6000));
         settingsBauchRueck
-                .setInstructions("Halte deine Position in der Bauchlage und dann in der R�ckenlage");
+                .setInstructions("Halte deine Position in der Bauchlage und dann in der Rückenlage");
         balanceTraining2.add(settingsBauchRueck);
 
         // Tunnel
         TunnelDescription settingsTunnel = new TunnelDescription("Tunnel", 3);
         settingsTunnel
-                .setInstructions("Verlagere dein Gewicht, damit die Rakete nicht an den Rand st��t, und versuche eine m�glichst weite Strecke zu fliegen");
+                .setInstructions("Verlagere dein Gewicht, damit die Rakete nicht an den Rand stößt, und versuche eine möglichst weite Strecke zu fliegen");
         balanceTraining2.add(settingsTunnel);
 
         // Abschluss
@@ -335,13 +335,13 @@ public class Database {
 
         // Pong
         PongDescription settingsPong = new PongDescription("Pong", 3);
-        settingsPong.setInstructions("Versuche den Ball m�glichst oft zu blocken.");
+        settingsPong.setInstructions("Versuche den Ball möglichst oft zu blocken.");
         balanceTraining2.add(settingsPong);
 
         // Abbremsen
         LightsDescription settingsBremsen = new LightsDescription("Abbremsen");
         settingsBremsen
-                .setInstructions("Um den Balken zu f�llen, bewege dich in der gr�nen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffen fest");
+                .setInstructions("Um den Balken zu füllen, bewege dich in der grünen Phase, und stoppe in der roten Phase\n\nHalte dich dabei an den Handgriffen fest");
         balanceTraining2.add(settingsBremsen);
 
         mTrainings.add(balanceTraining2);
@@ -355,7 +355,7 @@ public class Database {
         Training trainingLoop = new Training(title);
 
         for (int j = 1; j <= 10; j++) {
-            UniversalDescription settingsRandom = new UniversalDescription("Zufalls�bung "
+            UniversalDescription settingsRandom = new UniversalDescription("Zufallsübung "
                     + Integer.toString(j));
 
             int nrOfTargets = random.nextInt(3) + 2;
