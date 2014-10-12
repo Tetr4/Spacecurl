@@ -11,7 +11,7 @@ public class SensorDescription extends GameDescription {
     }
 
     @Override
-    protected GameFragment createFragment() {
+    protected GameFragment newFragment() {
         return new Sensor();
     }
 

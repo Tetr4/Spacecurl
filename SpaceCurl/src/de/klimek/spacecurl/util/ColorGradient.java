@@ -3,6 +3,11 @@ package de.klimek.spacecurl.util;
 
 import android.graphics.Color;
 
+/**
+ * Provides linear interpolation over multiple colors, e.g. to create gradients.
+ * 
+ * @author Mike Klimek
+ */
 public class ColorGradient {
     private int[] mColors;
 

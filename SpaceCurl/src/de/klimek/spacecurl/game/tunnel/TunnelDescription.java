@@ -39,7 +39,7 @@ public class TunnelDescription extends GameDescription {
     }
 
     @Override
-    protected GameFragment createFragment() {
+    protected GameFragment newFragment() {
         return new Tunnel();
     }
 

@@ -38,7 +38,7 @@ public class Universal3DDescription extends GameDescription {
     }
 
     @Override
-    protected GameFragment createFragment() {
+    protected GameFragment newFragment() {
         return new Universal3D();
     }
 

@@ -15,7 +15,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
@@ -39,12 +38,11 @@ import de.klimek.spacecurl.util.collection.Training;
 import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
- * This abstract class loads a training from the database and provides
- * functionality to subclasses, e. g. usage of the status panel, switching
- * games, and showing a pause screen. <br/>
+ * This abstract class loads a training and provides functionality to
+ * subclasses, e. g. usage of the status panel, switching games, and showing a
+ * pause screen. <br/>
  * A Training must be loaded with {@link #loadTraining(Training)}. In order to
- * display the status-panel {@link #showPanelForStatus(TrainingStatus)} has to
- * be called.
+ * use the status-panel {@link #useStatusPanel()} has to be called.
  * 
  * @author Mike Klimek
  * @see <a href="http://developer.android.com/reference/packages.html">Android
@@ -134,23 +132,11 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mTraining = training;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_new_training:
-                finish();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-
     /**
      * Subclasses can use this method to enable the status-panel.
      */
-    protected final void showPanelForStatus(TrainingStatus trainingStatus) {
-        mTrainingStatus = trainingStatus;
+    protected final void useStatusPanel() {
+        mTrainingStatus = mTraining.createTrainingStatus();
         mUsesStatus = true;
 
         mStatusIndicator = (FrameLayout) findViewById(R.id.status_indicator);
@@ -196,6 +182,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
         mCardArrayAdapter = new CardArrayAdapter(this, mCards);
         mCardListView = (CardListView) findViewById(R.id.card_list);
         mCardListView.setAdapter(mCardArrayAdapter);
+        // FIXME Bug in Viewholder pattern -> custom CardArrayAdapter?
     }
 
     protected final void updateCurGameStatus(final float status) {
@@ -250,7 +237,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
 
         // get Fragment
         GameDescription newGameDescription = mTraining.get(gameDescriptionIndex);
-        mGameFragment = newGameDescription.getFragment();
+        mGameFragment = newGameDescription.createFragment();
 
         // Transaction
         getSupportFragmentManager().beginTransaction()
@@ -281,7 +268,7 @@ public abstract class BasicTrainingActivity extends FragmentActivity implements 
                 // create new
                 mCurGameStatus = new GameStatus(newGameDescription.getTitle());
                 mTrainingStatus.append(gameDescriptionIndex, mCurGameStatus);
-                mCards.add(new StatusCard(this, mCurGameStatus));
+                mCards.add(gameDescriptionIndex, new StatusCard(this, mCurGameStatus));
                 mCardArrayAdapter.notifyDataSetChanged();
             } else {
                 // reset existing

@@ -11,7 +11,6 @@ import android.widget.Toast;
 import de.klimek.spacecurl.Database;
 import de.klimek.spacecurl.R;
 import de.klimek.spacecurl.util.collection.Training;
-import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
  * Automatically switched to next game after the previous has finished. Enables
@@ -39,10 +38,7 @@ public class TrainingActivity extends BasicTrainingActivity implements OnClickLi
         mTraining = database.getTrainings().get(trainingIndex);
         loadTraining(mTraining);
 
-        // enable status panel
-        TrainingStatus trainingStatus = new TrainingStatus(trainingIndex);
-        database.getStatuses().append(trainingIndex, trainingStatus);
-        showPanelForStatus(trainingStatus);
+        useStatusPanel();
 
         nextGame();
     }
@@ -129,6 +125,9 @@ public class TrainingActivity extends BasicTrainingActivity implements OnClickLi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_new_training:
+                finish();
+                break;
             case R.id.action_previous_game:
                 previousGame();
                 break;

@@ -9,7 +9,7 @@ package de.klimek.spacecurl.game;
  * by the user with the TrainingBuilder or at start by querying the database.
  * Fragments can be created from an instance to play the game.
  * 
- * @author mike
+ * @author Mike Klimek
  */
 public abstract class GameDescription {
     private String mTitle;
@@ -21,10 +21,10 @@ public abstract class GameDescription {
         Accuracy, Speed, Strength, Endurance
     }
 
-    protected abstract GameFragment createFragment();
+    protected abstract GameFragment newFragment();
 
-    public GameFragment getFragment() {
-        GameFragment fragment = createFragment();
+    public GameFragment createFragment() {
+        GameFragment fragment = newFragment();
         fragment.setGameDescription(this);
         return fragment;
     }

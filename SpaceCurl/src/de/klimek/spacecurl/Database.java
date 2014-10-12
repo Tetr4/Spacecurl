@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.util.SparseArray;
 import de.klimek.spacecurl.game.lights.LightsDescription;
 import de.klimek.spacecurl.game.pong.PongDescription;
 import de.klimek.spacecurl.game.tunnel.TunnelDescription;
@@ -17,7 +16,6 @@ import de.klimek.spacecurl.game.universal.Target;
 import de.klimek.spacecurl.game.universal.UniversalDescription;
 import de.klimek.spacecurl.game.universal3D.Universal3DDescription;
 import de.klimek.spacecurl.util.collection.Training;
-import de.klimek.spacecurl.util.collection.TrainingStatus;
 
 /**
  * Singleton
@@ -26,7 +24,6 @@ import de.klimek.spacecurl.util.collection.TrainingStatus;
  */
 public class Database {
     private List<Training> mTrainings = new ArrayList<Training>();
-    private SparseArray<TrainingStatus> mStatuses = new SparseArray<TrainingStatus>();
     private Training mFreeplayGames = new Training("Free Play");
     private Training mSelectableGames = new Training("Selectable Games");
 
@@ -56,6 +53,7 @@ public class Database {
 
     public void loadDatabase(Context context) {
         // TODO SQL instead of directly from code
+
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         loadSelectableGames(context);
@@ -104,7 +102,8 @@ public class Database {
         settingsTunnel.setShowLives(false);
         mFreeplayGames.add(settingsTunnel);
 
-        PongDescription settingsPong = new PongDescription(resources.getString(R.string.game_pong), 1);
+        PongDescription settingsPong = new PongDescription(resources.getString(R.string.game_pong),
+                1);
         settingsPong.setShowLives(false);
         mFreeplayGames.add(settingsPong);
 
@@ -381,10 +380,6 @@ public class Database {
 
     public List<Training> getTrainings() {
         return mTrainings;
-    }
-
-    public SparseArray<TrainingStatus> getStatuses() {
-        return mStatuses;
     }
 
     public Training getFreeplayGames() {

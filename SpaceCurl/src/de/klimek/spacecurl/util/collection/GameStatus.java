@@ -5,7 +5,7 @@ import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 
 public class GameStatus {
-    private String mTitle = "";
+    private String mTitle;
     private GraphViewSeries mGraphViewSeries;
     private int mValueX = 0;
     private static final int MAX_DATA_COUNT = 200;
@@ -19,8 +19,8 @@ public class GameStatus {
     }
 
     public void addStatus(float status) {
-        // FIXME Triggers garbage collection too often -> stutter
-        // TODO Compress graph data?
+        // FIXME High MAX_DATA_COUNT triggers garbage coll. too often -> stutter
+        // TODO Compress data? reuse old graphviewdatas (like viewholder)?
         mGraphViewSeries.appendData(new GraphViewData(mValueX++, status), true, MAX_DATA_COUNT);
     }
 

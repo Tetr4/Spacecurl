@@ -20,7 +20,7 @@ public class PongDescription extends GameDescription {
     }
 
     @Override
-    public GameFragment createFragment() {
+    public GameFragment newFragment() {
         return new Pong();
     }
 

@@ -16,8 +16,9 @@ import android.view.WindowManager;
 import de.klimek.spacecurl.Database;
 
 /**
- * Prototype Class for GameFragments. <br>
- * Subclasses
+ * Abstract Class for GameFragments which provides methods for Sensordata. <br>
+ * Subclasses receive signals to pause/resume, and can send a signal when they
+ * have finished or their status has changed.
  * 
  * @author Mike Klimek
  */

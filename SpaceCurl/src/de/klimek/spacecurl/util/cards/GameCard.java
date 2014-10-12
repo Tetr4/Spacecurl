@@ -12,12 +12,12 @@ import de.klimek.spacecurl.game.GameDescription;
 public class GameCard extends Card {
     private TextView mGameTitleTextView;
     private String mGameTitle;
-    private GameDescription mGameSettings;
+    private GameDescription mGameDescription;
 
-    public GameCard(Context context, GameDescription gameSettings) {
+    public GameCard(Context context, GameDescription gameDescription) {
         super(context, R.layout.card_game);
-        setGameSettings(gameSettings);
-        mGameTitle = gameSettings.getTitle();
+        setGameDescription(gameDescription);
+        mGameTitle = gameDescription.getTitle();
     }
 
     @Override
@@ -27,12 +27,12 @@ public class GameCard extends Card {
         mGameTitleTextView.setText(mGameTitle);
     }
 
-    public GameDescription getGameSettings() {
-        return mGameSettings;
+    public GameDescription getGameDescription() {
+        return mGameDescription;
     }
 
-    public void setGameSettings(GameDescription gameSettings) {
-        mGameSettings = gameSettings;
+    public void setGameDescription(GameDescription gameDescription) {
+        mGameDescription = gameDescription;
     }
 
 }

@@ -21,7 +21,7 @@ public class LightsDescription extends GameDescription {
     }
 
     @Override
-    protected GameFragment createFragment() {
+    protected GameFragment newFragment() {
         return new Lights();
     }
 

@@ -8,6 +8,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -89,6 +90,19 @@ public class FreePlayActivity extends BasicTrainingActivity implements OnClickLi
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.freeplay, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_new_training:
+                finish();
+                break;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
         return true;
     }
 
