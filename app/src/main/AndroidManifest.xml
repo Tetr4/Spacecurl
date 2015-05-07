@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.klimek.spacecurl"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@style/AppBaseTheme"
+        android:label="@string/app_name">
+
+        <!-- FreePlayActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.activities.FreePlayActivity"
+            android:label="@string/action_freeplay"
+            android:parentActivityName="de.klimek.spacecurl.activities.TrainingSelectActivity">
+          	<!-- <meta-data
+      			android:name="android.support.PARENT_ACTIVITY"
+    	    	android:value="de.klimek.spacecurl.training.TrainingSelectActivity"/> -->
+        </activity>
+
+        <!-- TrainingActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.activities.TrainingActivity"
+            android:label="@string/title_activity_training"
+            android:parentActivityName="de.klimek.spacecurl.activities.TrainingSelectActivity">
+        </activity>
+
+        <!-- TrainingBuilderActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.activities.TrainingBuilderActivity"
+            android:label="@string/title_activity_training_builder"
+            android:parentActivityName="de.klimek.spacecurl.activities.TrainingSelectActivity">
+        </activity>
+
+        <!-- TrainingSelectActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.activities.TrainingSelectActivity"
+            android:launchMode="singleTask" >
+            <intent-filter android:label="@string/app_name">
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- SettingsActivity -->
+        <activity
+            android:name="de.klimek.spacecurl.preferences.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="de.klimek.spacecurl.activities.TrainingSelectActivity">
+        </activity>
+    </application>
+
+</manifest>
